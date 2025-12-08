@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MES Production Update System V3.0</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* --- CORE CSS --- */
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; padding: 20px; color: #333; }
+        .container { max-width: 1200px; margin: 0 auto; background: white; border-radius: 15px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2); overflow: hidden; }
+        .header { background: linear-gradient(90deg, #1e3c72 0%, #2a5298 100%); color: white; padding: 25px 40px; text-align: center; }
+        .header h1 { font-size: 28px; margin-bottom: 10px; display: flex; align-items: center; justify-content: center; gap: 15px; }
+        .content { padding: 30px; display: flex; flex-direction: column; gap: 30px; }
+        .config-section { background: #f8f9fa; padding: 25px; border-radius: 10px; border-left: 5px solid #2196F3; }
+        .form-group { margin-bottom: 20px; }
+        .form-group label { display: block; margin-bottom: 8px; font-weight: 600; color: #444; }
+        .form-control { width: 100%; padding: 12px 15px; border: 2px solid #ddd; border-radius: 8px; font-size: 16px; transition: all 0.3s; }
+        .form-control:focus { border-color: #2196F3; outline: none; box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.1); }
+        .btn { padding: 12px 25px; border: none; border-radius: 8px; font-size: 16px; font-weight: 600; cursor: pointer; transition: all 0.3s; display: inline-flex; align-items: center; gap: 10px; }
+        .btn-primary { background: linear-gradient(90deg, #2196F3 0%, #21CBF3 100%); color: white; }
+        .btn-success { background: linear-gradient(90deg, #4CAF50 0%, #8BC34A 100%); color: white; }
+        .btn-warning { background: linear-gradient(90deg, #FF9800 0%, #FFC107 100%); color: white; }
+        
+        /* --- STEP INDICATOR --- */
+        .step-container { display: none; background: white; border: 2px solid #e0e0e0; border-radius: 10px; padding: 25px; animation: fadeIn 0.5s; }
+        .step-container.active { display: block; border-color: #2196F3; box-shadow: 0 5px 20px rgba(33, 150, 243, 0.1); }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .step-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 2px solid #f0f0f0; padding-bottom: 15px; }
+        .step-title { font-size: 18px; color: #1e3c72; font-weight: bold; display: flex; gap: 10px; align-items: center; }
+        .step-number { background: #2196F3; color: white; width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+        .step-indicator { display: flex; justify-content: center; margin: 20px 0 40px; gap: 10px; }
+        .step-dot { width: 12px; height: 12px; border-radius: 50%; background: #ddd; transition: 0.3s; }
+        .step-dot.active { background: #2196F3; transform: scale(1.2); }
+
+        /* --- PACKAGE INFO --- */
+        .package-info-card { background: #f0f7ff; border: 1px solid #bbdefb; border-radius: 8px; padding: 15px; margin: 15px 0; }
+        .package-info-row { display: flex; margin-bottom: 8px; }
+        .package-info-label { font-weight: 600; min-width: 140px; color: #1565c0; }
+        .radio-group { display: flex; gap: 20px; background: #fff; padding: 10px; border: 1px solid #ddd; border-radius: 8px; }
+        .radio-option { display: flex; align-items: center; gap: 8px; cursor: pointer; font-weight: 600; }
+        .hidden { display: none !important; }
+
+        /* --- MANUAL INPUT GRID (V2.2) --- */
+        .input-mode-tabs { display: flex; gap: 10px; margin-bottom: 20px; }
+        .mode-tab { flex: 1; padding: 15px; text-align: center; background: #f5f5f5; border: 2px solid #eee; border-radius: 8px; cursor: pointer; font-weight: 600; color: #666; }
+        .mode-tab.active { background: #e3f2fd; border-color: #2196F3; color: #1565c0; }
+        
+        .manual-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 15px; margin-top: 20px; }
+        .slot-card { border: 1px solid #ddd; border-radius: 8px; padding: 15px; position: relative; background: white; transition: 0.3s; }
+        .slot-card:hover { transform: translateY(-3px); box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
+        
+        /* Highlight Styles */
+        .slot-lunch { background: #fffde7; border-color: #fff176; }
+        .slot-ot { background: #f3e5f5; border-color: #e1bee7; }
+        .slot-badge { position: absolute; top: 0; right: 0; padding: 2px 8px; font-size: 11px; font-weight: bold; border-bottom-left-radius: 8px; }
+        .badge-lunch { background: #FFC107; color: #333; }
+        .badge-ot { background: #9C27B0; color: white; }
+
+        .slot-header { display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 14px; font-weight: 600; color: #555; }
+        .slot-input-wrapper { position: relative; }
+        .slot-input { font-size: 24px; font-weight: bold; text-align: center; height: 50px; }
+        .target-indicator { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); color: #999; font-size: 14px; }
+        
+        /* Status Colors */
+        .status-success { background-color: #e8f5e9 !important; border-color: #4CAF50 !important; }
+        .status-success input { color: #2e7d32; }
+        .status-warning { background-color: #fffde7 !important; border-color: #FBC02D !important; }
+        .status-warning input { color: #f57f17; }
+        .status-error { background-color: #ffebee !important; border-color: #e53935 !important; }
+        .status-error input { color: #c62828; }
+        
+        .manual-summary { margin-top: 20px; padding: 15px; background: #263238; color: white; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; }
+
+        /* --- MACHINE SELECTION LIST (NEW) --- */
+        .machine-list { list-style: none; margin-top: 15px; max-height: 300px; overflow-y: auto; border: 1px solid #eee; border-radius: 8px; }
+        .machine-item { padding: 12px 15px; border-bottom: 1px solid #eee; cursor: pointer; transition: 0.2s; display: flex; align-items: center; gap: 15px; }
+        .machine-item:hover { background: #f5f5f5; }
+        .machine-item.selected { background: #e3f2fd; border-left: 4px solid #2196F3; }
+        .machine-content h4 { margin: 0 0 5px 0; color: #1565c0; font-size: 16px; }
+        .machine-content p { margin: 0; font-size: 13px; color: #666; }
+        .iot-badge { background: #4CAF50; color: white; font-size: 10px; padding: 2px 6px; border-radius: 10px; margin-left: 5px; }
+
+        /* --- UTILS --- */
+        .loader { display: inline-block; width: 20px; height: 20px; border: 3px solid #f3f3f3; border-top: 3px solid #2196F3; border-radius: 50%; animation: spin 1s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        table { width: 100%; border-collapse: collapse; margin: 15px 0; font-size: 14px; }
+        th { background: #1e3c72; color: white; padding: 10px; text-align: left; }
+        td { padding: 8px 10px; border-bottom: 1px solid #eee; }
+        .result-box { padding: 20px; border-radius: 10px; margin: 20px 0; }
+        .result-success { background: #e8f5e9; border-left: 5px solid #4CAF50; }
+        .result-error { background: #ffebee; border-left: 5px solid #f44336; }
+        .file-upload-area { border: 3px dashed #4CAF50; border-radius: 10px; padding: 30px; text-align: center; background: #f9fff9; cursor: pointer; }
+    </style>
+    <script src="https://cdn.sheetjs.com/xlsx-0.20.0/package/dist/xlsx.full.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1><i class="fas fa-industry"></i> MES Production System V3.0</h1>
+            <p>Tích hợp: Config - Manual Input - Scan Remarks</p>
+        </div>
+        
+        <div class="content">
+            <!-- Indicators -->
+            <div class="step-indicator">
+                <div class="step-dot active" id="stepDot1"></div>
+                <div class="step-dot" id="stepDot2"></div>
+                <div class="step-dot" id="stepDot3"></div>
+                <div class="step-dot" id="stepDot4"></div>
+            </div>
+            
+            <!-- STEP 1: CONFIG -->
+            <div class="step-container active" id="step1">
+                <div class="step-header">
+                    <div class="step-title"><span class="step-number">1</span> Cấu hình & Chọn Package</div>
+                </div>
+
+                <div class="config-section">
+                    <div class="form-group">
+                        <label>API Key:</label>
+                        <input type="password" id="apiKey" class="form-control" value="mes_admin_U8B66CXbZpA8UQT2d6Xr">
+                    </div>
+                    <div class="form-group">
+                        <label>Factory & Date:</label>
+                        <div style="display: flex; gap: 10px;">
+                            <select id="factory" class="form-control" style="flex:1" onchange="loadPackages()">
+                                <option value="P2C1">P2C1</option>
+                                <option value="P2A1">P2A1</option>
+                                <option value="P2B1">P2B1</option>
+                                <option value="P2D1">P2D1</option>
+                            </select>
+                            <input type="date" id="dateSelect" class="form-control" style="flex:1" onchange="loadPackages()">
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Chọn Package:</label>
+                        <select id="packageSelect" class="form-control" onchange="onPackageSelected()">
+                            <option value="">-- Vui lòng chọn Package --</option>
+                        </select>
+                    </div>
+
+                    <!-- Work Hours Selection -->
+                    <div class="form-group">
+                        <label><i class="fas fa-clock"></i> Thời gian làm việc (để chia Target):</label>
+                        <div class="radio-group">
+                            <label class="radio-option">
+                                <input type="radio" name="workHours" value="7.5" checked onchange="recalculateTarget()"> 
+                                <span>7.5 Giờ (Hành chính)</span>
+                            </label>
+                            <label class="radio-option">
+                                <input type="radio" name="workHours" value="11" onchange="recalculateTarget()"> 
+                                <span>11 Giờ (Tăng ca)</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div id="packageInfo" class="package-info-card hidden">
+                        <div class="package-info-row">
+                            <span class="package-info-label">Package ID:</span>
+                            <span class="package-info-value" id="infoPackageId"></span>
+                        </div>
+                        <div class="package-info-row">
+                            <span class="package-info-label">Target Ngày:</span>
+                            <span class="package-info-value" id="infoTotalTarget">0</span>
+                        </div>
+                        <div class="package-info-row">
+                            <span class="package-info-label">Target/Giờ:</span>
+                            <span class="package-info-value" id="infoHourlyTarget" style="font-weight:bold; color:red; font-size: 1.2em;">0</span>
+                        </div>
+                    </div>
+
+                    <div class="action-buttons">
+                        <button class="btn btn-primary" onclick="loadPackages()"><i class="fas fa-sync"></i> Tải DS</button>
+                        <button class="btn btn-success" onclick="goToStep(2)" id="nextToStep2Btn" disabled>Tiếp tục <i class="fas fa-arrow-right"></i></button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- STEP 2: INPUT DATA -->
+            <div class="step-container" id="step2">
+                <div class="step-header">
+                    <div class="step-title"><span class="step-number">2</span> Nhập Số Liệu</div>
+                </div>
+                
+                <div class="input-mode-tabs">
+                    <div class="mode-tab active" onclick="switchInputMode('excel')" id="tabExcel"><i class="fas fa-file-excel"></i> Excel</div>
+                    <div class="mode-tab" onclick="switchInputMode('manual')" id="tabManual"><i class="fas fa-keyboard"></i> Nhập Thủ Công (13 Slot)</div>
+                </div>
+
+                <div id="modeExcelArea">
+                    <div class="file-upload-area" onclick="document.getElementById('excelFile').click()">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                        <h3>Kéo & Thả file Excel</h3>
+                        <input type="file" id="excelFile" accept=".xlsx,.xls" hidden onchange="handleFileSelect(event)">
+                    </div>
+                    <div id="fileInfo" class="file-info hidden" style="margin-top:10px;"><i class="fas fa-check"></i> <span id="fileName"></span></div>
+                    <button class="btn btn-primary" onclick="parseExcelFile()" style="margin-top:15px; width:100%">Parse Excel</button>
+                </div>
+
+                <div id="modeManualArea" class="hidden">
+                    <div class="manual-summary">
+                        <h3><i class="fas fa-calculator"></i> Tổng:</h3>
+                        <span id="manualTotalDisplay">0</span>
+                    </div>
+                    <div class="manual-grid" id="manualGrid">
+                        <!-- Grid generated by JS -->
+                    </div>
+                    <div class="action-buttons" style="margin-top: 20px;">
+                        <button class="btn btn-warning" onclick="resetManualInputs()">Reset</button>
+                        <button class="btn btn-success" onclick="processManualData()">Xác nhận</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- STEP 3: SCAN & SEND -->
+            <div class="step-container" id="step3">
+                <div class="step-header">
+                    <div class="step-title"><span class="step-number">3</span> Chọn Máy & Gửi</div>
+                </div>
+                
+                <div id="faSelectionSection">
+                    <button class="btn btn-primary" onclick="scanFAMachines()" id="scanBtn" style="width:100%">
+                        <i class="fas fa-search"></i> 🔍 Quét Máy Tự Động (Remarks)
+                    </button>
+                    
+                    <div id="scanResult" class="hidden" style="margin-top: 15px;"></div>
+                    <div id="manualSerialInput" class="hidden" style="margin-top: 15px; padding: 15px; background: #fff3e0; border-radius: 8px;">
+                        <label>Nhập OPSERIAL thủ công:</label>
+                        <div style="display:flex; gap:10px; margin-top:5px;">
+                            <input type="number" id="manualOpserial" class="form-control" placeholder="Nhập serial máy">
+                            <button class="btn btn-success" onclick="confirmManualSerial()">OK</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <h4 style="margin-top: 20px;"><i class="fas fa-eye"></i> Xem trước:</h4>
+                <div style="max-height: 250px; overflow-y: auto; border: 1px solid #ddd; margin-top: 10px;">
+                    <table id="previewTable">
+                        <thead><tr><th>Slot</th><th>Thời gian</th><th>Sản lượng</th><th>Target</th></tr></thead>
+                        <tbody id="previewTableBody"></tbody>
+                    </table>
+                </div>
+
+                <div class="action-buttons">
+                    <button class="btn btn-warning" onclick="goToStep(2)">Quay lại</button>
+                    <button class="btn btn-success" onclick="sendToMES()" id="sendBtn">🚀 Gửi Hệ thống</button>
+                </div>
+            </div>
+
+            <!-- STEP 4: RESULT -->
+            <div class="step-container" id="step4">
+                <div class="step-header">
+                    <div class="step-title"><span class="step-number">4</span> Kết quả</div>
+                </div>
+                <div id="resultMessage"></div>
+                <button class="btn btn-primary" onclick="location.reload()" style="margin-top:15px">Làm mới toàn bộ</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ============ CONSTANTS ============
+        const PROD_API = "https://hourly-target.chiscoong-cloudflare-com.workers.dev/api/production";
+        const PACKAGE_API = "https://today-package.chiscoong-cloudflare-com.workers.dev/api/packages";
+        const MODULE_API = "https://module-requests.chiscoong-cloudflare-com.workers.dev/opdetails";
+        
+        // ============ STATE ============
+        let productionData = {};
+        let dailyTarget = 0; 
+        let hourlyTarget = 36; 
+        let selectedOpserial = null;
+        let selectedPackageId = null;
+        let selectedMachineName = "";
+
+        const timeSlots = [
+            "07:15 - 08:15", "08:15 - 09:15", "09:15 - 10:15",
+            "10:15 - 11:15", "11:15 - 12:15", "12:15 - 13:15",
+            "13:15 - 14:15", "14:15 - 15:15", "15:15 - 16:15",
+            "16:15 - 17:15", "17:15 - 18:15", "18:15 - 19:15",
+            "19:15 - 20:15"
+        ];
+
+        // ============ INIT ============
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('dateSelect').value = new Date().toISOString().split('T')[0];
+            const savedKey = localStorage.getItem('mesApiKey');
+            if(savedKey) document.getElementById('apiKey').value = savedKey;
+        });
+
+        function saveConfig() { localStorage.setItem('mesApiKey', document.getElementById('apiKey').value); }
+
+        // ============ STEP 1: PACKAGES ============
+        async function loadPackages() {
+            const apiKey = document.getElementById('apiKey').value;
+            const factory = document.getElementById('factory').value;
+            const dateVal = document.getElementById('dateSelect').value.replace(/-/g, '');
+            const select = document.getElementById('packageSelect');
+            
+            if(!apiKey) return alert("Chưa nhập API Key");
+            saveConfig();
+            
+            select.innerHTML = '<option>Đang tải...</option>';
+            select.disabled = true;
+
+            try {
+                const res = await fetch(`${PACKAGE_API}?factory=${factory}&fromDate=${dateVal}&apikey=${apiKey}`);
+                const json = await res.json();
+                let pkgs = json.data?.packages || json.data || [];
+                
+                select.innerHTML = '<option value="">-- Chọn Package --</option>';
+                if(pkgs.length === 0) select.innerHTML += '<option disabled>Không có package nào</option>';
+
+                pkgs.forEach(p => {
+                    const opt = document.createElement('option');
+                    const target = p.target || p.MXTARGET || 0;
+                    opt.value = p.packageId || p.MXPACKAGE;
+                    opt.dataset.target = target;
+                    opt.innerText = `${p.packageId || p.MXPACKAGE} | ${p.styleText || "N/A"} | Target: ${target}`;
+                    select.appendChild(opt);
+                });
+            } catch (e) { 
+                alert("Lỗi tải package: " + e.message);
+                select.innerHTML = '<option>Lỗi kết nối</option>';
+            } finally { 
+                select.disabled = false; 
+            }
+        }
+
+        function onPackageSelected() {
+            const select = document.getElementById('packageSelect');
+            if (!select.value) {
+                document.getElementById('nextToStep2Btn').disabled = true;
+                document.getElementById('packageInfo').classList.add('hidden');
+                return;
+            }
+            const opt = select.options[select.selectedIndex];
+            selectedPackageId = select.value;
+            dailyTarget = parseInt(opt.dataset.target) || 0;
+            
+            document.getElementById('infoPackageId').innerText = selectedPackageId;
+            document.getElementById('infoTotalTarget').innerText = dailyTarget;
+            document.getElementById('packageInfo').classList.remove('hidden');
+            document.getElementById('nextToStep2Btn').disabled = false;
+            recalculateTarget();
+        }
+
+        function recalculateTarget() {
+            const hours = parseFloat(document.querySelector('input[name="workHours"]:checked').value);
+            if (dailyTarget > 0) hourlyTarget = Math.ceil(dailyTarget / hours);
+            else hourlyTarget = 36;
+            document.getElementById('infoHourlyTarget').innerText = hourlyTarget;
+            generateManualGrid(); 
+        }
+
+        // ============ STEP 2: INPUT (V2.2 LOGIC) ============
+        function switchInputMode(mode) {
+            document.getElementById('tabExcel').className = `mode-tab ${mode === 'excel' ? 'active' : ''}`;
+            document.getElementById('tabManual').className = `mode-tab ${mode === 'manual' ? 'active' : ''}`;
+            document.getElementById('modeExcelArea').classList.toggle('hidden', mode !== 'excel');
+            document.getElementById('modeManualArea').classList.toggle('hidden', mode !== 'manual');
+            if(mode === 'manual') generateManualGrid();
+        }
+
+        function generateManualGrid() {
+            const container = document.getElementById('manualGrid');
+            container.innerHTML = '';
+
+            timeSlots.forEach((slot, index) => {
+                const div = document.createElement('div');
+                div.className = 'slot-card';
+                div.id = `card-${index}`;
+                
+                let badge = '';
+                // Lunch highlight (11:15)
+                if (slot.includes("11:15") || index === 4) {
+                    div.classList.add('slot-lunch');
+                    badge = '<span class="slot-badge badge-lunch"><i class="fas fa-utensils"></i> Lunch</span>';
+                }
+                // Overtime highlight (4 slot cuối)
+                if (index >= 9) {
+                    div.classList.add('slot-ot');
+                    badge = '<span class="slot-badge badge-ot"><i class="fas fa-bolt"></i> Tăng ca</span>';
+                }
+
+                div.innerHTML = `
+                    ${badge}
+                    <div class="slot-header">
+                        <span><i class="far fa-clock"></i> ${slot}</span>
+                        <span>#${index + 1}</span>
+                    </div>
+                    <div class="slot-input-wrapper">
+                        <input type="number" class="form-control slot-input" 
+                               id="input-${index}" placeholder="0" 
+                               onfocus="this.select()"
+                               oninput="checkPerformance(this, ${index})"
+                               onkeydown="if(event.key==='Enter') document.getElementById('input-${index+1}')?.focus()">
+                        <span class="target-indicator">/${hourlyTarget}</span>
+                    </div>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        function checkPerformance(input, index) {
+            const val = parseInt(input.value) || 0;
+            const card = document.getElementById(`card-${index}`);
+            card.classList.remove('status-success', 'status-warning', 'status-error');
+            
+            if (input.value === '') return;
+            
+            const percent = (val / hourlyTarget) * 100;
+            if (percent >= 100) card.classList.add('status-success');
+            else if (percent >= 70) card.classList.add('status-warning');
+            else card.classList.add('status-error');
+
+            let total = 0;
+            document.querySelectorAll('.slot-input').forEach(i => total += (parseInt(i.value) || 0));
+            document.getElementById('manualTotalDisplay').innerText = total;
+        }
+
+        function resetManualInputs() {
+            document.querySelectorAll('.slot-input').forEach(i => { i.value = ''; checkPerformance(i, i.id.split('-')[1]); });
+            document.getElementById('manualTotalDisplay').innerText = '0';
+        }
+
+        function processManualData() {
+            productionData = {};
+            let hasData = false;
+            document.querySelectorAll('.slot-input').forEach((inp, index) => {
+                const val = parseInt(inp.value);
+                if (!isNaN(val)) { productionData[timeSlots[index]] = val; hasData = true; }
+            });
+            if (!hasData) return alert("Vui lòng nhập số liệu!");
+            updatePreviewTable();
+            goToStep(3);
+        }
+
+        // Excel Handling
+        function handleFileSelect(e) { window.excelFile = e.target.files[0]; if(window.excelFile) document.getElementById('fileName').innerText = window.excelFile.name; document.getElementById('fileInfo').classList.remove('hidden'); }
+        function parseExcelFile() {
+            if(!window.excelFile) return alert("Chưa chọn file!");
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const data = new Uint8Array(e.target.result);
+                const workbook = XLSX.read(data, {type: 'array'});
+                const jsonData = XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]]);
+                productionData = {};
+                jsonData.forEach(row => {
+                    const t = row.TIME_SLOT || row['Time Slot'];
+                    const v = row.VALUE || row['Value'];
+                    if(t) productionData[t] = parseInt(v) || 0;
+                });
+                alert(`Đã đọc ${Object.keys(productionData).length} dòng.`);
+                updatePreviewTable();
+                goToStep(3);
+            };
+            reader.readAsArrayBuffer(window.excelFile);
+        }
+
+        function updatePreviewTable() {
+            const tbody = document.getElementById('previewTableBody');
+            tbody.innerHTML = '';
+            let total = 0;
+            timeSlots.forEach(slot => {
+                if (productionData.hasOwnProperty(slot)) {
+                    tbody.innerHTML += `<tr><td>${timeSlots.indexOf(slot)+1}</td><td>${slot}</td><td><b>${productionData[slot]}</b></td><td>${hourlyTarget}</td></tr>`;
+                    total += productionData[slot];
+                }
+            });
+            tbody.innerHTML += `<tr style="background:#e8f5e9"><td colspan="2"><b>TỔNG</b></td><td colspan="2"><b>${total}</b></td></tr>`;
+        }
+
+        // ============ STEP 3: NEW SCAN LOGIC (USING MODULE API) ============
+        async function scanFAMachines() {
+            const apiKey = document.getElementById('apiKey').value;
+            const btn = document.getElementById('scanBtn');
+            const resDiv = document.getElementById('scanResult');
+            const manualDiv = document.getElementById('manualSerialInput');
+            
+            btn.innerHTML = '<div class="loader"></div> Đang kết nối Modules...';
+            btn.disabled = true;
+            resDiv.innerHTML = '';
+            resDiv.className = 'hidden';
+            manualDiv.className = 'hidden';
+
+            try {
+                // CALL NEW API: opdetails?mode=operations
+                const url = `${MODULE_API}?mxpackage=${selectedPackageId}&mode=operations&apikey=${apiKey}`;
+                console.log("Calling:", url);
+                
+                const res = await fetch(url);
+                const json = await res.json();
+                
+                if (!json.success || !json.data || !json.data.operations) {
+                    throw new Error("Không tìm thấy operation nào.");
+                }
+
+                const allOps = json.data.operations;
+                
+                // FILTER: Tìm các máy FA (có iottype hoặc có opname/remarks chứa keyword)
+                // Ưu tiên: IOTTYPE != 'N/A'
+                let candidates = allOps.filter(op => op.iottype && op.iottype !== 'N/A');
+                
+                // Nếu không có IoT, lấy tất cả operation có serial hợp lệ để user chọn
+                if (candidates.length === 0) {
+                    candidates = allOps.filter(op => op.opserial);
+                }
+
+                if (candidates.length === 0) {
+                    throw new Error("Không tìm thấy máy có Serial hợp lệ.");
+                }
+
+                // HIỂN THỊ KẾT QUẢ
+                resDiv.className = 'result-box';
+                resDiv.style.background = '#fff';
+                resDiv.style.border = '1px solid #ddd';
+                
+                let html = '<h4><i class="fas fa-robot"></i> Chọn Máy Sản Xuất:</h4><ul class="machine-list">';
+                
+                candidates.forEach((op, index) => {
+                    // Logic hiển thị tên: Ưu tiên Remarks -> OpName
+                    const displayName = op.remarks ? op.remarks : op.opname;
+                    const iotTag = (op.iottype && op.iottype !== 'N/A') ? `<span class="iot-badge">IoT: ${op.iottype}</span>` : '';
+                    
+                    html += `
+                        <li class="machine-item" onclick="selectMachine('${op.opserial}', '${displayName.replace(/'/g, "\\'")}')">
+                            <input type="radio" name="machineSelect" id="mach_${index}">
+                            <div class="machine-content">
+                                <h4>${displayName} ${iotTag}</h4>
+                                <p>Serial: <b>${op.opserial}</b> | Module: ${op.module_name || 'N/A'}</p>
+                            </div>
+                        </li>
+                    `;
+                });
+                html += '</ul>';
+                
+                resDiv.innerHTML = html;
+                
+                // Nếu chỉ có 1 máy -> Tự chọn luôn
+                if (candidates.length === 1) {
+                    const op = candidates[0];
+                    const name = op.remarks ? op.remarks : op.opname;
+                    selectMachine(op.opserial, name);
+                    // UI feedback
+                    setTimeout(() => {
+                        const radio = document.getElementById('mach_0');
+                        if(radio) {
+                            radio.checked = true;
+                            radio.parentElement.classList.add('selected');
+                        }
+                    }, 100);
+                }
+
+            } catch (e) {
+                console.error(e);
+                resDiv.className = "result-box result-warning";
+                resDiv.innerHTML = `<p><i class="fas fa-exclamation-triangle"></i> ${e.message}</p>`;
+                manualDiv.className = ''; // Hiện ô nhập tay
+            } finally {
+                resDiv.classList.remove('hidden');
+                btn.innerHTML = '<i class="fas fa-search"></i> 🔍 Quét Lại';
+                btn.disabled = false;
+            }
+        }
+
+        function selectMachine(serial, name) {
+            selectedOpserial = serial;
+            selectedMachineName = name;
+            
+            // Highlight UI
+            document.querySelectorAll('.machine-item').forEach(item => item.classList.remove('selected'));
+            const radios = document.getElementsByName('machineSelect');
+            for(let i=0; i<radios.length; i++) {
+                if(radios[i].parentElement.innerHTML.includes(serial)) {
+                    radios[i].checked = true;
+                    radios[i].parentElement.classList.add('selected');
+                }
+            }
+            // Thông báo nhỏ
+            // alert(`Đã chọn: ${name}`);
+        }
+
+        function confirmManualSerial() {
+            const val = document.getElementById('manualOpserial').value;
+            if(val) {
+                selectedOpserial = val;
+                selectedMachineName = "Manual Serial: " + val;
+                document.getElementById('scanResult').innerHTML = `<div class="result-box result-success"><p><b>Đã chọn thủ công:</b> ${val}</p></div>`;
+                document.getElementById('scanResult').classList.remove('hidden');
+            }
+        }
+
+        // ============ SEND ============
+        async function sendToMES() {
+            if(!selectedOpserial) return alert("Vui lòng chọn máy (Scan hoặc Nhập tay)!");
+            if(Object.keys(productionData).length === 0) return alert("Chưa có dữ liệu!");
+
+            if(!confirm(`XÁC NHẬN GỬI?\n\nPackage: ${selectedPackageId}\nMáy: ${selectedMachineName}\nTổng số lượng: ${document.getElementById('manualTotalDisplay').innerText || Object.values(productionData).reduce((a,b)=>a+b,0)}`)) return;
+
+            const btn = document.getElementById('sendBtn');
+            btn.innerHTML = '<div class="loader"></div> Sending...';
+            btn.disabled = true;
+
+            try {
+                // Call PRODUCTION API
+                const res = await fetch(PROD_API, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'X-API-Key': document.getElementById('apiKey').value },
+                    body: JSON.stringify({
+                        mxpackage: selectedPackageId,
+                        opserial: selectedOpserial,
+                        production_data: productionData,
+                        action: 'update'
+                    })
+                });
+                const json = await res.json();
+                
+                if(json.success) {
+                    document.getElementById('resultMessage').innerHTML = `
+                        <div class="result-box result-success">
+                            <h3><i class="fas fa-check-circle"></i> THÀNH CÔNG!</h3>
+                            <p>${json.message}</p>
+                            <hr>
+                            <p>Máy: <b>${selectedMachineName}</b></p>
+                        </div>
+                    `;
+                } else throw new Error(json.message);
+                
+                goToStep(4);
+            } catch(e) {
+                alert("Lỗi gửi: " + e.message);
+                btn.innerHTML = '🚀 Gửi Lại';
+                btn.disabled = false;
+            }
+        }
+
+        function goToStep(step) {
+            document.querySelectorAll('.step-container').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.step-dot').forEach(el => el.classList.remove('active'));
+            document.getElementById(`step${step}`).classList.add('active');
+            document.getElementById(`stepDot${step}`).classList.add('active');
+        }
+    </script>
+</body>
+</html>
