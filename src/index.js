@@ -1,29 +1,28 @@
 export default {
-  async fetch(request, env) {
-    // Địa chỉ GitHub Pages bạn đang dùng:
-    const upstream = 'https://xuanan2018.github.io/input-hourly-target'
+  async fetch(request) {
 
-    // Giữ nguyên đường dẫn + query user request
+    // 🧭 Upstream phải có dấu "/" ở cuối
+    const upstream = 'https://xuanan2018.github.io/input-hourly-target/'
+
     const url = new URL(request.url)
     const upstreamUrl = new URL(url.pathname + url.search, upstream)
 
-    // Forward request tới GitHub Pages
+    // 🔄 Forward request đến GitHub Pages (origin server)
     const res = await fetch(upstreamUrl.toString(), {
       method: request.method,
       headers: request.headers,
       body: request.body,
-      redirect: 'manual'
+      redirect: 'manual',
     })
 
-    // Trả response về client
-    const responseHeaders = new Headers(res.headers)
-    // (Tuỳ chọn) thêm header CORS nếu bạn cần
-    responseHeaders.set('Access-Control-Allow-Origin', '*')
+    // 🌐 Bổ sung CORS (Cross-Origin Resource Sharing)
+    const newHeaders = new Headers(res.headers)
+    newHeaders.set('Access-Control-Allow-Origin', '*')
 
     return new Response(res.body, {
       status: res.status,
       statusText: res.statusText,
-      headers: responseHeaders
+      headers: newHeaders,
     })
   }
 }
