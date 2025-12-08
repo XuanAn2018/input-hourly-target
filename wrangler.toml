@@ -1,0 +1,8 @@
+name = "input-hourly-target"
+main = "src/index.js"
+compatibility_date = "2024-12-08"
+
+# Nếu muốn custom domain
+# routes = [
+#   { pattern = "yourdomain.com/*", zone_name = "yourdomain.com" }
+# ]
