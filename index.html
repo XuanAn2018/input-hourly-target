@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MES Production System V4.1</title>
+    <title>MES Production System V4.2</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         /* --- CORE CSS --- */
@@ -24,6 +24,7 @@
         .btn-warning { background: linear-gradient(90deg, #FF9800 0%, #FFC107 100%); color: white; }
         .btn-info { background: linear-gradient(90deg, #00BCD4 0%, #00acc1 100%); color: white; }
         .btn-dark { background: #34495e; color: white; }
+        .btn-secondary { background: #7f8c8d; color: white; }
         .btn-sm { padding: 5px 10px; font-size: 12px; }
 
         /* --- STEP INDICATOR --- */
@@ -72,16 +73,18 @@
         
         .manual-summary { margin-top: 20px; padding: 15px; background: #263238; color: white; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; }
 
-        /* --- MACHINE SELECTION LIST (UPDATED) --- */
+        /* --- MACHINE SELECTION LIST (FIXED) --- */
         .machine-list { list-style: none; margin-top: 15px; max-height: 300px; overflow-y: auto; border: 1px solid #eee; border-radius: 8px; }
-        .machine-item { padding: 12px 15px; border-bottom: 1px solid #eee; cursor: pointer; transition: 0.2s; display: flex; align-items: center; gap: 15px; }
+        .machine-item { padding: 12px 15px; border-bottom: 1px solid #eee; cursor: pointer; transition: 0.2s; display: flex; align-items: center; gap: 15px; position: relative; }
         .machine-item:hover { background: #f5f5f5; }
         .machine-item.selected { background: #e3f2fd; border-left: 4px solid #2196F3; }
         
-        /* Badges for QA/FA */
+        /* Click overlay để đảm bảo click ăn 100% */
+        .click-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; cursor: pointer; }
+
         .type-badge { font-size: 11px; padding: 3px 8px; border-radius: 12px; color: white; font-weight: bold; margin-left: 8px; }
-        .badge-fa { background: #4CAF50; } /* Green for Machine/FA */
-        .badge-qa { background: #2196F3; } /* Blue for QA/QC */
+        .badge-fa { background: #4CAF50; } 
+        .badge-qa { background: #2196F3; } 
 
         /* --- MODAL --- */
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; display: flex; justify-content: center; align-items: center; opacity: 0; visibility: hidden; transition: 0.3s; }
@@ -111,14 +114,17 @@
         .result-box { padding: 20px; border-radius: 10px; margin: 20px 0; }
         .result-success { background: #e8f5e9; border-left: 5px solid #4CAF50; }
         .file-upload-area { border: 3px dashed #4CAF50; border-radius: 10px; padding: 30px; text-align: center; background: #f9fff9; cursor: pointer; }
+        
+        /* Manual Input Box */
+        .manual-input-box { background: #f8f9fa; border: 2px dashed #95a5a6; padding: 20px; border-radius: 10px; margin-top: 15px; }
     </style>
     <script src="https://cdn.sheetjs.com/xlsx-0.20.0/package/dist/xlsx.full.min.js"></script>
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <h1><i class="fas fa-industry"></i> MES Production System V4.1</h1>
-            <p>Cập nhật Báo cáo sản lượng đầu vào trên thiết bị di động</p>
+            <h1><i class="fas fa-industry"></i> MES Production System V4.2</h1>
+            <p>Update: Fix Chọn Máy - Thêm Nút Nhập Thủ Công</p>
         </div>
         
         <div class="content">
@@ -245,17 +251,25 @@
                 </div>
 
                 <div id="faSelectionSection">
-                    <button class="btn btn-primary" onclick="scanFAMachines()" id="scanBtn" style="width:100%">
-                        <i class="fas fa-qrcode"></i> 🔍 Scan Machine / QA
-                    </button>
+                    <div style="display:flex; gap:10px; margin-bottom:15px">
+                        <button class="btn btn-primary" onclick="scanFAMachines()" id="scanBtn" style="flex:2">
+                            <i class="fas fa-qrcode"></i> 🔍 Scan Machine / QA
+                        </button>
+                        <button class="btn btn-secondary" onclick="toggleManualInput()" id="manualBtn" style="flex:1">
+                            <i class="fas fa-pen"></i> ✍️ Nhập Mã Máy
+                        </button>
+                    </div>
                     
-                    <div id="scanResult" class="hidden" style="margin-top: 15px;"></div>
-                    <div id="manualSerialInput" class="hidden" style="margin-top: 15px; padding: 15px; background: #fff3e0; border-radius: 8px;">
-                        <label>Nhập OPSERIAL thủ công:</label>
-                        <div style="display:flex; gap:10px; margin-top:5px;">
-                            <input type="number" id="manualOpserial" class="form-control" placeholder="Nhập serial máy">
+                    <div id="scanResult" class="hidden"></div>
+                    
+                    <!-- Manual Input Box (Toggled) -->
+                    <div id="manualSerialInput" class="manual-input-box hidden">
+                        <h4><i class="fas fa-keyboard"></i> Nhập OPSERIAL thủ công:</h4>
+                        <div style="display:flex; gap:10px; margin-top:10px;">
+                            <input type="number" id="manualOpserial" class="form-control" placeholder="Ví dụ: 20241105001">
                             <button class="btn btn-success" onclick="confirmManualSerial()">OK</button>
                         </div>
+                        <p style="margin-top:5px; font-size:12px; color:#666">Sử dụng khi không tìm thấy máy qua Scan.</p>
                     </div>
                 </div>
                 
@@ -315,7 +329,7 @@
         let selectedPackageId = null;
         let selectedStyle = "";
         let selectedMachineName = "";
-        let currentPackageDetails = null; // Store data for CSV export
+        let currentPackageDetails = null;
 
         const timeSlots = [
             "07:15 - 08:15", "08:15 - 09:15", "09:15 - 10:15", "10:15 - 11:15", 
@@ -413,7 +427,7 @@
                     return;
                 }
 
-                currentPackageDetails = json.data.modules; // Store for CSV export
+                currentPackageDetails = json.data.modules; 
 
                 let html = '';
                 json.data.modules.forEach(mod => {
@@ -424,7 +438,6 @@
                                 <div id="mod_${mod.id}">`;
                     mod.operations.forEach(op => {
                         const name = op.remarks ? op.remarks : op.opname;
-                        // Phân biệt màu sắc nhẹ trong list
                         const isQA = isQAMachine(name);
                         const rowStyle = isQA ? 'border-left: 3px solid #2196F3' : 'border-left: 3px solid #4CAF50';
                         
@@ -467,17 +480,14 @@
 
         function exportToCSV() {
             if (!currentPackageDetails) return alert("Không có dữ liệu để xuất.");
-            
-            let csvContent = "\uFEFFModule,Remark/Name,Serial,IoT Type\n"; // BOM for Excel
-
+            let csvContent = "\uFEFFModule,Remark/Name,Serial,IoT Type\n";
             currentPackageDetails.forEach(mod => {
                 mod.operations.forEach(op => {
-                    const name = (op.remarks ? op.remarks : op.opname).replace(/,/g, " "); // Remove commas
+                    const name = (op.remarks ? op.remarks : op.opname).replace(/,/g, " ");
                     const iot = op.iottype || "N/A";
                     csvContent += `"${mod.name}","${name}","${op.opserial}","${iot}"\n`;
                 });
             });
-
             const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
             const link = document.createElement("a");
             const url = URL.createObjectURL(blob);
@@ -579,7 +589,7 @@
             tbody.innerHTML += `<tr style="background:#e8f5e9"><td colspan="2"><b>TỔNG</b></td><td colspan="2"><b>${total}</b></td></tr>`;
         }
 
-        // ============ SCAN LOGIC WITH QA/FA DETECTION ============
+        // ============ SCAN LOGIC (FIXED) ============
         async function scanFAMachines() {
             const apiKey = document.getElementById('apiKey').value;
             const btn = document.getElementById('scanBtn');
@@ -588,7 +598,7 @@
             
             btn.innerHTML = '<div class="loader"></div> Đang tìm máy...';
             btn.disabled = true;
-            resDiv.innerHTML = ''; resDiv.className = 'hidden'; manualDiv.className = 'hidden';
+            resDiv.innerHTML = ''; resDiv.className = 'hidden'; manualDiv.classList.add('hidden');
 
             try {
                 const url = `${MODULE_API}?mxpackage=${selectedPackageId}&mode=operations&apikey=${apiKey}`;
@@ -608,16 +618,14 @@
                 let html = '<h4><i class="fas fa-robot"></i> Chọn Máy:</h4><ul class="machine-list">';
                 candidates.forEach((op, index) => {
                     const displayName = op.remarks ? op.remarks : op.opname;
-                    
-                    // Phân loại QA vs FA
                     const isQA = isQAMachine(displayName);
-                    const typeBadge = isQA 
-                        ? '<span class="type-badge badge-qa">QA/QC</span>' 
-                        : '<span class="type-badge badge-fa">FA/Machine</span>';
-
-                    html += `<li class="machine-item" onclick="selectMachine('${op.opserial}', '${displayName.replace(/'/g, "\\'")}')">
-                                <input type="radio" name="machineSelect" id="mach_${index}">
-                                <div style="margin-left:10px">
+                    const typeBadge = isQA ? '<span class="type-badge badge-qa">QA/QC</span>' : '<span class="type-badge badge-fa">FA/Machine</span>';
+                    const safeName = displayName.replace(/'/g, "\\'").replace(/"/g, '&quot;');
+                    
+                    html += `<li class="machine-item" onclick="selectMachine('${op.opserial}', '${safeName}', this)">
+                                <div class="click-overlay"></div>
+                                <input type="radio" name="machineSelect" value="${op.opserial}">
+                                <div style="margin-left:10px; pointer-events:none;">
                                     <h4>${displayName} ${typeBadge}</h4>
                                     <p>Serial: <b>${op.opserial}</b></p>
                                 </div>
@@ -631,7 +639,8 @@
             } catch (e) {
                 resDiv.className = "result-box result-warning";
                 resDiv.innerHTML = `<p>${e.message}</p>`;
-                manualDiv.className = ''; 
+                // Auto show manual input if scan fails
+                document.getElementById('manualSerialInput').classList.remove('hidden');
             } finally {
                 resDiv.classList.remove('hidden');
                 btn.innerHTML = '<i class="fas fa-qrcode"></i> 🔍 Scan Machine / QA';
@@ -639,15 +648,40 @@
             }
         }
 
-        function selectMachine(serial, name) {
+        // HÀM CHỌN MÁY ĐÃ ĐƯỢC FIX LỖI CLICK
+        function selectMachine(serial, name, element) {
             selectedOpserial = serial;
             selectedMachineName = name;
-            const radios = document.getElementsByName('machineSelect');
-            for(let i=0; i<radios.length; i++) {
-                if(radios[i].parentElement.innerHTML.includes(serial)) {
-                    radios[i].checked = true;
-                    radios[i].parentElement.classList.add('selected');
-                } else radios[i].parentElement.classList.remove('selected');
+            
+            // Nếu được gọi từ sự kiện click vào LI (có element)
+            if (element) {
+                // Reset UI cũ
+                document.querySelectorAll('.machine-item').forEach(el => el.classList.remove('selected'));
+                // Highlight UI mới
+                element.classList.add('selected');
+                // Check radio button tương ứng
+                const radio = element.querySelector('input[type="radio"]');
+                if(radio) radio.checked = true;
+            } 
+            // Nếu được gọi tự động (trường hợp có 1 máy)
+            else {
+                const radios = document.getElementsByName('machineSelect');
+                for(let r of radios) {
+                    if(r.value == serial) {
+                        r.checked = true;
+                        r.closest('li').classList.add('selected');
+                    }
+                }
+            }
+            console.log("Selected:", selectedOpserial); // Debug check
+        }
+
+        // HÀM TOGGLE NHẬP THỦ CÔNG
+        function toggleManualInput() {
+            const el = document.getElementById('manualSerialInput');
+            el.classList.toggle('hidden');
+            if(!el.classList.contains('hidden')) {
+                document.getElementById('manualOpserial').focus();
             }
         }
 
@@ -656,17 +690,22 @@
             if(val) {
                 selectedOpserial = val;
                 selectedMachineName = "Manual: " + val;
-                document.getElementById('scanResult').innerHTML = `<div class="result-box result-success"><p><b>Đã chọn:</b> ${val}</p></div>`;
-                document.getElementById('scanResult').classList.remove('hidden');
+                const resDiv = document.getElementById('scanResult');
+                resDiv.className = 'result-box result-success';
+                resDiv.classList.remove('hidden');
+                resDiv.innerHTML = `<p><i class="fas fa-check"></i> Đã chọn thủ công: <b>${val}</b></p>`;
+                document.getElementById('manualSerialInput').classList.add('hidden');
+            } else {
+                alert("Vui lòng nhập mã Serial!");
             }
         }
 
         // ============ SEND ============
         async function sendToMES() {
-            if(!selectedOpserial) return alert("Vui lòng chọn máy!");
-            if(Object.keys(productionData).length === 0) return alert("Chưa có dữ liệu!");
+            if(!selectedOpserial) return alert("Vui lòng CHỌN MÁY (Click vào dòng chứa máy hoặc nhập thủ công)!");
+            if(Object.keys(productionData).length === 0) return alert("Chưa có dữ liệu sản lượng!");
 
-            if(!confirm(`XÁC NHẬN GỬI?\n\nPackage: ${selectedPackageId}\nMáy: ${selectedMachineName}`)) return;
+            if(!confirm(`XÁC NHẬN GỬI?\n\nPackage: ${selectedPackageId}\nMáy: ${selectedMachineName}\nSerial: ${selectedOpserial}`)) return;
 
             const btn = document.getElementById('sendBtn');
             btn.innerHTML = '<div class="loader"></div> Sending...';
