@@ -1,0 +1,6 @@
+{
+  "$schema": "https://raw.githubusercontent.com/cloudflare/wrangler/main/schemas/config.schema.json",
+  "name": "input-hourly-target",
+  "compatibility_date": "2025-12-08",
+  "main": "src/index.js"
+}
