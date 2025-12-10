@@ -131,6 +131,11 @@
         /* Unselect button */
         .unselect-btn { margin-top: 10px; padding: 8px 15px; background: #f44336; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 14px; }
         .unselect-btn:hover { background: #d32f2f; }
+        
+        /* Template download section */
+        .template-section { background: #e8f5e9; border: 1px solid #4CAF50; border-radius: 8px; padding: 15px; margin-top: 15px; }
+        .template-buttons { display: flex; gap: 10px; margin-top: 10px; flex-wrap: wrap; }
+        .template-note { font-size: 12px; color: #666; margin-top: 10px; font-style: italic; }
     </style>
     <script src="https://cdn.sheetjs.com/xlsx-0.20.0/package/dist/xlsx.full.min.js"></script>
 </head>
@@ -138,7 +143,7 @@
     <div class="container">
         <div class="header">
             <h1><i class="fas fa-industry"></i> MES Production System V4.3</h1>
-            <p>Update: Format lại Package, Fix slot #5, Chỉ quét máy FA, Thêm hủy chọn máy</p>
+            <p>Update: Format lại Package, Fix slot #5, Chỉ quét máy FA, Thêm hủy chọn máy, File mẫu</p>
         </div>
         
         <div class="content">
@@ -238,13 +243,44 @@
                 </div>
 
                 <div id="modeExcelArea">
+                    <!-- Template Download Section -->
+                    <div class="template-section">
+                        <h4><i class="fas fa-download"></i> Tải File Mẫu:</h4>
+                        <p>Download file mẫu để điền dữ liệu sản lượng theo từng slot thời gian:</p>
+                        <div class="template-buttons">
+                            <button class="btn btn-success" onclick="downloadExcelTemplate()">
+                                <i class="fas fa-file-excel"></i> Excel Template (.xlsx)
+                            </button>
+                            <button class="btn btn-info" onclick="downloadCSVTemplate()">
+                                <i class="fas fa-file-csv"></i> CSV Template (.csv)
+                            </button>
+                            <button class="btn btn-secondary" onclick="downloadTextTemplate()">
+                                <i class="fas fa-file-alt"></i> Text Template (.txt)
+                            </button>
+                        </div>
+                        <div class="template-note">
+                            <strong>Hướng dẫn:</strong> 
+                            <ol style="margin: 5px 0 0 15px; font-size: 11px;">
+                                <li>Tải file mẫu phù hợp</li>
+                                <li>Điền sản lượng vào cột VALUE (có thể để trống hoặc 0)</li>
+                                <li>Upload file đã điền vào khu vực bên dưới</li>
+                                <li>Nhấn "Parse Excel" để xử lý</li>
+                            </ol>
+                        </div>
+                    </div>
+                    
                     <div class="file-upload-area" onclick="document.getElementById('excelFile').click()">
                         <i class="fas fa-cloud-upload-alt"></i>
-                        <h3>Kéo & Thả file Excel</h3>
-                        <input type="file" id="excelFile" accept=".xlsx,.xls" hidden onchange="handleFileSelect(event)">
+                        <h3>Kéo & Thả file Excel/CSV đã điền</h3>
+                        <p style="color: #666; margin-top: 10px;">Hoặc click để chọn file</p>
+                        <input type="file" id="excelFile" accept=".xlsx,.xls,.csv,.txt" hidden onchange="handleFileSelect(event)">
                     </div>
-                    <div id="fileInfo" class="file-info hidden" style="margin-top:10px;"><i class="fas fa-check"></i> <span id="fileName"></span></div>
-                    <button class="btn btn-primary" onclick="parseExcelFile()" style="margin-top:15px; width:100%">Parse Excel</button>
+                    <div id="fileInfo" class="file-info hidden" style="margin-top:10px; padding:10px; background:#e8f5e9; border-radius:5px;">
+                        <i class="fas fa-check"></i> <span id="fileName"></span>
+                    </div>
+                    <button class="btn btn-primary" onclick="parseExcelFile()" style="margin-top:15px; width:100%">
+                        <i class="fas fa-cogs"></i> Parse & Xử lý File
+                    </button>
                 </div>
 
                 <div id="modeManualArea" class="hidden">
@@ -399,7 +435,6 @@
                     const styleText = p.styleText || p.STYLETEXT || "N/A";
                     
                     // Extract line name from package ID (format: M_XXX-XXXX_1_...)
-                    // Look for pattern like "LINE 09" or extract from package ID
                     let lineName = "N/A";
                     // Try to find LINE in remarks or package ID
                     if (p.lineName) {
@@ -464,6 +499,93 @@
             else hourlyTarget = 36;
             document.getElementById('infoHourlyTarget').innerText = hourlyTarget;
             generateManualGrid(); 
+        }
+
+        // ============ TEMPLATE DOWNLOAD FUNCTIONS ============
+        function downloadExcelTemplate() {
+            const hours = parseFloat(document.querySelector('input[name="workHours"]:checked').value);
+            const slotCount = hours === 7.5 ? 9 : 13;
+            
+            // Tạo dữ liệu mẫu
+            const data = [];
+            for(let i = 0; i < slotCount; i++) {
+                data.push({
+                    "TIME_SLOT": timeSlots[i],
+                    "VALUE": "", // Để trống để người dùng điền
+                    "TARGET": hourlyTarget,
+                    "SLOT_NUMBER": i + 1
+                });
+            }
+            
+            // Tạo workbook Excel
+            const ws = XLSX.utils.json_to_sheet(data);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, "Production Data");
+            
+            // Tạo file và tải xuống
+            XLSX.writeFile(wb, `MES_Template_${selectedPackageId || 'Sample'}.xlsx`);
+        }
+
+        function downloadCSVTemplate() {
+            const hours = parseFloat(document.querySelector('input[name="workHours"]:checked').value);
+            const slotCount = hours === 7.5 ? 9 : 13;
+            
+            // Tạo header CSV
+            let csvContent = "TIME_SLOT,VALUE,TARGET,SLOT_NUMBER\n";
+            
+            // Thêm dữ liệu mẫu
+            for(let i = 0; i < slotCount; i++) {
+                csvContent += `${timeSlots[i]},,${hourlyTarget},${i + 1}\n`;
+            }
+            
+            // Tạo file và tải xuống
+            const blob = new Blob(["\uFEFF" + csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement("a");
+            const url = URL.createObjectURL(blob);
+            link.setAttribute("href", url);
+            link.setAttribute("download", `MES_Template_${selectedPackageId || 'Sample'}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        function downloadTextTemplate() {
+            const hours = parseFloat(document.querySelector('input[name="workHours"]:checked').value);
+            const slotCount = hours === 7.5 ? 9 : 13;
+            
+            // Tạo nội dung file text
+            let textContent = `MES PRODUCTION DATA TEMPLATE\n`;
+            textContent += `============================\n\n`;
+            textContent += `Package: ${selectedPackageId || 'N/A'}\n`;
+            textContent += `Hourly Target: ${hourlyTarget}\n`;
+            textContent += `Time Slots: ${slotCount} slots\n\n`;
+            textContent += `INSTRUCTIONS:\n`;
+            textContent += `1. Copy format below\n`;
+            textContent += `2. Fill VALUE column with production quantity\n`;
+            textContent += `3. Save as .txt or .csv file\n`;
+            textContent += `4. Upload to system\n\n`;
+            textContent += `DATA FORMAT:\n`;
+            textContent += `TIME_SLOT\tVALUE\n`;
+            
+            // Thêm dữ liệu mẫu
+            for(let i = 0; i < slotCount; i++) {
+                textContent += `${timeSlots[i]}\t\n`;
+            }
+            
+            textContent += `\n\nNOTE:\n`;
+            textContent += `- Leave VALUE empty or 0 for no production\n`;
+            textContent += `- Use TAB as separator for best results\n`;
+            textContent += `- Time slots are fixed as shown above\n`;
+            
+            // Tạo file và tải xuống
+            const blob = new Blob([textContent], { type: 'text/plain;charset=utf-8' });
+            const link = document.createElement("a");
+            const url = URL.createObjectURL(blob);
+            link.setAttribute("href", url);
+            link.setAttribute("download", `MES_Template_${selectedPackageId || 'Sample'}.txt`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
         }
 
         // ============ VIEW DETAILS & COPY & EXPORT ============
@@ -659,8 +781,8 @@
                 const jsonData = XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]]);
                 productionData = {};
                 jsonData.forEach(row => {
-                    const t = row.TIME_SLOT || row['Time Slot'] || row['TIME'] || row['Time'];
-                    const v = row.VALUE || row['Value'] || row['QTY'] || row['Quantity'];
+                    const t = row.TIME_SLOT || row['Time Slot'] || row['TIME'] || row['Time'] || row['THỜI GIAN'];
+                    const v = row.VALUE || row['Value'] || row['QTY'] || row['Quantity'] || row['SẢN LƯỢNG'] || row['SẢN LƯỢNG'] || 0;
                     if(t) productionData[t] = parseInt(v) || 0;
                 });
                 alert(`Đã đọc ${Object.keys(productionData).length} dòng.`);
