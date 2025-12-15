@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MES Production System V4.3</title>
+    <title>MES Production System V4.4</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         /* --- CORE CSS --- */
@@ -26,6 +26,7 @@
         .btn-dark { background: #34495e; color: white; }
         .btn-secondary { background: #7f8c8d; color: white; }
         .btn-sm { padding: 5px 10px; font-size: 12px; }
+        .btn:disabled { opacity: 0.6; cursor: not-allowed; }
 
         /* --- STEP INDICATOR --- */
         .step-container { display: none; background: white; border: 2px solid #e0e0e0; border-radius: 10px; padding: 25px; animation: fadeIn 0.5s; }
@@ -46,45 +47,42 @@
         .radio-option { display: flex; align-items: center; gap: 8px; cursor: pointer; font-weight: 600; }
         .hidden { display: none !important; }
 
-        /* --- MANUAL INPUT GRID --- */
+        /* --- MANUAL INPUT GRID (4 Cols) --- */
         .input-mode-tabs { display: flex; gap: 10px; margin-bottom: 20px; }
         .mode-tab { flex: 1; padding: 15px; text-align: center; background: #f5f5f5; border: 2px solid #eee; border-radius: 8px; cursor: pointer; font-weight: 600; color: #666; }
         .mode-tab.active { background: #e3f2fd; border-color: #2196F3; color: #1565c0; }
         
         .manual-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin-top: 20px; }
-        .slot-card { border: 1px solid #ddd; border-radius: 8px; padding: 15px; position: relative; background: white; transition: 0.3s; min-height: 120px; }
+        @media (max-width: 768px) { .manual-grid { grid-template-columns: repeat(2, 1fr); } }
+
+        .slot-card { border: 1px solid #ddd; border-radius: 8px; padding: 15px; position: relative; background: white; transition: 0.3s; }
         .slot-card:hover { transform: translateY(-3px); box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
         
-        /* Slot đặc biệt - hàng riêng */
-        .slot-lunch-special { grid-column: span 4; background: #fff3e0 !important; border-color: #ffb74d !important; margin-top: 10px; margin-bottom: 10px; }
-        
-        .slot-lunch { background: #fff3e0; border-color: #ffb74d; }
+        /* Layout Slot */
+        .slot-lunch { background: #fff3e0; border-color: #ffb74d; grid-column: 1 / -1; text-align: center; border-left: 5px solid #ff9800; }
         .slot-ot { background: #f3e5f5; border-color: #e1bee7; }
         .slot-badge { position: absolute; top: 0; right: 0; padding: 2px 8px; font-size: 11px; font-weight: bold; border-bottom-left-radius: 8px; }
         .badge-lunch { background: #FF9800; color: white; }
         .badge-ot { background: #9C27B0; color: white; }
 
         .slot-header { display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 14px; font-weight: 600; color: #555; }
+        .slot-lunch .slot-header { justify-content: center; gap: 20px; font-size: 16px; color: #e65100; }
         .slot-input-wrapper { position: relative; }
         .slot-input { font-size: 24px; font-weight: bold; text-align: center; height: 50px; }
         .target-indicator { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); color: #999; font-size: 14px; }
         
-        /* Status Colors */
         .status-success { background-color: #e8f5e9 !important; border-color: #4CAF50 !important; }
         .status-warning { background-color: #fffde7 !important; border-color: #FBC02D !important; }
         .status-error { background-color: #ffebee !important; border-color: #e53935 !important; }
         
         .manual-summary { margin-top: 20px; padding: 15px; background: #263238; color: white; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; }
 
-        /* --- MACHINE SELECTION LIST (FIXED) --- */
+        /* --- MACHINE LIST (Fix Click Issue) --- */
         .machine-list { list-style: none; margin-top: 15px; max-height: 300px; overflow-y: auto; border: 1px solid #eee; border-radius: 8px; }
         .machine-item { padding: 12px 15px; border-bottom: 1px solid #eee; cursor: pointer; transition: 0.2s; display: flex; align-items: center; gap: 15px; position: relative; }
         .machine-item:hover { background: #f5f5f5; }
         .machine-item.selected { background: #e3f2fd; border-left: 4px solid #2196F3; }
         
-        /* Click overlay để đảm bảo click ăn 100% */
-        .click-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; cursor: pointer; }
-
         .type-badge { font-size: 11px; padding: 3px 8px; border-radius: 12px; color: white; font-weight: bold; margin-left: 8px; }
         .badge-fa { background: #4CAF50; } 
 
@@ -95,20 +93,22 @@
         .modal-header { padding: 20px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; background: #f8f9fa; border-radius: 10px 10px 0 0; }
         .modal-body { padding: 20px; overflow-y: auto; flex: 1; }
         .modal-footer { padding: 15px 20px; border-top: 1px solid #eee; display: flex; gap: 10px; justify-content: flex-end; background: #fff; border-radius: 0 0 10px 10px; flex-wrap: wrap; }
-        
         .detail-module { margin-bottom: 20px; border: 1px solid #eee; border-radius: 5px; overflow: hidden; }
         .detail-module-header { background: #e3f2fd; padding: 10px 15px; font-weight: bold; color: #1565c0; display: flex; justify-content: space-between; }
         .detail-row { padding: 8px 15px; border-bottom: 1px solid #f0f0f0; display: flex; align-items: center; gap: 10px; font-size: 14px; }
-        .detail-row:hover { background: #f5f5f5; }
         .serial-tag { background: #eee; padding: 2px 6px; border-radius: 4px; font-family: monospace; color: #333; }
         
-        /* --- CONTEXT INFO HEADER --- */
+        /* --- CONTEXT HEADER --- */
         .context-header { background: #fff3e0; border-left: 5px solid #ff9800; padding: 15px; border-radius: 5px; margin-bottom: 20px; }
         .context-title { font-size: 12px; color: #666; text-transform: uppercase; letter-spacing: 1px; }
-        .context-value { font-size: 16px; font-weight: bold; color: #e65100; margin-top: 5px; line-height: 1.4; }
-        .context-line { font-size: 15px; color: #1565c0; margin-top: 3px; font-weight: 600; }
+        .context-value { font-size: 18px; font-weight: bold; color: #e65100; margin-top: 5px; }
 
-        /* --- UTILS --- */
+        /* --- LOG --- */
+        .log-container { margin-top: 30px; border-top: 1px solid #eee; padding-top: 20px; }
+        .log-box { background: #2d3436; color: #00ff00; padding: 15px; border-radius: 5px; height: 150px; overflow-y: auto; font-family: monospace; font-size: 12px; }
+        .log-entry { margin-bottom: 5px; border-bottom: 1px solid #444; }
+        .log-entry.error { color: #ff6b6b; }
+        
         .loader { display: inline-block; width: 20px; height: 20px; border: 3px solid #f3f3f3; border-top: 3px solid #2196F3; border-radius: 50%; animation: spin 1s linear infinite; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         table { width: 100%; border-collapse: collapse; margin: 15px 0; font-size: 14px; }
@@ -117,33 +117,15 @@
         .result-box { padding: 20px; border-radius: 10px; margin: 20px 0; }
         .result-success { background: #e8f5e9; border-left: 5px solid #4CAF50; }
         .file-upload-area { border: 3px dashed #4CAF50; border-radius: 10px; padding: 30px; text-align: center; background: #f9fff9; cursor: pointer; }
-        
-        /* Manual Input Box */
         .manual-input-box { background: #f8f9fa; border: 2px dashed #95a5a6; padding: 20px; border-radius: 10px; margin-top: 15px; }
-        
-        /* Package display in dropdown */
-        .package-option { padding: 8px 5px; border-bottom: 1px solid #eee; }
-        .package-line { font-weight: bold; color: #1e3c72; }
-        .package-target { color: #e65100; font-weight: bold; }
-        .package-id { color: #666; font-size: 0.9em; }
-        .package-style { color: #2E7D32; font-size: 0.9em; }
-        
-        /* Unselect button */
-        .unselect-btn { margin-top: 10px; padding: 8px 15px; background: #f44336; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 14px; }
-        .unselect-btn:hover { background: #d32f2f; }
-        
-        /* Template download section */
-        .template-section { background: #e8f5e9; border: 1px solid #4CAF50; border-radius: 8px; padding: 15px; margin-top: 15px; }
-        .template-buttons { display: flex; gap: 10px; margin-top: 10px; flex-wrap: wrap; }
-        .template-note { font-size: 12px; color: #666; margin-top: 10px; font-style: italic; }
     </style>
     <script src="https://cdn.sheetjs.com/xlsx-0.20.0/package/dist/xlsx.full.min.js"></script>
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <h1><i class="fas fa-industry"></i> MES Production System V4.3</h1>
-            <p>Update: Format lại Package, Fix slot #5, Chỉ quét máy FA, Thêm hủy chọn máy, File mẫu</p>
+            <h1><i class="fas fa-industry"></i> MES Production V4.4</h1>
+            <p>Update: Fix Multi-FA Click & Full Features</p>
         </div>
         
         <div class="content">
@@ -159,15 +141,14 @@
                 <div class="step-header">
                     <div class="step-title"><span class="step-number">1</span> Cấu hình & Chọn Package</div>
                 </div>
-
                 <div class="config-section">
                     <div class="form-group">
                         <label>API Key:</label>
-                        <input type="password" id="apiKey" class="form-control" placeholder="Nhập API Key quản trị" onchange="saveConfig()">
+                        <input type="password" id="apiKey" class="form-control" placeholder="Nhập API Key" onchange="saveConfig()">
                     </div>
                     <div class="form-group">
                         <label>Factory & Date:</label>
-                        <div style="display: flex; gap: 10px;">
+                        <div style="display:flex; gap:10px;">
                             <select id="factory" class="form-control" style="flex:1" onchange="loadPackages()">
                                 <option value="P2C1">P2C1</option>
                                 <option value="P2A1">P2A1</option>
@@ -177,202 +158,114 @@
                             <input type="date" id="dateSelect" class="form-control" style="flex:1" onchange="loadPackages()">
                         </div>
                     </div>
-                    
                     <div class="form-group">
                         <label>Chọn Package:</label>
-                        <select id="packageSelect" class="form-control" onchange="onPackageSelected()" size="5">
+                        <select id="packageSelect" class="form-control" onchange="onPackageSelected()">
                             <option value="">-- Vui lòng chọn Package --</option>
                         </select>
-                        <div style="font-size: 12px; color: #666; margin-top: 5px;">
-                            Format: <strong>LINE [tên] | Target: [số] | [ID] | [Style]</strong>
-                        </div>
                     </div>
-
                     <div class="form-group">
-                        <label><i class="fas fa-clock"></i> Thời gian làm việc (chia Target):</label>
+                        <label><i class="fas fa-clock"></i> Thời gian làm việc:</label>
                         <div class="radio-group">
-                            <label class="radio-option">
-                                <input type="radio" name="workHours" value="7.5" checked onchange="recalculateTarget()"> 
-                                <span>7.5 Giờ (Hành chính) - Chỉ hiển thị 9 slot</span>
-                            </label>
-                            <label class="radio-option">
-                                <input type="radio" name="workHours" value="11" onchange="recalculateTarget()"> 
-                                <span>11 Giờ (Tăng ca) - Hiển thị 13 slot</span>
-                            </label>
+                            <label class="radio-option"><input type="radio" name="workHours" value="7.5" checked onchange="recalculateTarget()"> <span>7.5 Giờ</span></label>
+                            <label class="radio-option"><input type="radio" name="workHours" value="11" onchange="recalculateTarget()"> <span>11 Giờ</span></label>
                         </div>
                     </div>
-
                     <div id="packageInfo" class="package-info-card hidden">
-                        <div class="package-info-row">
-                            <span class="package-info-label">Package ID:</span>
-                            <span class="package-info-value" id="infoPackageId"></span>
-                        </div>
-                        <div class="package-info-row">
-                            <span class="package-info-label">Style:</span>
-                            <span class="package-info-value" id="infoStyle"></span>
-                        </div>
-                        <div class="package-info-row">
-                            <span class="package-info-label">Line:</span>
-                            <span class="package-info-value" id="infoLine"></span>
-                        </div>
-                        <div class="package-info-row">
-                            <span class="package-info-label">Target/Giờ:</span>
-                            <span class="package-info-value" id="infoHourlyTarget" style="font-weight:bold; color:red; font-size: 1.2em;">0</span>
-                        </div>
+                        <div class="package-info-row"><span class="package-info-label">ID:</span><span class="package-info-value" id="infoPackageId"></span></div>
+                        <div class="package-info-row"><span class="package-info-label">Line:</span><span class="package-info-value" id="infoLine"></span></div>
+                        <div class="package-info-row"><span class="package-info-label">Target/H:</span><span class="package-info-value" id="infoHourlyTarget" style="color:red; font-weight:bold;">0</span></div>
                     </div>
-
                     <div class="action-buttons">
                         <button class="btn btn-primary" onclick="loadPackages()"><i class="fas fa-sync"></i> Tải DS</button>
-                        <button class="btn btn-info hidden" id="viewDetailsBtn" onclick="viewPackageDetails()">
-                            <i class="fas fa-eye"></i> Xem & Copy
-                        </button>
+                        <button class="btn btn-info hidden" id="viewDetailsBtn" onclick="viewPackageDetails()"><i class="fas fa-eye"></i> Xem & Copy</button>
                         <button class="btn btn-success" onclick="goToStep(2)" id="nextToStep2Btn" disabled>Tiếp tục <i class="fas fa-arrow-right"></i></button>
                     </div>
                 </div>
             </div>
             
-            <!-- STEP 2: INPUT DATA -->
+            <!-- STEP 2: INPUT -->
             <div class="step-container" id="step2">
                 <div class="step-header">
                     <div class="step-title"><span class="step-number">2</span> Nhập Số Liệu</div>
                 </div>
-                
                 <div class="input-mode-tabs">
                     <div class="mode-tab active" onclick="switchInputMode('excel')" id="tabExcel"><i class="fas fa-file-excel"></i> Excel</div>
                     <div class="mode-tab" onclick="switchInputMode('manual')" id="tabManual"><i class="fas fa-keyboard"></i> Nhập Thủ Công</div>
                 </div>
-
                 <div id="modeExcelArea">
-                    <!-- Template Download Section -->
-                    <div class="template-section">
-                        <h4><i class="fas fa-download"></i> Tải File Mẫu:</h4>
-                        <p>Download file mẫu để điền dữ liệu sản lượng theo từng slot thời gian:</p>
-                        <div class="template-buttons">
-                            <button class="btn btn-success" onclick="downloadExcelTemplate()">
-                                <i class="fas fa-file-excel"></i> Excel Template (.xlsx)
-                            </button>
-                            <button class="btn btn-info" onclick="downloadCSVTemplate()">
-                                <i class="fas fa-file-csv"></i> CSV Template (.csv)
-                            </button>
-                            <button class="btn btn-secondary" onclick="downloadTextTemplate()">
-                                <i class="fas fa-file-alt"></i> Text Template (.txt)
-                            </button>
-                        </div>
-                        <div class="template-note">
-                            <strong>Hướng dẫn:</strong> 
-                            <ol style="margin: 5px 0 0 15px; font-size: 11px;">
-                                <li>Tải file mẫu phù hợp</li>
-                                <li>Điền sản lượng vào cột VALUE (có thể để trống hoặc 0)</li>
-                                <li>Upload file đã điền vào khu vực bên dưới</li>
-                                <li>Nhấn "Parse Excel" để xử lý</li>
-                            </ol>
-                        </div>
-                    </div>
-                    
                     <div class="file-upload-area" onclick="document.getElementById('excelFile').click()">
-                        <i class="fas fa-cloud-upload-alt"></i>
-                        <h3>Kéo & Thả file Excel/CSV đã điền</h3>
-                        <p style="color: #666; margin-top: 10px;">Hoặc click để chọn file</p>
-                        <input type="file" id="excelFile" accept=".xlsx,.xls,.csv,.txt" hidden onchange="handleFileSelect(event)">
+                        <h3>Kéo & Thả file Excel</h3>
+                        <input type="file" id="excelFile" accept=".xlsx,.xls" hidden onchange="handleFileSelect(event)">
                     </div>
-                    <div id="fileInfo" class="file-info hidden" style="margin-top:10px; padding:10px; background:#e8f5e9; border-radius:5px;">
-                        <i class="fas fa-check"></i> <span id="fileName"></span>
-                    </div>
-                    <button class="btn btn-primary" onclick="parseExcelFile()" style="margin-top:15px; width:100%">
-                        <i class="fas fa-cogs"></i> Parse & Xử lý File
-                    </button>
+                    <div id="fileInfo" class="hidden" style="margin-top:10px; color:green"><i class="fas fa-check"></i> <span id="fileName"></span></div>
+                    <button class="btn btn-primary" onclick="parseExcelFile()" style="margin-top:15px; width:100%">Parse Excel</button>
                 </div>
-
                 <div id="modeManualArea" class="hidden">
-                    <div class="manual-summary">
-                        <h3><i class="fas fa-calculator"></i> Tổng sản lượng nhập:</h3>
-                        <span id="manualTotalDisplay" style="font-size:24px; font-weight:bold;">0</span>
-                    </div>
+                    <div class="manual-summary"><h3>Tổng:</h3><span id="manualTotalDisplay">0</span></div>
                     <div class="manual-grid" id="manualGrid"></div>
-                    <div class="action-buttons" style="margin-top: 20px;">
+                    <div class="action-buttons" style="margin-top:20px">
                         <button class="btn btn-warning" onclick="resetManualInputs()">Reset</button>
                         <button class="btn btn-success" onclick="processManualData()">Xác nhận</button>
                     </div>
                 </div>
             </div>
 
-            <!-- STEP 3: SELECT & SEND -->
+            <!-- STEP 3: SCAN -->
             <div class="step-container" id="step3">
                 <div class="step-header">
                     <div class="step-title"><span class="step-number">3</span> Chọn Máy & Gửi</div>
                 </div>
-                
                 <div class="context-header">
                     <div class="context-title">Đang thao tác trên Package:</div>
                     <div class="context-value" id="contextPackageInfo">Loading...</div>
-                    <div class="context-line" id="contextLineInfo"></div>
                 </div>
-
                 <div id="faSelectionSection">
                     <div style="display:flex; gap:10px; margin-bottom:15px">
-                        <button class="btn btn-primary" onclick="scanFAMachines()" id="scanBtn" style="flex:2">
-                            <i class="fas fa-qrcode"></i> 🔍 Scan Machine FA
-                        </button>
-                        <button class="btn btn-secondary" onclick="toggleManualInput()" id="manualBtn" style="flex:1">
-                            <i class="fas fa-pen"></i> ✍️ Nhập Mã Máy
-                        </button>
+                        <button class="btn btn-primary" onclick="scanFAMachines()" id="scanBtn" style="flex:2"><i class="fas fa-qrcode"></i> 🔍 Scan Machine FA</button>
+                        <button class="btn btn-secondary" onclick="toggleManualInput()" id="manualBtn" style="flex:1"><i class="fas fa-pen"></i> ✍️ Nhập Mã</button>
                     </div>
-                    
                     <div id="scanResult" class="hidden"></div>
-                    
-                    <!-- Manual Input Box (Toggled) -->
                     <div id="manualSerialInput" class="manual-input-box hidden">
-                        <h4><i class="fas fa-keyboard"></i> Nhập OPSERIAL thủ công:</h4>
+                        <h4><i class="fas fa-keyboard"></i> Nhập OPSERIAL:</h4>
                         <div style="display:flex; gap:10px; margin-top:10px;">
-                            <input type="number" id="manualOpserial" class="form-control" placeholder="Ví dụ: 20241105001">
+                            <input type="number" id="manualOpserial" class="form-control" placeholder="Ví dụ: 65">
                             <button class="btn btn-success" onclick="confirmManualSerial()">OK</button>
                         </div>
-                        <p style="margin-top:5px; font-size:12px; color:#666">Sử dụng khi không tìm thấy máy FA qua Scan.</p>
                     </div>
                 </div>
-                
-                <h4 style="margin-top: 20px;"><i class="fas fa-eye"></i> Xem trước dữ liệu sản lượng:</h4>
-                <div style="max-height: 250px; overflow-y: auto; border: 1px solid #ddd; margin-top: 10px;">
-                    <table id="previewTable">
-                        <thead><tr><th>Slot</th><th>Thời gian</th><th>Sản lượng</th><th>Target</th></tr></thead>
-                        <tbody id="previewTableBody"></tbody>
-                    </table>
+                <h4 style="margin-top:20px">Xem trước:</h4>
+                <div style="max-height:250px; overflow-y:auto; border:1px solid #ddd; margin-top:10px;">
+                    <table id="previewTable"><thead><tr><th>Slot</th><th>Thời gian</th><th>Sản lượng</th><th>Target</th></tr></thead><tbody id="previewTableBody"></tbody></table>
                 </div>
-
-                <div class="action-buttons" style="margin-top: 20px;">
+                <div class="action-buttons">
                     <button class="btn btn-warning" onclick="goToStep(2)">Quay lại</button>
-                    <button class="btn btn-dark" onclick="clearMachineSelection()" id="unselectBtn" class="hidden">
-                        <i class="fas fa-times"></i> Hủy chọn máy
-                    </button>
                     <button class="btn btn-success" onclick="sendToMES()" id="sendBtn">🚀 Gửi Hệ thống</button>
                 </div>
             </div>
 
-            <!-- STEP 4: RESULT -->
+            <!-- STEP 4 -->
             <div class="step-container" id="step4">
-                <div class="step-header">
-                    <div class="step-title"><span class="step-number">4</span> Kết quả</div>
-                </div>
+                <div class="step-header"><div class="step-title"><span class="step-number">4</span> Kết quả</div></div>
                 <div id="resultMessage"></div>
                 <button class="btn btn-primary" onclick="location.reload()" style="margin-top:15px">Làm mới toàn bộ</button>
+            </div>
+
+            <!-- LOG -->
+            <div class="log-container">
+                <button class="btn btn-sm btn-dark" onclick="toggleLog()">📜 Toggle Log</button>
+                <div id="systemLogBox" class="log-box hidden" style="margin-top:10px"></div>
             </div>
         </div>
     </div>
 
-    <!-- MODAL PACKAGE DETAILS -->
+    <!-- MODAL -->
     <div class="modal-overlay" id="detailModal">
         <div class="modal-box">
-            <div class="modal-header">
-                <h3 id="modalTitle">Chi tiết Package</h3>
-                <button class="btn btn-sm btn-danger" onclick="closeModal()"><i class="fas fa-times"></i></button>
-            </div>
-            <div class="modal-body" id="modalContent">
-                <div class="loader"></div> Đang tải thông tin...
-            </div>
+            <div class="modal-header"><h3>Chi tiết Package</h3><button class="btn btn-sm btn-danger" onclick="closeModal()">X</button></div>
+            <div class="modal-body" id="modalContent"><div class="loader"></div></div>
             <div class="modal-footer">
-                <button class="btn btn-dark" onclick="exportToCSV()"><i class="fas fa-file-csv"></i> Xuất CSV</button>
-                <button class="btn btn-info" onclick="copyRemarks()"><i class="fas fa-quote-right"></i> Copy Remarks</button>
-                <button class="btn btn-warning" onclick="copySerials('all')"><i class="fas fa-copy"></i> Copy Serial</button>
+                <button class="btn btn-dark" onclick="exportToCSV()">Xuất CSV</button>
                 <button class="btn btn-secondary" onclick="closeModal()">Đóng</button>
             </div>
         </div>
@@ -389,9 +282,9 @@
         let selectedOpserial = null;
         let selectedPackageId = null;
         let selectedStyle = "";
+        let selectedLine = "";
         let selectedMachineName = "";
         let currentPackageDetails = null;
-        let selectedLine = "";
 
         const timeSlots = [
             "07:15 - 08:15", "08:15 - 09:15", "09:15 - 10:15", "10:15 - 11:15", 
@@ -403,11 +296,21 @@
             document.getElementById('dateSelect').value = new Date().toISOString().split('T')[0];
             const savedKey = localStorage.getItem('mesApiKey');
             if(savedKey) document.getElementById('apiKey').value = savedKey;
+            addLog("System initialized.");
         });
 
         function saveConfig() { localStorage.setItem('mesApiKey', document.getElementById('apiKey').value); }
+        function addLog(msg, type='normal') {
+            const box = document.getElementById('systemLogBox');
+            if(box) {
+                const time = new Date().toLocaleTimeString();
+                box.innerHTML += `<div class="log-entry ${type}">[${time}] ${msg}</div>`;
+                box.scrollTop = box.scrollHeight;
+            }
+        }
+        function toggleLog() { document.getElementById('systemLogBox').classList.toggle('hidden'); }
 
-        // ============ PACKAGES & DETAILS ============
+        // ============ PACKAGES ============
         async function loadPackages() {
             const apiKey = document.getElementById('apiKey').value;
             const factory = document.getElementById('factory').value;
@@ -419,6 +322,7 @@
             
             select.innerHTML = '<option>Đang tải...</option>';
             select.disabled = true;
+            addLog(`Loading packages for ${dateVal}...`, 'info');
 
             try {
                 const res = await fetch(`${PACKAGE_API}?factory=${factory}&fromDate=${dateVal}&apikey=${apiKey}`);
@@ -431,39 +335,20 @@
                 pkgs.forEach(p => {
                     const opt = document.createElement('option');
                     const target = p.target || p.MXTARGET || 0;
-                    const packageId = p.packageId || p.MXPACKAGE;
-                    const styleText = p.styleText || p.STYLETEXT || "N/A";
+                    const line = p.lineName || p.LINENAME || 'N/A';
+                    const style = p.styleText || p.STYLETEXT || "N/A";
+                    const pid = p.packageId || p.MXPACKAGE;
                     
-                    // Extract line name from package ID (format: M_XXX-XXXX_1_...)
-                    let lineName = "N/A";
-                    // Try to find LINE in remarks or package ID
-                    if (p.lineName) {
-                        lineName = p.lineName;
-                    } else if (p.remarks && p.remarks.includes("LINE")) {
-                        const lineMatch = p.remarks.match(/LINE\s*([A-Za-z0-9]+)/i);
-                        if (lineMatch) lineName = lineMatch[1];
-                    } else {
-                        // Extract from package ID: M_KUU-0375_1_KUU0260RGL012004_01_01
-                        const parts = packageId.split('_');
-                        if (parts.length > 1) {
-                            // Try to get meaningful line info
-                            lineName = parts[1] || "N/A";
-                        }
-                    }
-                    
-                    opt.value = packageId;
+                    opt.value = pid;
                     opt.dataset.target = target;
-                    opt.dataset.style = styleText;
-                    opt.dataset.line = lineName;
-                    
-                    // Format display text: LINE [tên] | Target: [số] | [ID] | [Style]
-                    const displayText = `LINE ${lineName} | Target: ${target} | ${packageId} | ${styleText}`;
-                    opt.innerText = displayText;
-                    
+                    opt.dataset.style = style;
+                    opt.dataset.line = line;
+                    opt.innerText = `LINE ${line} | Target: ${target} | ${pid} | ${style}`;
                     select.appendChild(opt);
                 });
+                addLog(`Loaded ${pkgs.length} packages.`);
             } catch (e) { 
-                alert("Lỗi tải: " + e.message); 
+                addLog("Error: " + e.message, 'error');
                 select.innerHTML = '<option>Lỗi kết nối</option>'; 
             } finally { 
                 select.disabled = false; 
@@ -472,25 +357,28 @@
 
         function onPackageSelected() {
             const select = document.getElementById('packageSelect');
-            if (!select.value) {
-                document.getElementById('nextToStep2Btn').disabled = true;
-                document.getElementById('viewDetailsBtn').classList.add('hidden');
-                document.getElementById('packageInfo').classList.add('hidden');
-                return;
-            }
-            const opt = select.options[select.selectedIndex];
-            selectedPackageId = select.value;
-            selectedStyle = opt.dataset.style;
-            selectedLine = opt.dataset.line;
-            dailyTarget = parseInt(opt.dataset.target) || 0;
+            const hasValue = !!select.value;
+            document.getElementById('nextToStep2Btn').disabled = !hasValue;
             
-            document.getElementById('infoPackageId').innerText = selectedPackageId;
-            document.getElementById('infoStyle').innerText = selectedStyle;
-            document.getElementById('infoLine').innerText = `LINE ${selectedLine}`;
-            document.getElementById('packageInfo').classList.remove('hidden');
-            document.getElementById('nextToStep2Btn').disabled = false;
-            document.getElementById('viewDetailsBtn').classList.remove('hidden');
-            recalculateTarget();
+            if (!hasValue) return;
+
+            try {
+                const opt = select.options[select.selectedIndex];
+                selectedPackageId = select.value;
+                selectedStyle = opt.dataset.style;
+                selectedLine = opt.dataset.line;
+                dailyTarget = parseInt(opt.dataset.target) || 0;
+                
+                document.getElementById('infoPackageId').innerText = selectedPackageId;
+                document.getElementById('infoLine').innerText = selectedLine;
+                document.getElementById('packageInfo').classList.remove('hidden');
+                document.getElementById('viewDetailsBtn').classList.remove('hidden');
+                
+                recalculateTarget();
+            } catch(e) {
+                console.error(e);
+                addLog("Selection error: " + e.message, 'error');
+            }
         }
 
         function recalculateTarget() {
@@ -501,178 +389,45 @@
             generateManualGrid(); 
         }
 
-        // ============ TEMPLATE DOWNLOAD FUNCTIONS ============
-        function downloadExcelTemplate() {
-            const hours = parseFloat(document.querySelector('input[name="workHours"]:checked').value);
-            const slotCount = hours === 7.5 ? 9 : 13;
-            
-            // Tạo dữ liệu mẫu
-            const data = [];
-            for(let i = 0; i < slotCount; i++) {
-                data.push({
-                    "TIME_SLOT": timeSlots[i],
-                    "VALUE": "", // Để trống để người dùng điền
-                    "TARGET": hourlyTarget,
-                    "SLOT_NUMBER": i + 1
-                });
-            }
-            
-            // Tạo workbook Excel
-            const ws = XLSX.utils.json_to_sheet(data);
-            const wb = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(wb, ws, "Production Data");
-            
-            // Tạo file và tải xuống
-            XLSX.writeFile(wb, `MES_Template_${selectedPackageId || 'Sample'}.xlsx`);
-        }
-
-        function downloadCSVTemplate() {
-            const hours = parseFloat(document.querySelector('input[name="workHours"]:checked').value);
-            const slotCount = hours === 7.5 ? 9 : 13;
-            
-            // Tạo header CSV
-            let csvContent = "TIME_SLOT,VALUE,TARGET,SLOT_NUMBER\n";
-            
-            // Thêm dữ liệu mẫu
-            for(let i = 0; i < slotCount; i++) {
-                csvContent += `${timeSlots[i]},,${hourlyTarget},${i + 1}\n`;
-            }
-            
-            // Tạo file và tải xuống
-            const blob = new Blob(["\uFEFF" + csvContent], { type: 'text/csv;charset=utf-8;' });
-            const link = document.createElement("a");
-            const url = URL.createObjectURL(blob);
-            link.setAttribute("href", url);
-            link.setAttribute("download", `MES_Template_${selectedPackageId || 'Sample'}.csv`);
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-        }
-
-        function downloadTextTemplate() {
-            const hours = parseFloat(document.querySelector('input[name="workHours"]:checked').value);
-            const slotCount = hours === 7.5 ? 9 : 13;
-            
-            // Tạo nội dung file text
-            let textContent = `MES PRODUCTION DATA TEMPLATE\n`;
-            textContent += `============================\n\n`;
-            textContent += `Package: ${selectedPackageId || 'N/A'}\n`;
-            textContent += `Hourly Target: ${hourlyTarget}\n`;
-            textContent += `Time Slots: ${slotCount} slots\n\n`;
-            textContent += `INSTRUCTIONS:\n`;
-            textContent += `1. Copy format below\n`;
-            textContent += `2. Fill VALUE column with production quantity\n`;
-            textContent += `3. Save as .txt or .csv file\n`;
-            textContent += `4. Upload to system\n\n`;
-            textContent += `DATA FORMAT:\n`;
-            textContent += `TIME_SLOT\tVALUE\n`;
-            
-            // Thêm dữ liệu mẫu
-            for(let i = 0; i < slotCount; i++) {
-                textContent += `${timeSlots[i]}\t\n`;
-            }
-            
-            textContent += `\n\nNOTE:\n`;
-            textContent += `- Leave VALUE empty or 0 for no production\n`;
-            textContent += `- Use TAB as separator for best results\n`;
-            textContent += `- Time slots are fixed as shown above\n`;
-            
-            // Tạo file và tải xuống
-            const blob = new Blob([textContent], { type: 'text/plain;charset=utf-8' });
-            const link = document.createElement("a");
-            const url = URL.createObjectURL(blob);
-            link.setAttribute("href", url);
-            link.setAttribute("download", `MES_Template_${selectedPackageId || 'Sample'}.txt`);
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-        }
-
-        // ============ VIEW DETAILS & COPY & EXPORT ============
+        // ============ VIEW DETAILS (FIXED) ============
         async function viewPackageDetails() {
             const apiKey = document.getElementById('apiKey').value;
             const modal = document.getElementById('detailModal');
             const content = document.getElementById('modalContent');
-            
             modal.classList.add('open');
-            document.getElementById('modalTitle').innerText = `Chi tiết: ${selectedPackageId}`;
-            content.innerHTML = '<div class="loader"></div> Đang quét toàn bộ thông tin...';
+            document.getElementById('modalTitle').innerText = selectedPackageId;
+            content.innerHTML = '<div class="loader"></div>';
 
             try {
                 const res = await fetch(`${MODULE_API}?mxpackage=${selectedPackageId}&mode=full&apikey=${apiKey}`);
                 const json = await res.json();
-
-                if (!json.success || !json.data.modules.length) {
-                    content.innerHTML = '<p class="result-box result-error">Không tìm thấy thông tin Modules.</p>';
-                    return;
-                }
-
-                currentPackageDetails = json.data.modules; 
-
+                
+                // Flexible data parsing
+                let modules = [];
+                if(json.data && json.data.modules) modules = json.data.modules;
+                else if(json.modules) modules = json.modules;
+                
+                currentPackageDetails = modules;
+                
                 let html = '';
-                json.data.modules.forEach(mod => {
-                    html += `<div class="detail-module">
-                                <div class="detail-module-header">
-                                    <span>${mod.name}</span>
-                                </div>
-                                <div id="mod_${mod.id}">`;
-                    mod.operations.forEach(op => {
-                        const name = op.remarks ? op.remarks : op.opname;
-                        const isFA = op.iottype === 'FA';
-                        const rowStyle = isFA ? 'border-left: 3px solid #4CAF50' : 'border-left: 3px solid #9E9E9E';
-                        
-                        html += `<label class="detail-row" style="${rowStyle}">
-                                    <input type="checkbox" class="serial-checkbox" value="${op.opserial}" data-remark="${name}">
-                                    <span style="flex:1"><b>${name}</b></span>
-                                    <span class="type-badge ${isFA ? 'badge-fa' : ''}">${op.iottype || 'N/A'}</span>
-                                    <span class="serial-tag">${op.opserial}</span>
-                                 </label>`;
+                if(modules.length > 0) {
+                    modules.forEach(mod => {
+                        html += `<div class="detail-module"><div class="detail-module-header"><span>${mod.name}</span></div>`;
+                        mod.operations.forEach(op => {
+                             html += `<div class="detail-row"><span>${op.remarks || op.opname}</span><span class="serial-tag">${op.opserial}</span></div>`;
+                        });
+                        html += `</div>`;
                     });
-                    html += `</div></div>`;
-                });
+                } else {
+                    html = '<p>Không có dữ liệu chi tiết.</p>';
+                }
                 content.innerHTML = html;
-
-            } catch (e) {
-                content.innerHTML = `<p class="result-box result-error">Lỗi: ${e.message}</p>`;
+            } catch (e) { 
+                content.innerHTML = `<p class="error">Lỗi: ${e.message}</p>`; 
             }
         }
 
         function closeModal() { document.getElementById('detailModal').classList.remove('open'); }
-
-        function copySerials(mode) {
-            let textToCopy = "";
-            if (mode === 'all') {
-                const allInputs = document.querySelectorAll('.serial-checkbox');
-                textToCopy = Array.from(allInputs).map(cb => cb.value).filter(v => v).join('\n');
-            }
-            if (textToCopy) navigator.clipboard.writeText(textToCopy).then(() => alert("Đã copy Serial!"));
-        }
-
-        function copyRemarks() {
-            const allInputs = document.querySelectorAll('.serial-checkbox');
-            const remarks = Array.from(allInputs).map(cb => cb.getAttribute('data-remark')).filter(v => v).join('\n');
-            if (remarks) navigator.clipboard.writeText(remarks).then(() => alert("Đã copy toàn bộ Remarks!"));
-        }
-
-        function exportToCSV() {
-            if (!currentPackageDetails) return alert("Không có dữ liệu để xuất.");
-            let csvContent = "\uFEFFModule,Remark/Name,Serial,IoT Type\n";
-            currentPackageDetails.forEach(mod => {
-                mod.operations.forEach(op => {
-                    const name = (op.remarks ? op.remarks : op.opname).replace(/,/g, " ");
-                    const iot = op.iottype || "N/A";
-                    csvContent += `"${mod.name}","${name}","${op.opserial}","${iot}"\n`;
-                });
-            });
-            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-            const link = document.createElement("a");
-            const url = URL.createObjectURL(blob);
-            link.setAttribute("href", url);
-            link.setAttribute("download", `Details_${selectedPackageId}.csv`);
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-        }
 
         // ============ INPUT GRID ============
         function switchInputMode(mode) {
@@ -686,142 +441,73 @@
         function generateManualGrid() {
             const container = document.getElementById('manualGrid');
             container.innerHTML = '';
-            const hours = parseFloat(document.querySelector('input[name="workHours"]:checked').value);
-            const isNormalHours = hours === 7.5;
-            const slotCount = isNormalHours ? 9 : 13;
+            const isOvertime = document.querySelector('input[name="workHours"]:checked').value === "11";
             
-            for(let i = 0; i < slotCount; i++) {
-                const div = document.createElement('div');
-                
-                // Đặc biệt xử lý slot #5 (index 4) - hàng riêng
-                if (i === 4) {
-                    div.className = 'slot-card slot-lunch-special';
-                } else {
-                    div.className = 'slot-card';
-                    if (i === 4) div.classList.add('slot-lunch');
-                    if (i >= 9) div.classList.add('slot-ot');
-                }
-                
-                div.id = `card-${i}`;
-                let badge = '';
-                if (i === 4) { 
-                    badge = '<span class="slot-badge badge-lunch"><i class="fas fa-utensils"></i> Lunch</span>'; 
-                }
-                if (i >= 9 && !isNormalHours) { 
-                    badge = '<span class="slot-badge badge-ot"><i class="fas fa-bolt"></i> Tăng ca</span>'; 
-                }
+            timeSlots.forEach((slot, index) => {
+                if (!isOvertime && index >= 9) return; 
 
-                div.innerHTML = `${badge}<div class="slot-header"><span><i class="far fa-clock"></i> ${timeSlots[i]}</span><span>#${i+1}</span></div>
+                const div = document.createElement('div');
+                div.className = 'slot-card';
+                div.id = `card-${index}`;
+                
+                let badge = '';
+                if (index === 4) { div.classList.add('slot-lunch'); badge = '<span class="slot-badge badge-lunch"><i class="fas fa-utensils"></i> Lunch</span>'; }
+                if (index >= 9) { div.classList.add('slot-ot'); badge = '<span class="slot-badge badge-ot"><i class="fas fa-bolt"></i> Tăng ca</span>'; }
+
+                div.innerHTML = `${badge}
+                    <div class="slot-header"><span><i class="far fa-clock"></i> ${slot}</span><span>#${index+1}</span></div>
                     <div class="slot-input-wrapper">
-                        <input type="number" class="form-control slot-input" id="input-${i}" placeholder="0" 
-                               onfocus="this.select()" oninput="checkPerformance(this, ${i})" 
-                               onkeydown="if(event.key==='Enter') document.getElementById('input-${i+1}')?.focus()">
+                        <input type="number" class="form-control slot-input" 
+                               id="input-${index}" placeholder="0" 
+                               onfocus="this.select()" oninput="checkPerformance(this, ${index})" 
+                               onkeydown="if(event.key==='Enter') document.getElementById('input-${index+1}')?.focus()">
                         <span class="target-indicator">/${hourlyTarget}</span>
                     </div>`;
                 container.appendChild(div);
-            }
+            });
         }
 
         function checkPerformance(input, index) {
-            const val = parseInt(input.value) || 0;
+            const val = parseInt(input.value); 
             const card = document.getElementById(`card-${index}`);
             card.classList.remove('status-success', 'status-warning', 'status-error');
-            if (input.value === '') return;
+            if (isNaN(val)) return;
             const percent = (val / hourlyTarget) * 100;
             if (percent >= 100) card.classList.add('status-success');
             else if (percent >= 70) card.classList.add('status-warning');
             else card.classList.add('status-error');
+            calculateTotal();
+        }
+
+        function calculateTotal() {
             let total = 0;
-            document.querySelectorAll('.slot-input').forEach(i => total += (parseInt(i.value) || 0));
+            document.querySelectorAll('.slot-input').forEach(i => { if(i.value !== '') total += parseInt(i.value) || 0; });
             document.getElementById('manualTotalDisplay').innerText = total;
         }
 
         function resetManualInputs() {
-            document.querySelectorAll('.slot-input').forEach(i => { 
-                i.value = ''; 
-                const index = parseInt(i.id.split('-')[1]);
-                checkPerformance(i, index); 
-            });
-            document.getElementById('manualTotalDisplay').innerText = '0';
+            document.querySelectorAll('.slot-input').forEach(i => { i.value = ''; checkPerformance(i, i.id.split('-')[1]); });
+            calculateTotal();
         }
 
         function processManualData() {
             productionData = {};
-            let hasData = false;
             document.querySelectorAll('.slot-input').forEach((inp, index) => {
-                const val = parseInt(inp.value);
-                // Cho phép gửi giá trị 0 (xóa dữ liệu giờ đó)
-                if (!isNaN(val)) { 
-                    productionData[timeSlots[index]] = val; 
-                    hasData = true; 
-                }
+                if (inp.value !== '') productionData[timeSlots[index]] = parseInt(inp.value) || 0;
             });
-            if (!hasData) {
-                // Vẫn cho phép tiếp tục nếu tất cả đều là 0
-                alert("Lưu ý: Dữ liệu sản lượng đang trống. Bạn vẫn có thể gửi để xóa dữ liệu.");
-            }
+            if (Object.keys(productionData).length === 0) return alert("Chưa nhập số liệu!");
             updatePreviewTable();
             goToStep(3);
         }
 
-        function handleFileSelect(e) { 
-            window.excelFile = e.target.files[0]; 
-            if(window.excelFile) {
-                document.getElementById('fileName').innerText = window.excelFile.name; 
-                document.getElementById('fileInfo').classList.remove('hidden'); 
-            }
-        }
-        
-        function parseExcelFile() {
-            if(!window.excelFile) return alert("Chưa chọn file!");
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                const data = new Uint8Array(e.target.result);
-                const workbook = XLSX.read(data, {type: 'array'});
-                const jsonData = XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]]);
-                productionData = {};
-                jsonData.forEach(row => {
-                    const t = row.TIME_SLOT || row['Time Slot'] || row['TIME'] || row['Time'] || row['THỜI GIAN'];
-                    const v = row.VALUE || row['Value'] || row['QTY'] || row['Quantity'] || row['SẢN LƯỢNG'] || row['SẢN LƯỢNG'] || 0;
-                    if(t) productionData[t] = parseInt(v) || 0;
-                });
-                alert(`Đã đọc ${Object.keys(productionData).length} dòng.`);
-                updatePreviewTable();
-                goToStep(3);
-            };
-            reader.readAsArrayBuffer(window.excelFile);
-        }
-
-        function updatePreviewTable() {
-            const tbody = document.getElementById('previewTableBody');
-            tbody.innerHTML = '';
-            let total = 0;
-            let slotCount = 0;
-            
-            timeSlots.forEach(slot => {
-                if (productionData.hasOwnProperty(slot)) {
-                    tbody.innerHTML += `<tr><td>${timeSlots.indexOf(slot)+1}</td><td>${slot}</td><td><b>${productionData[slot]}</b></td><td>${hourlyTarget}</td></tr>`;
-                    total += productionData[slot];
-                    slotCount++;
-                }
-            });
-            
-            // Hiển thị cả các slot không có dữ liệu
-            if (slotCount === 0) {
-                tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; color:#999;">Chưa có dữ liệu sản lượng</td></tr>';
-            } else {
-                tbody.innerHTML += `<tr style="background:#e8f5e9"><td colspan="2"><b>TỔNG</b></td><td colspan="2"><b>${total}</b></td></tr>`;
-            }
-        }
-
-        // ============ SCAN LOGIC (CHỈ QUÉT MÁY FA) ============
+        // ============ SMART SCAN LOGIC (V4.4 FIXED) ============
         async function scanFAMachines() {
             const apiKey = document.getElementById('apiKey').value;
             const btn = document.getElementById('scanBtn');
             const resDiv = document.getElementById('scanResult');
             const manualDiv = document.getElementById('manualSerialInput');
             
-            btn.innerHTML = '<div class="loader"></div> Đang tìm máy FA...';
+            btn.innerHTML = '<div class="loader"></div> Đang tìm...';
             btn.disabled = true;
             resDiv.innerHTML = ''; resDiv.className = 'hidden'; manualDiv.classList.add('hidden');
 
@@ -830,54 +516,55 @@
                 const res = await fetch(url);
                 const json = await res.json();
                 
-                if (!json.success || !json.data || !json.data.operations) throw new Error("Không tìm thấy operation.");
+                if (!json.success || !json.data || !json.data.operations) throw new Error("Không tìm thấy op.");
                 
-                // CHỈ LỌC MÁY CÓ iottype = 'FA'
-                let candidates = json.data.operations.filter(op => op.iottype === 'FA' && op.opserial);
+                const allOps = json.data.operations;
+                
+                // Helper loại bỏ QA/Serial 1
+                const isIgnored = (op) => op.opserial == '1' || (op.remarks || op.opname || '').toUpperCase().includes('QA');
+
+                // L1: Ưu tiên FA
+                let candidates = allOps.filter(op => {
+                    const iot = (op.iottype || '').toUpperCase();
+                    return iot.includes('FA') || iot.includes('MACHINE') || iot.includes('EQ');
+                });
+
+                // L2: IoT bất kỳ (khác N/A) & không phải QA
                 if (candidates.length === 0) {
-                    // Nếu không có FA, hiển thị tất cả máy có serial
-                    candidates = json.data.operations.filter(op => op.opserial);
-                    if (candidates.length === 0) throw new Error("Không tìm thấy máy FA có Serial hợp lệ.");
-                    
-                    resDiv.className = "result-box result-warning";
-                    resDiv.innerHTML = `<p><i class="fas fa-exclamation-triangle"></i> Không tìm thấy máy FA (iottype='FA'). Hiển thị tất cả máy có serial:</p>`;
-                } else {
-                    resDiv.className = 'result-box';
-                    resDiv.style.background = '#fff';
-                    resDiv.style.border = '1px solid #ddd';
-                    resDiv.innerHTML = '<h4><i class="fas fa-robot"></i> Chọn Máy FA (Click 2 lần để hủy chọn):</h4>';
+                    candidates = allOps.filter(op => op.iottype && op.iottype !== 'N/A' && !isIgnored(op));
+                }
+
+                // L3: Fallback Serial thường (khác 1)
+                if (candidates.length === 0) {
+                    candidates = allOps.filter(op => op.opserial && !isIgnored(op));
                 }
                 
-                let html = '<ul class="machine-list">';
+                if (candidates.length === 0) throw new Error("Không tìm thấy máy phù hợp.");
+
+                resDiv.className = 'result-box';
+                resDiv.style.background = '#fff';
+                resDiv.style.border = '1px solid #ddd';
+                
+                let html = '<h4><i class="fas fa-robot"></i> Chọn Máy FA (Click 2 lần để hủy):</h4><ul class="machine-list">';
                 candidates.forEach((op, index) => {
                     const displayName = op.remarks ? op.remarks : op.opname;
-                    const isFA = op.iottype === 'FA';
-                    const typeBadge = isFA ? '<span class="type-badge badge-fa">FA</span>' : '';
-                    const safeName = displayName.replace(/'/g, "\\'").replace(/"/g, '&quot;');
+                    // FIX: Xử lý chuỗi tên máy để tránh lỗi JS
+                    const safeName = displayName.replace(/\r?\n|\r/g, " ").replace(/'/g, "\\'").replace(/"/g, "&quot;");
                     
-                    // Thêm thuộc tính data-selected để theo dõi trạng thái
-                    html += `<li class="machine-item" id="machine-${op.opserial}" onclick="toggleMachineSelection('${op.opserial}', '${safeName}', this)">
+                    html += `<li class="machine-item" onclick="toggleMachineSelection('${op.opserial}', '${safeName}', this)">
                                 <div class="click-overlay"></div>
                                 <input type="radio" name="machineSelect" value="${op.opserial}">
                                 <div style="margin-left:10px; pointer-events:none;">
-                                    <h4>${displayName} ${typeBadge}</h4>
-                                    <p>Serial: <b>${op.opserial}</b> | Type: ${op.iottype || 'N/A'}</p>
+                                    <h4>${displayName} <span class="type-badge badge-fa">FA/IoT</span></h4>
+                                    <p>Serial: <b>${op.opserial}</b></p>
                                 </div>
                             </li>`;
                 });
                 html += '</ul>';
-                resDiv.innerHTML += html;
-                
-                // Hiển thị thông báo nếu chỉ có 1 máy
-                if (candidates.length === 1) {
-                    const machine = candidates[0];
-                    selectMachine(machine.opserial, machine.remarks || machine.opname, document.getElementById(`machine-${machine.opserial}`));
-                }
-
+                resDiv.innerHTML = html;
             } catch (e) {
                 resDiv.className = "result-box result-warning";
-                resDiv.innerHTML = `<p><i class="fas fa-exclamation-triangle"></i> ${e.message}</p>`;
-                // Auto show manual input if scan fails
+                resDiv.innerHTML = `<p>${e.message}</p>`;
                 document.getElementById('manualSerialInput').classList.remove('hidden');
             } finally {
                 resDiv.classList.remove('hidden');
@@ -886,130 +573,69 @@
             }
         }
 
-        // HÀM TOGGLE CHỌN MÁY (CLICK 2 LẦN ĐỂ HỦY)
+        // HÀM TOGGLE MÁY ĐƯỢC VIẾT LẠI
         function toggleMachineSelection(serial, name, element) {
-            // Nếu đã chọn máy này rồi -> hủy chọn
             if (selectedOpserial === serial) {
                 clearMachineSelection();
                 return;
             }
-            
-            // Chọn máy mới
             selectMachine(serial, name, element);
         }
 
         function selectMachine(serial, name, element) {
-            // Xóa chọn máy cũ nếu có
+            // Unselect cũ
             if (selectedOpserial && selectedOpserial !== serial) {
-                const oldElement = document.getElementById(`machine-${selectedOpserial}`);
-                if (oldElement) {
-                    oldElement.classList.remove('selected');
-                    const oldRadio = oldElement.querySelector('input[type="radio"]');
-                    if (oldRadio) oldRadio.checked = false;
-                }
+                document.querySelectorAll('.machine-item').forEach(el => {
+                    el.classList.remove('selected');
+                    const r = el.querySelector('input[type="radio"]');
+                    if(r) r.checked = false;
+                });
             }
             
             selectedOpserial = serial;
             selectedMachineName = name;
             
-            // Highlight UI mới
-            if (element) {
+            if(element) {
                 element.classList.add('selected');
                 const radio = element.querySelector('input[type="radio"]');
                 if(radio) radio.checked = true;
             }
-            
-            // Hiển thị nút hủy chọn
-            document.getElementById('unselectBtn').classList.remove('hidden');
-            
-            // Thêm thông báo đã chọn
-            const resDiv = document.getElementById('scanResult');
-            const infoDiv = document.createElement('div');
-            infoDiv.className = 'result-box result-success';
-            infoDiv.style.marginTop = '10px';
-            infoDiv.innerHTML = `<p><i class="fas fa-check-circle"></i> Đã chọn máy: <b>${name}</b></p>
-                                <p>Serial: <b>${serial}</b> | Click 2 lần vào máy để hủy chọn</p>`;
-            
-            // Xóa thông báo cũ nếu có
-            const oldInfo = resDiv.querySelector('.result-success');
-            if (oldInfo) oldInfo.remove();
-            
-            resDiv.appendChild(infoDiv);
+            addLog(`Selected: ${name} (${serial})`);
         }
 
         function clearMachineSelection() {
-            if (!selectedOpserial) return;
-            
-            // Xóa highlight
-            const oldElement = document.getElementById(`machine-${selectedOpserial}`);
-            if (oldElement) {
-                oldElement.classList.remove('selected');
-                const oldRadio = oldElement.querySelector('input[type="radio"]');
-                if (oldRadio) oldRadio.checked = false;
-            }
-            
-            // Xóa thông báo đã chọn
-            const resDiv = document.getElementById('scanResult');
-            const successMsg = resDiv.querySelector('.result-success');
-            if (successMsg) successMsg.remove();
-            
-            // Reset biến
+            document.querySelectorAll('.machine-item').forEach(el => {
+                el.classList.remove('selected');
+                const r = el.querySelector('input[type="radio"]');
+                if(r) r.checked = false;
+            });
             selectedOpserial = null;
             selectedMachineName = "";
-            
-            // Ẩn nút hủy chọn
-            document.getElementById('unselectBtn').classList.add('hidden');
-            
-            // Thêm thông báo đã hủy
-            const infoDiv = document.createElement('div');
-            infoDiv.className = 'result-box result-warning';
-            infoDiv.style.marginTop = '10px';
-            infoDiv.innerHTML = `<p><i class="fas fa-info-circle"></i> Đã hủy chọn máy. Click vào máy để chọn lại.</p>`;
-            resDiv.appendChild(infoDiv);
+            addLog("Selection cleared.");
         }
 
-        function toggleManualInput() {
-            const el = document.getElementById('manualSerialInput');
-            el.classList.toggle('hidden');
-            if(!el.classList.contains('hidden')) {
-                document.getElementById('manualOpserial').focus();
-            }
-        }
-
+        function toggleManualInput() { document.getElementById('manualSerialInput').classList.toggle('hidden'); }
         function confirmManualSerial() {
             const val = document.getElementById('manualOpserial').value;
             if(val) {
                 selectedOpserial = val;
                 selectedMachineName = "Manual: " + val;
-                const resDiv = document.getElementById('scanResult');
-                resDiv.className = 'result-box result-success';
-                resDiv.classList.remove('hidden');
-                resDiv.innerHTML = `<p><i class="fas fa-check"></i> Đã chọn thủ công: <b>${val}</b></p>
-                                    <p>Click nút "Hủy chọn máy" để xóa chọn</p>`;
+                document.getElementById('scanResult').innerHTML = `<div class="result-box result-success"><p>Đã chọn thủ công: <b>${val}</b></p></div>`;
+                document.getElementById('scanResult').classList.remove('hidden');
                 document.getElementById('manualSerialInput').classList.add('hidden');
-                document.getElementById('unselectBtn').classList.remove('hidden');
-            } else {
-                alert("Vui lòng nhập mã Serial!");
-            }
+            } else alert("Vui lòng nhập Serial!");
         }
 
-        // ============ SEND ============
         async function sendToMES() {
-            if(!selectedOpserial) return alert("Vui lòng CHỌN MÁY (Click vào dòng chứa máy FA hoặc nhập thủ công)!");
+            if(!selectedOpserial) return alert("Vui lòng CHỌN MÁY!");
             
             const hasData = Object.keys(productionData).length > 0;
-            if(!hasData) {
-                if(!confirm("KHÔNG CÓ DỮ LIỆU SẢN LƯỢNG!\n\nBạn có muốn gửi để XÓA dữ liệu giờ này không?")) {
-                    return;
-                }
-            }
+            if(!hasData) if(!confirm("KHÔNG CÓ DỮ LIỆU! Gửi để xóa?")) return;
 
-            const confirmMsg = `XÁC NHẬN GỬI?\n\nPackage: ${selectedPackageId}\nLine: ${selectedLine}\nMáy: ${selectedMachineName}\nSerial: ${selectedOpserial}\n\nTổng slot dữ liệu: ${Object.keys(productionData).length}`;
-            
-            if(!confirm(confirmMsg)) return;
+            if(!confirm(`XÁC NHẬN GỬI?\n\nLINE: ${selectedLine}\nPackage: ${selectedPackageId}\nMáy: ${selectedMachineName}\nSerial: ${selectedOpserial}`)) return;
 
             const btn = document.getElementById('sendBtn');
-            btn.innerHTML = '<div class="loader"></div> Đang gửi...';
+            btn.innerHTML = '<div class="loader"></div> Sending...';
             btn.disabled = true;
 
             try {
@@ -1024,21 +650,10 @@
                     })
                 });
                 const json = await res.json();
-                
                 if(json.success) {
-                    document.getElementById('resultMessage').innerHTML = `
-                        <div class="result-box result-success">
-                            <h3><i class="fas fa-check-circle"></i> THÀNH CÔNG!</h3>
-                            <p>${json.message}</p>
-                            <p>Package: <b>${selectedPackageId}</b></p>
-                            <p>Line: <b>${selectedLine}</b></p>
-                            <p>Máy: <b>${selectedMachineName}</b></p>
-                            <p>Serial: <b>${selectedOpserial}</b></p>
-                            <p>Tổng slot gửi: <b>${Object.keys(productionData).length}</b></p>
-                        </div>`;
-                } else {
-                    throw new Error(json.message);
-                }
+                    document.getElementById('resultMessage').innerHTML = `<div class="result-box result-success"><h3>THÀNH CÔNG!</h3><p>${json.message}</p></div>`;
+                    addLog(`Success: ${json.message}`);
+                } else throw new Error(json.message);
                 goToStep(4);
             } catch(e) {
                 alert("Lỗi: " + e.message);
@@ -1053,11 +668,54 @@
             document.getElementById(`step${step}`).classList.add('active');
             document.getElementById(`stepDot${step}`).classList.add('active');
             if(step === 3) {
-                document.getElementById('contextPackageInfo').innerHTML = 
-                    `${selectedPackageId} <br> <span style="font-size:14px; color:#555; font-weight:normal">${selectedStyle}</span>`;
-                document.getElementById('contextLineInfo').innerHTML = 
-                    `LINE: ${selectedLine}`;
+                document.getElementById('contextPackageInfo').innerHTML = `${selectedPackageId}<br><span style="font-size:14px; color:#555;">${selectedStyle}</span><br><span style="font-size:16px; color:#000; font-weight:bold; background:#e0f7fa; padding:2px 5px;">LINE: ${selectedLine}</span>`;
+                updatePreviewTable();
             }
+        }
+
+        function updatePreviewTable() {
+            const tbody = document.getElementById('previewTableBody');
+            tbody.innerHTML = '';
+            let total = 0;
+            timeSlots.forEach(slot => {
+                if (productionData.hasOwnProperty(slot)) {
+                    tbody.innerHTML += `<tr><td>${timeSlots.indexOf(slot)+1}</td><td>${slot}</td><td><b>${productionData[slot]}</b></td><td>${hourlyTarget}</td></tr>`;
+                    total += productionData[slot];
+                }
+            });
+            tbody.innerHTML += `<tr style="background:#e8f5e9"><td colspan="2"><b>TỔNG</b></td><td colspan="2"><b>${total}</b></td></tr>`;
+        }
+
+        // Utils
+        function handleFileSelect(e) { window.excelFile = e.target.files[0]; if(window.excelFile) document.getElementById('fileName').innerText = window.excelFile.name; document.getElementById('fileInfo').classList.remove('hidden'); }
+        function parseExcelFile() {
+            if(!window.excelFile) return alert("Chưa chọn file!");
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const data = new Uint8Array(e.target.result);
+                const workbook = XLSX.read(data, {type: 'array'});
+                const jsonData = XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]]);
+                productionData = {};
+                jsonData.forEach(row => {
+                    const t = row.TIME_SLOT || row['Time Slot'];
+                    const v = row.VALUE || row['Value'];
+                    if(t) productionData[t] = parseInt(v) || 0;
+                });
+                alert(`Đã đọc ${Object.keys(productionData).length} dòng.`);
+                updatePreviewTable();
+                goToStep(3);
+            };
+            reader.readAsArrayBuffer(window.excelFile);
+        }
+        function exportToCSV() {
+            if (!currentPackageDetails) return alert("Không có dữ liệu.");
+            let csv = "\uFEFFModule,Name,Serial\n";
+            currentPackageDetails.forEach(m => m.operations.forEach(op => csv += `"${m.name}","${op.remarks||op.opname}","${op.opserial}"\n`));
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement("a");
+            link.href = URL.createObjectURL(blob);
+            link.download = `Details.csv`;
+            link.click();
         }
     </script>
 </body>
