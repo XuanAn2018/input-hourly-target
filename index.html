@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MES Production V5.4 (Compact Final)</title>
+    <title>MES Production V6.1 (Smart Track)</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         /* CSS CHUNG */
@@ -22,6 +22,37 @@
         .form-control { width: 100%; padding: 12px 15px; border: 2px solid #ddd; border-radius: 8px; font-size: 16px; transition: all 0.3s; }
         .form-control:focus { border-color: #2196F3; outline: none; box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.1); }
         
+        /* === SMART LIST STYLES === */
+        .search-box-wrapper { position: relative; margin-bottom: 10px; }
+        .search-box-wrapper i { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: #999; }
+        .search-input { padding-left: 40px; }
+        
+        .package-list-container {
+            max-height: 350px;
+            overflow-y: auto;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background: white;
+            padding: 5px;
+        }
+        .package-card {
+            padding: 12px;
+            border-bottom: 1px solid #eee;
+            cursor: pointer;
+            transition: 0.2s;
+            border-radius: 6px;
+            margin-bottom: 2px;
+        }
+        .package-card:last-child { border-bottom: none; }
+        .package-card:hover { background: #f5f5f5; }
+        .package-card.selected { background: #e3f2fd; border: 1px solid #2196F3; }
+        
+        .pkg-id { font-weight: bold; color: #1565c0; font-size: 15px; margin-bottom: 4px; word-break: break-all; }
+        .pkg-meta { font-size: 13px; color: #555; display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+        .pkg-tag { background: #eee; padding: 2px 8px; border-radius: 12px; font-size: 11px; font-weight: 600; color: #444; }
+        .pkg-tag.tag-target { background: #fff3e0; color: #e65100; }
+        .pkg-tag.tag-style { background: #e8f5e9; color: #2e7d32; }
+
         /* BUTTONS */
         .btn { padding: 12px 25px; border: none; border-radius: 8px; font-size: 16px; font-weight: 600; cursor: pointer; transition: all 0.3s; display: inline-flex; align-items: center; gap: 10px; }
         .btn:disabled { opacity: 0.6; cursor: not-allowed; }
@@ -34,7 +65,7 @@
         .btn-sm { padding: 5px 10px; font-size: 12px; }
         .action-buttons { display: flex; gap: 10px; margin-top: 20px; }
 
-        /* STEPS */
+        /* STEPS & OTHERS */
         .step-container { display: none; background: white; border: 2px solid #e0e0e0; border-radius: 10px; padding: 25px; animation: fadeIn 0.5s; }
         .step-container.active { display: block; border-color: #2196F3; box-shadow: 0 5px 20px rgba(33, 150, 243, 0.1); }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
@@ -53,7 +84,7 @@
         .radio-option { display: flex; align-items: center; gap: 8px; cursor: pointer; font-weight: 600; }
         .hidden { display: none !important; }
 
-        /* INPUT GRID */
+        /* INPUT GRID & SUMMARY */
         .manual-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin-top: 20px; }
         .slot-card { border: 1px solid #ddd; border-radius: 8px; padding: 15px; position: relative; background: white; transition: 0.3s; min-height: 120px; }
         .slot-card:hover { transform: translateY(-3px); box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
@@ -70,6 +101,7 @@
         .status-success { background-color: #e8f5e9 !important; border-color: #4CAF50 !important; }
         .status-warning { background-color: #fffde7 !important; border-color: #FBC02D !important; }
         .status-error { background-color: #ffebee !important; border-color: #e53935 !important; }
+        
         .manual-summary { margin-top: 20px; padding: 15px; background: #263238; color: white; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; }
         
         /* MACHINE LIST */
@@ -89,8 +121,8 @@
         /* OTHERS */
         .context-header { background: #fff3e0; border-left: 5px solid #ff9800; padding: 15px; border-radius: 5px; margin-bottom: 20px; }
         .context-title { font-size: 12px; color: #666; text-transform: uppercase; letter-spacing: 1px; }
-        .context-value { font-size: 16px; font-weight: bold; color: #e65100; margin-top: 5px; line-height: 1.4; }
-        .context-line { font-size: 15px; color: #1565c0; margin-top: 3px; font-weight: 600; }
+        .context-value { font-size: 16px; font-weight: bold; color: #e65100; margin-top: 5px; line-height: 1.4; word-break: break-all; }
+        .context-line { font-size: 15px; color: #1565c0; margin-top: 5px; font-weight: 600; border-top: 1px dashed #ffb74d; padding-top: 5px; }
         .loader { display: inline-block; width: 20px; height: 20px; border: 3px solid #f3f3f3; border-top: 3px solid #2196F3; border-radius: 50%; animation: spin 1s linear infinite; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         table { width: 100%; border-collapse: collapse; margin: 15px 0; font-size: 14px; }
@@ -124,40 +156,18 @@
         .serial-tag { background: #eee; padding: 2px 6px; border-radius: 4px; font-family: monospace; color: #333; }
 
         /* === CSS KẾT QUẢ COMPACT & CHI TIẾT === */
-        .detail-list {
-            background: #fff;
-            padding: 5px 15px; /* Giảm padding */
-            border-radius: 8px;
-            border: 1px solid #e0e0e0;
-            margin-top: 10px;
-        }
-        .detail-item {
-            display: flex;
-            justify-content: space-between;
-            padding: 6px 0; /* Giảm khoảng cách giữa các dòng */
-            border-bottom: 1px dashed #eee;
-            align-items: center;
-            font-size: 13px; /* Font nhỏ gọn */
-        }
+        .detail-list { background: #fff; padding: 5px 15px; border-radius: 8px; border: 1px solid #e0e0e0; margin-top: 10px; }
+        .detail-item { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px dashed #eee; align-items: center; font-size: 13px; }
         .detail-item:last-child { border-bottom: none; }
         .detail-label { color: #666; font-weight: 600; display: flex; align-items: center; gap: 8px; min-width: 100px; }
         .detail-label i { color: #999; width: 16px; text-align: center; font-size: 12px; }
         .detail-value { font-weight: 700; color: #333; text-align: right; font-size: 14px; }
         
-        .status-pill {
-            padding: 4px 10px;
-            border-radius: 20px;
-            font-size: 11px;
-            font-weight: bold;
-            display: inline-flex;
-            align-items: center;
-            gap: 5px;
-        }
+        .status-pill { padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: bold; display: inline-flex; align-items: center; gap: 5px; }
         .pill-success { background: #e8f5e9; color: #2e7d32; border: 1px solid #c8e6c9; }
         .pill-error { background: #ffebee; color: #c62828; border: 1px solid #ffcdd2; }
         .pill-gray { background: #f5f5f5; color: #616161; border: 1px solid #e0e0e0; }
         
-        /* Hiệu ứng scroll bar đẹp */
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: #f1f1f1; }
         ::-webkit-scrollbar-thumb { background: #ccc; border-radius: 3px; }
@@ -167,8 +177,8 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1><i class="fas fa-industry"></i> MES Production V5.4</h1>
-            <p>Compact & Detail Edition</p>
+            <h1><i class="fas fa-industry"></i> MES Production V6.1</h1>
+            <p>Smart List & Progress Tracking</p>
         </div>
         
         <div class="content">
@@ -179,7 +189,7 @@
                 <div class="step-dot" id="stepDot4"></div>
             </div>
             
-            <!-- STEP 1: CONFIG -->
+            <!-- STEP 1: CONFIG & SELECT PACKAGE -->
             <div class="step-container active" id="step1">
                 <div class="step-header">
                     <div class="step-title"><span class="step-number">1</span> Cấu hình & Chọn Package</div>
@@ -203,11 +213,16 @@
                         </div>
                     </div>
                     
+                    <!-- SMART LIST PACKAGE SELECTION -->
                     <div class="form-group">
-                        <label>Chọn Package:</label>
-                        <select id="packageSelect" class="form-control" onchange="onPackageSelected()" size="5">
-                            <option value="">-- Vui lòng chọn Package --</option>
-                        </select>
+                        <label>Chọn Package (Tìm kiếm):</label>
+                        <div class="search-box-wrapper">
+                            <i class="fas fa-search"></i>
+                            <input type="text" id="packageSearch" class="form-control search-input" placeholder="Nhập Package ID, Style hoặc Line..." oninput="filterPackages()">
+                        </div>
+                        <div id="packageListContainer" class="package-list-container">
+                            <div style="text-align:center; padding:20px; color:#999;">Vui lòng tải danh sách...</div>
+                        </div>
                     </div>
 
                     <div class="form-group">
@@ -242,6 +257,10 @@
                             <span class="package-info-value" id="infoLine"></span>
                         </div>
                         <div class="package-info-row">
+                            <span class="package-info-label">Target (Ngày):</span>
+                            <span class="package-info-value" id="infoDailyTarget" style="font-weight:bold; color:#e65100;">0</span>
+                        </div>
+                        <div class="package-info-row">
                             <span class="package-info-label">Target/Giờ:</span>
                             <span class="package-info-value" id="infoHourlyTarget" style="font-weight:bold; color:red; font-size: 1.2em;">0</span>
                         </div>
@@ -264,10 +283,21 @@
                 </div>
                 
                 <div class="simple-input-area">
-                    <div class="manual-summary">
-                        <h3><i class="fas fa-calculator"></i> Tổng sản lượng:</h3>
-                        <span id="manualTotalDisplay" style="font-size:24px; font-weight:bold;">0</span>
+                    <!-- HEADER TIẾN ĐỘ THÔNG MINH -->
+                    <div class="manual-summary" style="flex-direction: column; align-items: flex-start; gap: 5px;">
+                        <div style="width: 100%; display: flex; justify-content: space-between; align-items: center;">
+                            <h3 style="margin: 0; font-size: 16px;"><i class="fas fa-chart-pie"></i> Tiến độ:</h3>
+                            <div style="background: rgba(255,255,255,0.1); padding: 4px 12px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.2);">
+                                <span style="color: #bbb; font-size: 13px;">Còn lại:</span>
+                                <span id="manualRemainingDisplay" style="color: #4CAF50; font-weight: bold; font-size: 16px; margin-left: 5px;">0</span>
+                            </div>
+                        </div>
+                        <div style="display: flex; align-items: baseline; gap: 10px; margin-top: 5px;">
+                            <span id="manualTotalDisplay" style="font-size:36px; font-weight:bold; color: #ffffff; line-height: 1;">0</span>
+                            <span style="font-size:16px; color:#aaa;">/ <span id="manualTargetDisplay" style="color:#ffb74d;">0</span> (Target)</span>
+                        </div>
                     </div>
+                    
                     <div class="manual-grid" id="manualGrid"></div>
                     <div class="action-buttons" style="margin-top: 20px;">
                         <button class="btn btn-warning" onclick="resetManualInputs()">Reset</button>
@@ -387,6 +417,7 @@
         const MODULE_API = "https://module-requests.chiscoong-cloudflare-com.workers.dev/opdetails";
         const SCANNER_API = "https://mes-qr-scanner.chiscoong-cloudflare-com.workers.dev/";
         
+        let allPackages = []; // Store raw package data
         let productionData = {};
         let dailyTarget = 0; 
         let hourlyTarget = 36; 
@@ -395,10 +426,8 @@
         let selectedStyle = "";
         let selectedMachineName = "";
         let selectedColor = "";
-        let currentPackageDetails = null;
         let selectedLine = "";
         
-        // FA Tracking
         let hasFaOption = false; 
         let faStatus = {};
         let globalFaEnabled = true;
@@ -418,60 +447,93 @@
 
         function saveConfig() { localStorage.setItem('mesApiKey', document.getElementById('apiKey').value); }
 
-        // ============ PACKAGES ============
+        // ============ SMART LIST LOGIC ============
         async function loadPackages() {
             const apiKey = document.getElementById('apiKey').value;
             const factory = document.getElementById('factory').value;
             const dateVal = document.getElementById('dateSelect').value.replace(/-/g, '');
-            const select = document.getElementById('packageSelect');
+            const listContainer = document.getElementById('packageListContainer');
             
             if(!apiKey) return alert("Vui lòng nhập API Key để tiếp tục!");
             saveConfig();
             
-            select.innerHTML = '<option>Đang tải danh sách...</option>';
-            select.disabled = true;
+            listContainer.innerHTML = '<div style="text-align:center; padding:20px;"><div class="loader"></div> Đang tải dữ liệu...</div>';
 
             try {
                 const res = await fetch(`${PACKAGE_API}?factory=${factory}&fromDate=${dateVal}&apikey=${apiKey}`);
                 const json = await res.json();
-                let pkgs = json.data?.packages || json.data || [];
+                let rawData = json.data?.packages || json.data || [];
                 
-                select.innerHTML = '<option value="">-- Chọn Package --</option>';
-                if(pkgs.length === 0) select.innerHTML += '<option disabled>Không tìm thấy package nào</option>';
-
-                pkgs.forEach(p => {
-                    const target = p.target || p.MXTARGET || 0;
-                    const packageId = p.packageId || p.MXPACKAGE;
-                    const styleText = p.styleText || p.STYLETEXT || "N/A";
-                    let lineName = p.lineName || (p.remarks?.match(/LINE\s*([A-Za-z0-9]+)/i)?.[1]) || packageId.split('_')[1] || "N/A";
+                allPackages = rawData.map(p => {
+                    const pid = p.packageId || p.MXPACKAGE;
+                    const style = p.styleText || p.STYLETEXT || "N/A";
+                    const line = p.lineName || (p.remarks?.match(/LINE\s*([A-Za-z0-9]+)/i)?.[1]) || pid.split('_')[1] || "N/A";
+                    const tgt = p.target || p.MXTARGET || 0;
                     const color = p.color || p.COLOR || p.Color || "";
-
-                    const opt = document.createElement('option');
-                    opt.value = packageId;
-                    opt.dataset.target = target;
-                    opt.dataset.style = styleText;
-                    opt.dataset.line = lineName;
-                    opt.dataset.color = color; 
-                    opt.innerText = `LINE ${lineName} | Target: ${target} | ${packageId}`;
-                    select.appendChild(opt);
+                    
+                    return {
+                        id: pid,
+                        style: style,
+                        line: line,
+                        target: tgt,
+                        color: color,
+                        searchString: `${pid} ${style} ${line} ${color}`.toLowerCase()
+                    };
                 });
-            } catch (e) { alert("Lỗi tải danh sách: " + e.message); select.innerHTML = '<option>Lỗi kết nối</option>'; } 
-            finally { select.disabled = false; }
+                
+                renderPackageList(allPackages);
+
+            } catch (e) { 
+                listContainer.innerHTML = `<div style="text-align:center; padding:20px; color:red;">Lỗi tải: ${e.message}</div>`;
+            } 
         }
 
-        function onPackageSelected() {
-            const select = document.getElementById('packageSelect');
-            if (!select.value) return;
-            const opt = select.options[select.selectedIndex];
-            selectedPackageId = select.value;
-            selectedStyle = opt.dataset.style;
-            selectedLine = opt.dataset.line;
-            selectedColor = opt.dataset.color;
-            dailyTarget = parseInt(opt.dataset.target) || 0;
+        function renderPackageList(list) {
+            const container = document.getElementById('packageListContainer');
+            container.innerHTML = '';
+            
+            if(list.length === 0) {
+                container.innerHTML = '<div style="text-align:center; padding:20px; color:#666;">Không tìm thấy Package nào.</div>';
+                return;
+            }
+
+            list.forEach(p => {
+                const card = document.createElement('div');
+                card.className = 'package-card';
+                card.innerHTML = `
+                    <div class="pkg-id">${p.id}</div>
+                    <div class="pkg-meta">
+                        <span class="pkg-tag tag-style"><i class="fas fa-tshirt"></i> ${p.style}</span>
+                        <span class="pkg-tag"><i class="fas fa-project-diagram"></i> LINE ${p.line}</span>
+                        <span class="pkg-tag tag-target"><i class="fas fa-bullseye"></i> Target: ${p.target}</span>
+                        ${p.color ? `<span class="pkg-tag"><i class="fas fa-palette"></i> ${p.color}</span>` : ''}
+                    </div>
+                `;
+                card.onclick = () => selectPackageFromCard(p, card);
+                container.appendChild(card);
+            });
+        }
+
+        function filterPackages() {
+            const term = document.getElementById('packageSearch').value.toLowerCase();
+            const filtered = allPackages.filter(p => p.searchString.includes(term));
+            renderPackageList(filtered);
+        }
+
+        function selectPackageFromCard(p, cardElem) {
+            document.querySelectorAll('.package-card').forEach(c => c.classList.remove('selected'));
+            cardElem.classList.add('selected');
+            
+            selectedPackageId = p.id;
+            selectedStyle = p.style;
+            selectedLine = p.line;
+            selectedColor = p.color;
+            dailyTarget = parseInt(p.target) || 0;
             
             document.getElementById('infoPackageId').innerText = selectedPackageId;
             document.getElementById('infoStyle').innerText = selectedStyle;
             document.getElementById('infoLine').innerText = `LINE ${selectedLine}`;
+            document.getElementById('infoDailyTarget').innerText = dailyTarget;
             
             const colorRow = document.getElementById('infoColorRow');
             if(selectedColor) {
@@ -505,7 +567,6 @@
                 const res = await fetch(`${MODULE_API}?mxpackage=${selectedPackageId}&mode=full&apikey=${apiKey}`);
                 const json = await res.json();
                 if (!json.success || !json.data.modules.length) throw new Error("No modules found");
-                currentPackageDetails = json.data.modules; 
                 
                 content.innerHTML = json.data.modules.map(mod => `
                     <div class="detail-module">
@@ -532,12 +593,18 @@
             if (txt) navigator.clipboard.writeText(txt).then(() => alert("Đã copy danh sách Remarks vào bộ nhớ đệm!"));
         }
 
-        // ============ INPUT LOGIC ============
+        // ============ INPUT LOGIC (UPDATED WITH REMAINING) ============
         function generateManualGrid() {
             const container = document.getElementById('manualGrid');
             container.innerHTML = '';
             const hours = parseFloat(document.querySelector('input[name="workHours"]:checked').value);
             const slotCount = hours === 7.5 ? 9 : 13;
+            
+            // Cập nhật hiển thị ban đầu
+            document.getElementById('manualTargetDisplay').innerText = dailyTarget;
+            document.getElementById('manualTotalDisplay').innerText = '0';
+            document.getElementById('manualRemainingDisplay').innerText = dailyTarget;
+            document.getElementById('manualRemainingDisplay').style.color = '#4CAF50';
             
             for(let i = 0; i < slotCount; i++) {
                 const isLunch = i === 4;
@@ -558,16 +625,50 @@
             const card = document.getElementById(`card-${idx}`);
             card.classList.remove('status-success', 'status-warning', 'status-error');
             if(inp.value !== '') card.classList.add(val >= hourlyTarget ? 'status-success' : (val >= hourlyTarget*0.7 ? 'status-warning' : 'status-error'));
+            
+            // 1. Tính tổng đã nhập
             let total = 0;
             document.querySelectorAll('.slot-input').forEach(i => total += (parseInt(i.value) || 0));
-            document.getElementById('manualTotalDisplay').innerText = total;
+            
+            // 2. Cập nhật hiển thị Tổng nhập
+            const totalDisplay = document.getElementById('manualTotalDisplay');
+            totalDisplay.innerText = total;
+            
+            if(total > dailyTarget) totalDisplay.style.color = '#ff5252'; 
+            else totalDisplay.style.color = '#ffffff'; 
+
+            // 3. Tính và hiển thị "Còn lại"
+            const remaining = dailyTarget - total;
+            const remainingDisplay = document.getElementById('manualRemainingDisplay');
+            const remainingLabel = remainingDisplay.previousElementSibling; 
+
+            if(remaining >= 0) {
+                remainingLabel.innerText = "Còn lại:";
+                remainingDisplay.innerText = remaining;
+                remainingDisplay.style.color = '#4CAF50'; 
+            } else {
+                remainingLabel.innerText = "Vượt:";
+                remainingDisplay.innerText = Math.abs(remaining);
+                remainingDisplay.style.color = '#ff9800'; 
+            }
         }
 
         function processManualData() {
+            let total = 0;
             productionData = {};
             document.querySelectorAll('.slot-input').forEach((inp, i) => { 
-                if(inp.value) productionData[timeSlots[i]] = parseInt(inp.value); 
+                const val = parseInt(inp.value);
+                if(inp.value) {
+                    productionData[timeSlots[i]] = val; 
+                    total += val;
+                }
             });
+            
+            if (total > dailyTarget) {
+                const msg = `CẢNH BÁO SẢN LƯỢNG!\n\nTổng nhập: ${total}\nTarget ngày: ${dailyTarget}\n\nBạn đang nhập VƯỢT quá Target quy định.\nXác nhận đây là số liệu đúng (vượt sản lượng)?`;
+                if (!confirm(msg)) return;
+            }
+
             updatePreviewTable();
             goToStep(3);
         }
@@ -678,7 +779,6 @@
                         opnum: op.opnum,
                         iottype: op.iottype
                     };
-
                     const faToggle = !isFaGroup ? 
                         `<button class="fa-toggle-btn" id="fa-toggle-${op.opserial}" onclick="toggleMachineFA(event, '${op.opserial}')" title="Bật/Tắt gửi FA cho máy này">
                             <i class="fas fa-robot"></i>
@@ -703,14 +803,10 @@
                 }
                 
                 resDiv.innerHTML += html;
-                
                 if (allOps.length === 1) {
                     const machine = allOps[0];
-                    setTimeout(() => {
-                        selectMachine(machine.opserial, machine.remarks || machine.opname, machine.iottype === 'FA');
-                    }, 100);
+                    setTimeout(() => { selectMachine(machine.opserial, machine.remarks || machine.opname, machine.iottype === 'FA'); }, 100);
                 }
-
             } catch (e) {
                 resDiv.className = "result-box result-warning";
                 resDiv.innerHTML = `<p><i class="fas fa-exclamation-triangle"></i> ${e.message}</p>`;
@@ -819,7 +915,7 @@
             }
         }
 
-        // ============ GỬI DỮ LIỆU & HIỂN THỊ KẾT QUẢ CHI TIẾT & COMPACT ============
+        // ============ GỬI DỮ LIỆU & HIỂN THỊ KẾT QUẢ ============
         async function sendToMES() {
             const currentSerial = String(selectedOpserial || '');
             if(!currentSerial) return alert("Vui lòng CHỌN MÁY trước khi gửi!");
@@ -840,7 +936,6 @@
                 faReason = "Thủ công";
             }
             
-            // --- POPUP XÁC NHẬN CÓ THÊM STYLE ---
             const slotsCount = Object.keys(productionData).length;
             const totalQty = Object.values(productionData).reduce((a,b) => a+b, 0);
 
@@ -895,7 +990,6 @@
                 
                 const faSuccess = faResult.status === 'fulfilled' ? faResult.value?.success : false;
                 
-                // === TẠO HTML KẾT QUẢ COMPACT & FULL INFO (CÓ STYLE) ===
                 let faStatusHtml = '';
                 if(sendFa) {
                     if(faSuccess) faStatusHtml = `<span class="status-pill pill-success"><i class="fas fa-check"></i> FA: ĐÃ GỬI</span>`;
@@ -980,7 +1074,9 @@
             document.getElementById(`step${step}`).classList.add('active');
             document.getElementById(`stepDot${step}`).classList.add('active');
             if(step === 3) {
-                document.getElementById('contextPackageInfo').innerHTML = `${selectedPackageId}<br><small>${selectedStyle}</small>`;
+                document.getElementById('contextPackageInfo').innerHTML = `${selectedPackageId}<br>`;
+                document.getElementById('contextPackageInfo').innerHTML += `<small style="display:block; margin-top:3px; color:#444;">${selectedStyle} | Target: ${dailyTarget}</small>`;
+                
                 document.getElementById('contextLineInfo').innerHTML = `LINE: ${selectedLine}`;
                 if(selectedColor) document.getElementById('contextLineInfo').innerHTML += ` | ${selectedColor}`;
                 
@@ -998,6 +1094,10 @@
             document.querySelectorAll('.slot-card').forEach(card => {
                 card.classList.remove('status-success', 'status-warning', 'status-error');
             });
+            // Reset Remaining
+            document.getElementById('manualRemainingDisplay').innerText = dailyTarget;
+            document.getElementById('manualRemainingDisplay').style.color = '#4CAF50';
+            document.getElementById('manualRemainingDisplay').previousElementSibling.innerText = "Còn lại:";
         }
     </script>
 </body>
