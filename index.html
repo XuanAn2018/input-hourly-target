@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MES Production V6.1 (Smart Track)</title>
+    <title>MES Production Web App</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         /* CSS CHUNG */
@@ -177,8 +177,8 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1><i class="fas fa-industry"></i> MES Production V6.1</h1>
-            <p>Smart List & Progress Tracking</p>
+            <h1><i class="fas fa-industry"></i> MES Production V6.2</h1>
+            <p>Smart List, Tracking & Total Summary</p>
         </div>
         
         <div class="content">
@@ -211,6 +211,15 @@
                             </select>
                             <input type="date" id="dateSelect" class="form-control" style="flex:1" onchange="loadPackages()">
                         </div>
+                    </div>
+                    
+                    <div class="action-buttons" style="margin-bottom: 20px;">
+                        <button class="btn btn-primary" onclick="loadPackages()"><i class="fas fa-sync"></i> Tải DS</button>
+                    </div>
+
+                    <!-- NEW: TOTAL SUMMARY BOX -->
+                    <div id="loadingSummary" class="hidden" style="background: #e8f5e9; color: #2e7d32; padding: 12px; border-radius: 8px; margin-bottom: 15px; border: 1px solid #c8e6c9; font-size: 14px; text-align: center; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
+                        <!-- Content will be injected here -->
                     </div>
                     
                     <!-- SMART LIST PACKAGE SELECTION -->
@@ -267,7 +276,6 @@
                     </div>
 
                     <div class="action-buttons">
-                        <button class="btn btn-primary" onclick="loadPackages()"><i class="fas fa-sync"></i> Tải DS</button>
                         <button class="btn btn-info hidden" id="viewDetailsBtn" onclick="viewPackageDetails()">
                             <i class="fas fa-eye"></i> Xem & Copy
                         </button>
@@ -283,7 +291,6 @@
                 </div>
                 
                 <div class="simple-input-area">
-                    <!-- HEADER TIẾN ĐỘ THÔNG MINH -->
                     <div class="manual-summary" style="flex-direction: column; align-items: flex-start; gap: 5px;">
                         <div style="width: 100%; display: flex; justify-content: space-between; align-items: center;">
                             <h3 style="margin: 0; font-size: 16px;"><i class="fas fa-chart-pie"></i> Tiến độ:</h3>
@@ -417,7 +424,7 @@
         const MODULE_API = "https://module-requests.chiscoong-cloudflare-com.workers.dev/opdetails";
         const SCANNER_API = "https://mes-qr-scanner.chiscoong-cloudflare-com.workers.dev/";
         
-        let allPackages = []; // Store raw package data
+        let allPackages = []; 
         let productionData = {};
         let dailyTarget = 0; 
         let hourlyTarget = 36; 
@@ -427,7 +434,6 @@
         let selectedMachineName = "";
         let selectedColor = "";
         let selectedLine = "";
-        
         let hasFaOption = false; 
         let faStatus = {};
         let globalFaEnabled = true;
@@ -447,17 +453,19 @@
 
         function saveConfig() { localStorage.setItem('mesApiKey', document.getElementById('apiKey').value); }
 
-        // ============ SMART LIST LOGIC ============
+        // ============ SMART LIST LOGIC (WITH SUMMARY) ============
         async function loadPackages() {
             const apiKey = document.getElementById('apiKey').value;
             const factory = document.getElementById('factory').value;
             const dateVal = document.getElementById('dateSelect').value.replace(/-/g, '');
             const listContainer = document.getElementById('packageListContainer');
+            const summaryDiv = document.getElementById('loadingSummary'); // Get Summary Div
             
             if(!apiKey) return alert("Vui lòng nhập API Key để tiếp tục!");
             saveConfig();
             
             listContainer.innerHTML = '<div style="text-align:center; padding:20px;"><div class="loader"></div> Đang tải dữ liệu...</div>';
+            summaryDiv.classList.add('hidden'); // Reset Summary
 
             try {
                 const res = await fetch(`${PACKAGE_API}?factory=${factory}&fromDate=${dateVal}&apikey=${apiKey}`);
@@ -481,10 +489,21 @@
                     };
                 });
                 
+                // --- NEW: CALCULATE & SHOW TOTAL SUMMARY ---
+                const totalPackages = allPackages.length;
+                const grandTotalTarget = allPackages.reduce((sum, pkg) => sum + (parseInt(pkg.target) || 0), 0);
+                
+                if (totalPackages > 0) {
+                    summaryDiv.innerHTML = `<i class="fas fa-check-circle"></i> Đã tải <b>${totalPackages}</b> gói. Tổng số lượng: <b>${grandTotalTarget.toLocaleString('vi-VN')}</b> cái`;
+                    summaryDiv.classList.remove('hidden');
+                }
+                // ------------------------------------------
+                
                 renderPackageList(allPackages);
 
             } catch (e) { 
                 listContainer.innerHTML = `<div style="text-align:center; padding:20px; color:red;">Lỗi tải: ${e.message}</div>`;
+                summaryDiv.classList.add('hidden');
             } 
         }
 
@@ -593,14 +612,13 @@
             if (txt) navigator.clipboard.writeText(txt).then(() => alert("Đã copy danh sách Remarks vào bộ nhớ đệm!"));
         }
 
-        // ============ INPUT LOGIC (UPDATED WITH REMAINING) ============
+        // ============ INPUT LOGIC ============
         function generateManualGrid() {
             const container = document.getElementById('manualGrid');
             container.innerHTML = '';
             const hours = parseFloat(document.querySelector('input[name="workHours"]:checked').value);
             const slotCount = hours === 7.5 ? 9 : 13;
             
-            // Cập nhật hiển thị ban đầu
             document.getElementById('manualTargetDisplay').innerText = dailyTarget;
             document.getElementById('manualTotalDisplay').innerText = '0';
             document.getElementById('manualRemainingDisplay').innerText = dailyTarget;
@@ -626,18 +644,15 @@
             card.classList.remove('status-success', 'status-warning', 'status-error');
             if(inp.value !== '') card.classList.add(val >= hourlyTarget ? 'status-success' : (val >= hourlyTarget*0.7 ? 'status-warning' : 'status-error'));
             
-            // 1. Tính tổng đã nhập
             let total = 0;
             document.querySelectorAll('.slot-input').forEach(i => total += (parseInt(i.value) || 0));
             
-            // 2. Cập nhật hiển thị Tổng nhập
             const totalDisplay = document.getElementById('manualTotalDisplay');
             totalDisplay.innerText = total;
             
             if(total > dailyTarget) totalDisplay.style.color = '#ff5252'; 
             else totalDisplay.style.color = '#ffffff'; 
 
-            // 3. Tính và hiển thị "Còn lại"
             const remaining = dailyTarget - total;
             const remainingDisplay = document.getElementById('manualRemainingDisplay');
             const remainingLabel = remainingDisplay.previousElementSibling; 
@@ -1094,7 +1109,6 @@
             document.querySelectorAll('.slot-card').forEach(card => {
                 card.classList.remove('status-success', 'status-warning', 'status-error');
             });
-            // Reset Remaining
             document.getElementById('manualRemainingDisplay').innerText = dailyTarget;
             document.getElementById('manualRemainingDisplay').style.color = '#4CAF50';
             document.getElementById('manualRemainingDisplay').previousElementSibling.innerText = "Còn lại:";
