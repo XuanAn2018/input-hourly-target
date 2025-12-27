@@ -1,10 +1,10 @@
-<!-- START OF FILE ai_studio_code_v6.3.html -->
+<!-- START OF FILE ai_studio_code_v6.8.html -->
 <!DOCTYPE html>
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MES Production V6.3 (Auto Split & Summary)</title>
+    <title>MES Production V6.8 (Final UI Polish)</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         /* CSS CHUNG */
@@ -23,50 +23,99 @@
         .form-control { width: 100%; padding: 12px 15px; border: 2px solid #ddd; border-radius: 8px; font-size: 16px; transition: all 0.3s; }
         .form-control:focus { border-color: #2196F3; outline: none; box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.1); }
         
-        /* NEW: WORK MODE CARDS (STEP 1) */
+        /* WORK MODE */
         .work-mode-container { display: flex; gap: 20px; margin-top: 10px; }
-        .work-mode-card {
-            flex: 1;
-            border: 2px solid #ddd;
-            border-radius: 12px;
-            padding: 20px;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            background: white;
-            position: relative;
-            overflow: hidden;
-        }
+        .work-mode-card { flex: 1; border: 2px solid #ddd; border-radius: 12px; padding: 20px; text-align: center; cursor: pointer; transition: all 0.3s ease; background: white; position: relative; overflow: hidden; }
         .work-mode-card:hover { transform: translateY(-3px); box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
-        .work-mode-card.selected {
-            border-color: #2196F3;
-            background: #e3f2fd;
-            box-shadow: 0 8px 20px rgba(33, 150, 243, 0.25);
-        }
-        .work-mode-card.selected::after {
-            content: "\f00c"; font-family: "Font Awesome 5 Free"; font-weight: 900;
-            position: absolute; top: 10px; right: 10px; color: #2196F3; font-size: 20px;
-        }
+        .work-mode-card.selected { border-color: #2196F3; background: #e3f2fd; box-shadow: 0 8px 20px rgba(33, 150, 243, 0.25); }
+        .work-mode-card.selected::after { content: "\f00c"; font-family: "Font Awesome 5 Free"; font-weight: 900; position: absolute; top: 10px; right: 10px; color: #2196F3; font-size: 20px; }
         .mode-icon { font-size: 32px; margin-bottom: 10px; display: block; }
         .mode-title { font-weight: bold; font-size: 18px; display: block; margin-bottom: 5px; }
-        .mode-desc { font-size: 13px; color: #666; }
         
-        /* === SMART LIST STYLES === */
+        /* LIST & SEARCH */
         .search-box-wrapper { position: relative; margin-bottom: 10px; }
         .search-box-wrapper i { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: #999; }
         .search-input { padding-left: 40px; }
+        .package-list-container { max-height: 500px; overflow-y: auto; border: 1px solid #ddd; border-radius: 8px; background: white; padding: 5px; }
         
-        .package-list-container { max-height: 350px; overflow-y: auto; border: 1px solid #ddd; border-radius: 8px; background: white; padding: 5px; }
-        .package-card { padding: 12px; border-bottom: 1px solid #eee; cursor: pointer; transition: 0.2s; border-radius: 6px; margin-bottom: 2px; }
-        .package-card:last-child { border-bottom: none; }
+        /* === PACKAGE CARD DESIGN V6.8 === */
+        .package-card {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px;
+            border-bottom: 1px solid #eee;
+            cursor: pointer;
+            transition: 0.2s;
+            border-radius: 6px;
+            margin-bottom: 2px; /* Khoảng cách nhỏ như code cũ */
+            background: white;
+        }
         .package-card:hover { background: #f5f5f5; }
         .package-card.selected { background: #e3f2fd; border: 1px solid #2196F3; }
-        
+
+        /* Left Content - Style như V6.3 (Nguyên bản) */
+        .pkg-left { flex: 1; padding-right: 15px; }
         .pkg-id { font-weight: bold; color: #1565c0; font-size: 15px; margin-bottom: 4px; word-break: break-all; }
         .pkg-meta { font-size: 13px; color: #555; display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
         .pkg-tag { background: #eee; padding: 2px 8px; border-radius: 12px; font-size: 11px; font-weight: 600; color: #444; }
         .pkg-tag.tag-target { background: #fff3e0; color: #e65100; }
         .pkg-tag.tag-style { background: #e8f5e9; color: #2e7d32; }
+
+        /* Right Content - Status mới */
+        .pkg-right { 
+            text-align: right; 
+            min-width: 100px;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            justify-content: center;
+        }
+        
+        /* Box hiển thị số lượng (Lớn) */
+        .qty-display {
+            font-size: 18px;
+            font-weight: 800;
+            line-height: 1.2;
+            padding: 2px 8px;
+            border-radius: 6px;
+            margin-bottom: 2px;
+            display: inline-block;
+        }
+        
+        /* Dòng chữ trạng thái (Nhỏ) */
+        .status-text {
+            font-size: 11px;
+            font-weight: 600;
+            opacity: 0.9;
+        }
+
+        /* Màu sắc V6.8 - Phân biệt rõ ràng */
+        /* 1. Đủ (Green) */
+        .st-done .qty-display { color: #2e7d32; background: #e8f5e9; }
+        .st-done .status-text { color: #2e7d32; }
+
+        /* 2. Vượt (Blue - Khác màu xanh lá) */
+        .st-over .qty-display { color: #1565c0; background: #e3f2fd; }
+        .st-over .status-text { color: #1565c0; }
+
+        /* 3. Thiếu (Orange) */
+        .st-miss .qty-display { color: #e65100; background: #fff3e0; }
+        .st-miss .status-text { color: #e65100; }
+
+        /* 4. Chưa nhập (Gray) */
+        .st-pend .qty-display { color: #757575; background: #f5f5f5; font-size: 14px; } /* Số nhỏ hơn chút nếu chưa nhập */
+        .st-pend .status-text { color: #757575; }
+
+        .status-loading { color: #2196F3; font-size: 12px; font-style: italic; }
+        .mini-loader { width: 12px; height: 12px; border: 2px solid #ddd; border-top-color: #2196F3; border-radius: 50%; animation: spin 1s linear infinite; display: inline-block; }
+
+        /* STEP 2: SUMMARY FIXED SIZES */
+        .manual-summary { margin-top: 20px; padding: 20px; background: #263238; color: white; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; }
+        .summary-block { display: flex; align-items: baseline; gap: 10px; margin-top: 5px; }
+        /* Cùng kích thước cho Tổng và Target */
+        .summary-num { font-size: 28px; font-weight: bold; line-height: 1; }
+        .summary-label { font-size: 14px; color: #aaa; font-weight: normal; }
 
         /* BUTTONS */
         .btn { padding: 12px 25px; border: none; border-radius: 8px; font-size: 16px; font-weight: 600; cursor: pointer; transition: all 0.3s; display: inline-flex; align-items: center; gap: 10px; }
@@ -98,22 +147,12 @@
         .package-info-label { font-weight: 600; min-width: 140px; color: #1565c0; }
         .hidden { display: none !important; }
 
-        /* === NEW: TOOLBAR IN STEP 2 === */
-        .split-toolbar {
-            background: #fff3e0;
-            border: 1px solid #ffe0b2;
-            border-radius: 8px;
-            padding: 15px;
-            margin-bottom: 20px;
-            display: flex;
-            gap: 10px;
-            align-items: center;
-            flex-wrap: wrap;
-        }
+        /* SPLIT TOOLBAR */
+        .split-toolbar { background: #fff3e0; border: 1px solid #ffe0b2; border-radius: 8px; padding: 15px; margin-bottom: 20px; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
         .split-toolbar h4 { margin-right: 10px; color: #e65100; font-size: 15px; }
         .custom-hour-input { width: 80px; padding: 8px; border: 1px solid #ccc; border-radius: 5px; text-align: center; font-weight: bold; }
 
-        /* INPUT GRID & SUMMARY */
+        /* INPUT GRID */
         .manual-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin-top: 20px; }
         .slot-card { border: 1px solid #ddd; border-radius: 8px; padding: 15px; position: relative; background: white; transition: 0.3s; min-height: 120px; }
         .slot-card:hover { transform: translateY(-3px); box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
@@ -133,23 +172,14 @@
         .status-warning { background-color: #fffde7 !important; border-color: #FBC02D !important; }
         .status-error { background-color: #ffebee !important; border-color: #e53935 !important; }
         
-        .manual-summary { margin-top: 20px; padding: 15px; background: #263238; color: white; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; }
-        
-        /* MACHINE LIST */
+        /* OTHERS */
         .machine-list { list-style: none; margin-top: 15px; max-height: 300px; overflow-y: auto; border: 1px solid #eee; border-radius: 8px; }
         .machine-item { padding: 12px 15px; border-bottom: 1px solid #eee; cursor: pointer; transition: 0.2s; display: flex; align-items: center; gap: 10px; position: relative; }
         .machine-item:hover { background: #f5f5f5; }
         .machine-item.selected { background: #e3f2fd; border-left: 4px solid #2196F3; }
-        .machine-item.non-fa { background: #fffaf0; }
-        .machine-item.non-fa:hover { background: #fff3e0; }
-        .machine-item.non-fa.selected { background: #fff3e0; border-left-color: #FF9800; }
-        .machine-radio { margin-right: 5px; pointer-events: none; } 
-        .machine-info-container { flex: 1; margin-left: 5px; pointer-events: none; }
         .type-badge { font-size: 11px; padding: 3px 8px; border-radius: 12px; color: white; font-weight: bold; margin-left: 8px; }
         .badge-fa { background: #4CAF50; }
         .badge-non-fa { background: #FF9800; }
-        
-        /* OTHERS */
         .context-header { background: #fff3e0; border-left: 5px solid #ff9800; padding: 15px; border-radius: 5px; margin-bottom: 20px; }
         .context-title { font-size: 12px; color: #666; text-transform: uppercase; letter-spacing: 1px; }
         .context-value { font-size: 16px; font-weight: bold; color: #e65100; margin-top: 5px; line-height: 1.4; word-break: break-all; }
@@ -164,15 +194,19 @@
         .result-warning { background: #fff3e0; border-left: 5px solid #FF9800; }
         .result-info { background: #e3f2fd; border-left: 5px solid #2196F3; }
         .manual-input-box { background: #f8f9fa; border: 2px dashed #95a5a6; padding: 20px; border-radius: 10px; margin-top: 15px; }
-        .section-divider { display: flex; align-items: center; margin: 15px 0; color: #666; font-size: 13px; }
-        .section-divider::before, .section-divider::after { content: ""; flex: 1; height: 1px; background: #eee; }
-        .section-divider span { padding: 0 10px; }
-        .simple-input-area { padding: 20px; background: #f8f9fa; border-radius: 10px; }
         .selection-info { margin: 15px 0; padding: 15px; background: #e3f2fd; border-radius: 8px; border-left: 5px solid #2196F3; }
         .fa-toggle-btn { position: absolute; right: 15px; top: 50%; transform: translateY(-50%); width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 2; border-radius: 50%; transition: all 0.2s; background: transparent; border: none; color: #4CAF50; }
-        .fa-toggle-btn:hover { background: rgba(76, 175, 80, 0.1); }
         .fa-control-panel { margin: 15px 0; padding: 15px; background: #e8f5e9; border-radius: 8px; border: 1px solid #4CAF50; }
         .fa-toggle-label { display: flex; align-items: center; gap: 10px; font-weight: bold; cursor: pointer; }
+        .detail-list { background: #fff; padding: 5px 15px; border-radius: 8px; border: 1px solid #e0e0e0; margin-top: 10px; }
+        .detail-item { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px dashed #eee; align-items: center; font-size: 13px; }
+        .detail-item:last-child { border-bottom: none; }
+        .detail-label { color: #666; font-weight: 600; display: flex; align-items: center; gap: 8px; min-width: 100px; }
+        .detail-value { font-weight: 700; color: #333; text-align: right; font-size: 14px; }
+        .status-pill { padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: bold; display: inline-flex; align-items: center; gap: 5px; }
+        .pill-success { background: #e8f5e9; color: #2e7d32; border: 1px solid #c8e6c9; }
+        .pill-error { background: #ffebee; color: #c62828; border: 1px solid #ffcdd2; }
+        .pill-gray { background: #f5f5f5; color: #616161; border: 1px solid #e0e0e0; }
         
         /* MODAL */
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; display: flex; justify-content: center; align-items: center; opacity: 0; visibility: hidden; transition: 0.3s; }
@@ -185,31 +219,17 @@
         .detail-module-header { background: #e3f2fd; padding: 10px 15px; font-weight: bold; color: #1565c0; display: flex; justify-content: space-between; }
         .detail-row { padding: 8px 15px; border-bottom: 1px solid #f0f0f0; display: flex; align-items: center; gap: 10px; font-size: 14px; }
         .serial-tag { background: #eee; padding: 2px 6px; border-radius: 4px; font-family: monospace; color: #333; }
-
-        /* === CSS KẾT QUẢ COMPACT & CHI TIẾT === */
-        .detail-list { background: #fff; padding: 5px 15px; border-radius: 8px; border: 1px solid #e0e0e0; margin-top: 10px; }
-        .detail-item { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px dashed #eee; align-items: center; font-size: 13px; }
-        .detail-item:last-child { border-bottom: none; }
-        .detail-label { color: #666; font-weight: 600; display: flex; align-items: center; gap: 8px; min-width: 100px; }
-        .detail-label i { color: #999; width: 16px; text-align: center; font-size: 12px; }
-        .detail-value { font-weight: 700; color: #333; text-align: right; font-size: 14px; }
-        
-        .status-pill { padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: bold; display: inline-flex; align-items: center; gap: 5px; }
-        .pill-success { background: #e8f5e9; color: #2e7d32; border: 1px solid #c8e6c9; }
-        .pill-error { background: #ffebee; color: #c62828; border: 1px solid #ffcdd2; }
-        .pill-gray { background: #f5f5f5; color: #616161; border: 1px solid #e0e0e0; }
         
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: #f1f1f1; }
         ::-webkit-scrollbar-thumb { background: #ccc; border-radius: 3px; }
-        ::-webkit-scrollbar-thumb:hover { background: #bbb; }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <h1><i class="fas fa-industry"></i> MES Production V6.3</h1>
-            <p>Smart List, Auto-Split & Total Summary</p>
+            <h1><i class="fas fa-industry"></i> MES Production V6.8</h1>
+            <p>Smart List & Auto-Sync Summary</p>
         </div>
         
         <div class="content">
@@ -248,9 +268,7 @@
                         <button class="btn btn-primary" onclick="loadPackages()"><i class="fas fa-sync"></i> Tải DS</button>
                     </div>
 
-                    <div id="loadingSummary" class="hidden" style="background: #e8f5e9; color: #2e7d32; padding: 12px; border-radius: 8px; margin-bottom: 15px; border: 1px solid #c8e6c9; font-size: 14px; text-align: center; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
-                        <!-- Content will be injected here -->
-                    </div>
+                    <div id="loadingSummary" class="hidden" style="background: #e8f5e9; color: #2e7d32; padding: 15px; border-radius: 8px; margin-bottom: 15px; border: 1px solid #c8e6c9; font-size: 14px; box-shadow: 0 2px 5px rgba(0,0,0,0.05);"></div>
                     
                     <div class="form-group">
                         <label>Chọn Package (Tìm kiếm):</label>
@@ -263,9 +281,9 @@
                         </div>
                     </div>
 
-                    <!-- NEW: ENHANCED WORK HOURS SELECTION -->
+                    <!-- WORK HOURS SELECTION -->
                     <div class="form-group" style="margin-top: 25px;">
-                        <label><i class="fas fa-clock"></i> Chọn chế độ làm việc (QUAN TRỌNG):</label>
+                        <label><i class="fas fa-clock"></i> Chọn chế độ làm việc:</label>
                         <div class="work-mode-container">
                             <div class="work-mode-card selected" id="mode-7.5" onclick="selectWorkMode(7.5)">
                                 <span class="mode-icon" style="color:#FF9800"><i class="fas fa-sun"></i></span>
@@ -324,16 +342,12 @@
                 </div>
                 
                 <div class="simple-input-area">
-                    <!-- NEW: AUTO SPLIT TOOLBAR -->
                     <div class="split-toolbar">
                         <h4><i class="fas fa-magic"></i> Công cụ chia:</h4>
-                        
                         <button class="btn btn-sm btn-purple" onclick="autoDistribute(null)">
                             <i class="fas fa-bolt"></i> Auto Chia (Chuẩn)
                         </button>
-                        
                         <div style="border-left: 2px solid #ddd; height: 30px; margin: 0 5px;"></div>
-                        
                         <div style="display: flex; align-items: center; gap: 5px;">
                             <input type="number" id="customSplitHours" class="custom-hour-input" placeholder="Số giờ" min="1" max="13">
                             <button class="btn btn-sm btn-info" onclick="autoDistributeCustom()">
@@ -342,6 +356,7 @@
                         </div>
                     </div>
 
+                    <!-- FIXED PROGRESS SECTION -->
                     <div class="manual-summary" style="flex-direction: column; align-items: flex-start; gap: 5px;">
                         <div style="width: 100%; display: flex; justify-content: space-between; align-items: center;">
                             <h3 style="margin: 0; font-size: 16px;"><i class="fas fa-chart-pie"></i> Tiến độ:</h3>
@@ -350,9 +365,12 @@
                                 <span id="manualRemainingDisplay" style="color: #4CAF50; font-weight: bold; font-size: 16px; margin-left: 5px;">0</span>
                             </div>
                         </div>
-                        <div style="display: flex; align-items: baseline; gap: 10px; margin-top: 5px;">
-                            <span id="manualTotalDisplay" style="font-size:36px; font-weight:bold; color: #ffffff; line-height: 1;">0</span>
-                            <span style="font-size:16px; color:#aaa;">/ <span id="manualTargetDisplay" style="color:#ffb74d;">0</span> (Target)</span>
+                        <div class="summary-block">
+                            <!-- Cùng kích thước chữ -->
+                            <span id="manualTotalDisplay" class="summary-num" style="color: #ffffff;">0</span>
+                            <span class="summary-label">/</span>
+                            <span id="manualTargetDisplay" class="summary-num" style="color:#ffb74d;">0</span>
+                            <span class="summary-label">(Target)</span>
                         </div>
                     </div>
                     
@@ -376,7 +394,6 @@
                     <div class="context-line" id="contextLineInfo"></div>
                 </div>
 
-                <!-- FA CONTROL PANEL -->
                 <div class="fa-control-panel" id="faControlPanel" style="display: none;">
                     <label class="fa-toggle-label">
                         <input type="checkbox" id="globalFaToggle" checked onchange="toggleGlobalFA()">
@@ -409,7 +426,6 @@
                     </div>
                 </div>
 
-                <!-- HIỂN THỊ MÁY ĐÃ CHỌN -->
                 <div id="selectionInfo" class="selection-info hidden">
                     <h4><i class="fas fa-check-circle"></i> Đã chọn máy:</h4>
                     <p style="margin-top:5px; font-size:16px;">
@@ -451,7 +467,7 @@
         </div>
     </div>
 
-    <!-- MODAL PACKAGE DETAILS -->
+    <!-- MODAL -->
     <div class="modal-overlay" id="detailModal">
         <div class="modal-box">
             <div class="modal-header">
@@ -511,56 +527,147 @@
             if(selectedPackageId) recalculateTarget();
         }
 
-        // ============ SMART LIST LOGIC ============
+        // ============ SMART LIST LOGIC (V6.8) ============
         async function loadPackages() {
             const apiKey = document.getElementById('apiKey').value;
             const factory = document.getElementById('factory').value;
-            const dateVal = document.getElementById('dateSelect').value.replace(/-/g, '');
+            const dateValForPkg = document.getElementById('dateSelect').value.replace(/-/g, '');
             const listContainer = document.getElementById('packageListContainer');
             const summaryDiv = document.getElementById('loadingSummary');
             
             if(!apiKey) return alert("Vui lòng nhập API Key để tiếp tục!");
             saveConfig();
             
-            listContainer.innerHTML = '<div style="text-align:center; padding:20px;"><div class="loader"></div> Đang tải dữ liệu...</div>';
+            listContainer.innerHTML = '<div style="text-align:center; padding:20px;"><div class="loader"></div> Đang tải danh sách...</div>';
             summaryDiv.classList.add('hidden');
 
             try {
-                const res = await fetch(`${PACKAGE_API}?factory=${factory}&fromDate=${dateVal}&apikey=${apiKey}`);
-                const json = await res.json();
-                let rawData = json.data?.packages || json.data || [];
-                
-                allPackages = rawData.map(p => {
+                const pkgRes = await fetch(`${PACKAGE_API}?factory=${factory}&fromDate=${dateValForPkg}&apikey=${apiKey}`);
+                const pkgJson = await pkgRes.json();
+                let rawPackages = pkgJson.data?.packages || pkgJson.data || [];
+
+                allPackages = rawPackages.map(p => {
                     const pid = p.packageId || p.MXPACKAGE;
-                    const style = p.styleText || p.STYLETEXT || "N/A";
-                    const line = p.lineName || (p.remarks?.match(/LINE\s*([A-Za-z0-9]+)/i)?.[1]) || pid.split('_')[1] || "N/A";
-                    const tgt = p.target || p.MXTARGET || 0;
-                    const color = p.color || p.COLOR || p.Color || "";
-                    
                     return {
                         id: pid,
-                        style: style,
-                        line: line,
-                        target: tgt,
-                        color: color,
-                        searchString: `${pid} ${style} ${line} ${color}`.toLowerCase()
+                        style: p.styleText || p.STYLETEXT || "N/A",
+                        line: p.lineName || (p.remarks?.match(/LINE\s*([A-Za-z0-9]+)/i)?.[1]) || pid.split('_')[1] || "N/A",
+                        target: parseInt(p.target || p.MXTARGET || 0),
+                        color: p.color || p.COLOR || p.Color || "",
+                        actual: null,
+                        loading: true,
+                        searchString: `${pid} ${p.styleText} ${p.lineName} ${p.color}`.toLowerCase()
                     };
                 });
                 
-                const totalPackages = allPackages.length;
-                const grandTotalTarget = allPackages.reduce((sum, pkg) => sum + (parseInt(pkg.target) || 0), 0);
-                
-                if (totalPackages > 0) {
-                    summaryDiv.innerHTML = `<i class="fas fa-check-circle"></i> Đã tải <b>${totalPackages}</b> gói. Tổng số lượng: <b>${grandTotalTarget.toLocaleString('vi-VN')}</b> cái`;
-                    summaryDiv.classList.remove('hidden');
-                }
-                
                 renderPackageList(allPackages);
+                syncProductionStatus(allPackages, apiKey);
 
             } catch (e) { 
                 listContainer.innerHTML = `<div style="text-align:center; padding:20px; color:red;">Lỗi tải: ${e.message}</div>`;
                 summaryDiv.classList.add('hidden');
             } 
+        }
+
+        async function syncProductionStatus(packages, apiKey) {
+            const summaryDiv = document.getElementById('loadingSummary');
+            let grandTotalActual = 0;
+            let grandTotalTarget = 0;
+            const concurrencyLimit = 5; 
+            let activeRequests = 0;
+            let index = 0;
+
+            const updateSummary = () => {
+                const totalPkg = packages.length;
+                grandTotalTarget = packages.reduce((sum, p) => sum + p.target, 0);
+                const loadedActual = packages.reduce((sum, p) => sum + (p.actual || 0), 0);
+                updateSummaryDiv(summaryDiv, totalPkg, grandTotalTarget, loadedActual);
+            };
+
+            const processNext = async () => {
+                if (index >= packages.length) return;
+                
+                const p = packages[index++];
+                activeRequests++;
+                
+                try {
+                    const url = `${MODULE_API}?mxpackage=${p.id}&mode=summary&apikey=${apiKey}`;
+                    const res = await fetch(url);
+                    const json = await res.json();
+                    
+                    let totalEntered = 0;
+                    if (json.success && json.data && json.data.summary) {
+                        totalEntered = json.data.summary.total_manual_input || 0;
+                    }
+
+                    p.actual = totalEntered;
+                    p.loading = false;
+                    
+                    updateCardStatus(p);
+                    updateSummary();
+
+                } catch (err) {
+                    console.warn(`Lỗi sync gói ${p.id}:`, err);
+                    p.loading = false;
+                    updateCardStatus(p);
+                } finally {
+                    activeRequests--;
+                    processNext(); 
+                }
+            };
+
+            for (let i = 0; i < concurrencyLimit && i < packages.length; i++) {
+                processNext();
+            }
+        }
+
+        function updateCardStatus(p) {
+            const statusDiv = document.getElementById(`status-${p.id}`);
+            if (!statusDiv) return;
+
+            // Remove all possible status classes first
+            statusDiv.className = 'pkg-right';
+            statusDiv.classList.remove('st-done', 'st-over', 'st-miss', 'st-pend');
+
+            if (p.loading) {
+                statusDiv.innerHTML = `<span class="status-loading"><span class="mini-loader"></span> Kiểm tra...</span>`;
+            } else if (p.actual === 0 || p.actual === null) {
+                statusDiv.classList.add('st-pend');
+                statusDiv.innerHTML = `<span class="qty-display"><i class="far fa-circle"></i></span>
+                                       <span class="status-text">Chưa nhập</span>`;
+            } else {
+                let diff = p.actual - p.target;
+                if (p.actual > p.target) {
+                    // Vượt - Màu Xanh Dương/Tím (khác xanh lá)
+                    statusDiv.classList.add('st-over');
+                    statusDiv.innerHTML = `<span class="qty-display">${p.actual}</span>
+                                           <span class="status-text">Vượt ${diff}</span>`;
+                } else if (p.actual === p.target) {
+                    // Đủ - Màu Xanh Lá
+                    statusDiv.classList.add('st-done');
+                    statusDiv.innerHTML = `<span class="qty-display">${p.actual}</span>
+                                           <span class="status-text">Đủ Target</span>`;
+                } else {
+                    // Thiếu - Màu Cam
+                    statusDiv.classList.add('st-miss');
+                    statusDiv.innerHTML = `<span class="qty-display">${p.actual}</span>
+                                           <span class="status-text">Thiếu ${Math.abs(diff)}</span>`;
+                }
+            }
+        }
+
+        function updateSummaryDiv(div, totalPkg, totalTarget, totalActual) {
+            const percent = totalTarget > 0 ? Math.round((totalActual/totalTarget)*100) : 0;
+            div.innerHTML = `
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <span><i class="fas fa-cubes"></i> Gói: <b>${totalPkg}</b></span>
+                    <span><i class="fas fa-bullseye"></i> Target: <b>${totalTarget.toLocaleString()}</b></span>
+                    <span style="color:${percent >= 100 ? '#2e7d32' : (percent > 0 ? '#e65100' : '#666')}">
+                        <i class="fas fa-check"></i> Thực tế: <b>${totalActual.toLocaleString()}</b> (${percent}%)
+                    </span>
+                </div>
+            `;
+            div.classList.remove('hidden');
         }
 
         function renderPackageList(list) {
@@ -575,13 +682,19 @@
             list.forEach(p => {
                 const card = document.createElement('div');
                 card.className = 'package-card';
+                // HTML Layout: 2 Cột, Left (Info V6.3 style), Right (Status New)
                 card.innerHTML = `
-                    <div class="pkg-id">${p.id}</div>
-                    <div class="pkg-meta">
-                        <span class="pkg-tag tag-style"><i class="fas fa-tshirt"></i> ${p.style}</span>
-                        <span class="pkg-tag"><i class="fas fa-project-diagram"></i> LINE ${p.line}</span>
-                        <span class="pkg-tag tag-target"><i class="fas fa-bullseye"></i> Target: ${p.target}</span>
-                        ${p.color ? `<span class="pkg-tag"><i class="fas fa-palette"></i> ${p.color}</span>` : ''}
+                    <div class="pkg-left">
+                        <div class="pkg-id">${p.id}</div>
+                        <div class="pkg-meta">
+                            <span class="pkg-tag tag-style"><i class="fas fa-tshirt"></i> ${p.style}</span>
+                            <span class="pkg-tag"><i class="fas fa-project-diagram"></i> LINE ${p.line}</span>
+                            <span class="pkg-tag tag-target"><i class="fas fa-bullseye"></i> Target: ${p.target}</span>
+                            ${p.color ? `<span class="pkg-tag"><i class="fas fa-palette"></i> ${p.color}</span>` : ''}
+                        </div>
+                    </div>
+                    <div class="pkg-right" id="status-${p.id}">
+                        <span class="status-loading"><span class="mini-loader"></span> Đang tải...</span>
                     </div>
                 `;
                 card.onclick = () => selectPackageFromCard(p, card);
@@ -593,6 +706,7 @@
             const term = document.getElementById('packageSearch').value.toLowerCase();
             const filtered = allPackages.filter(p => p.searchString.includes(term));
             renderPackageList(filtered);
+            filtered.forEach(p => updateCardStatus(p));
         }
 
         function selectPackageFromCard(p, cardElem) {
@@ -673,7 +787,6 @@
             const container = document.getElementById('manualGrid');
             container.innerHTML = '';
             const hours = parseFloat(document.getElementById('workHoursInput').value);
-            // Nếu 11H thì hiện 13 slot (đến 20:15), nếu 7.5H thì hiện 9 slot (đến 16:15)
             const slotCount = hours > 8 ? 13 : 9;
             
             document.getElementById('manualTargetDisplay').innerText = dailyTarget;
@@ -682,10 +795,9 @@
             document.getElementById('manualRemainingDisplay').style.color = '#4CAF50';
             
             for(let i = 0; i < slotCount; i++) {
-                const isLunch = i === 4; // 11:15-12:15
-                const isDinner = i === 12; // 19:15-20:15
+                const isLunch = i === 4; 
+                const isDinner = i === 12; 
                 const isOT = i >= 9 && !isDinner;
-                
                 let badge = '';
                 if(isLunch) badge = '<span class="slot-badge badge-lunch">Lunch</span>';
                 else if(isDinner) badge = '<span class="slot-badge badge-break">Dinner</span>';
@@ -696,7 +808,7 @@
                 else if(isOT) cardClass = 'slot-ot';
                 else if(isDinner) cardClass = 'slot-lunch-special slot-lunch';
 
-                const isDisabled = isLunch || (hours > 8 && isDinner); // Disable Lunch & Dinner
+                const isDisabled = isLunch || (hours > 8 && isDinner);
 
                 container.innerHTML += `<div class="slot-card ${cardClass}" id="card-${i}">
                     ${badge}<div class="slot-header"><span>${timeSlots[i]}</span><span>#${i+1}</span></div>
@@ -739,43 +851,31 @@
             }
         }
 
-        // --- NEW: AUTO DISTRIBUTE LOGIC ---
         function autoDistributeCustom() {
             const h = parseFloat(document.getElementById('customSplitHours').value);
-            const maxSlots = document.querySelectorAll('.slot-card').length;
-            
-            // Logic kiểm tra số giờ nhập vào
-            if(!h || h <= 0) return alert("Vui lòng nhập số giờ hợp lệ!");
-            
-            // Tính số slot khả dụng (trừ đi slot ăn trưa index 4)
-            // Nếu mode 7.5h (9 slot): Max slot điền được là 8 (9 - 1 ăn trưa)
-            // Nếu mode 11h (13 slot): Max slot điền được là 11 (13 - 1 ăn trưa - 1 ăn tối)
             const mode = parseFloat(document.getElementById('workHoursInput').value);
             const availableSlots = mode > 8 ? 11 : 8;
 
+            if(!h || h <= 0) return alert("Vui lòng nhập số giờ hợp lệ!");
             if(h > availableSlots) return alert(`Số giờ không được vượt quá số slot khả dụng (${availableSlots} giờ) của chế độ hiện tại!`);
-            
             autoDistribute(h, true);
         }
 
         function autoDistribute(customHours, isCustom = false) {
             resetManualInputs();
-            const mode = parseFloat(document.getElementById('workHoursInput').value); // 7.5 or 11
+            const mode = parseFloat(document.getElementById('workHoursInput').value);
             const inputs = document.querySelectorAll('.slot-input');
             const target = dailyTarget;
             
             if (target <= 0) return alert("Target phải lớn hơn 0!");
 
-            // Xác định trọng số (weight) cho từng slot
-            // Slot ăn trưa (idx 4) và ăn tối (idx 12) luôn có weight = 0
             let weights = [];
             let totalWeight = 0;
 
             if (isCustom) {
-                // Chia theo giờ tùy chỉnh: Lấy n slot đầu tiên (bỏ qua ăn trưa)
                 let hoursLeft = customHours;
                 for(let i=0; i<inputs.length; i++) {
-                    if (i === 4 || i === 12) { weights.push(0); continue; } // Skip Lunch/Dinner
+                    if (i === 4 || i === 12) { weights.push(0); continue; } 
                     if (hoursLeft > 0) {
                         weights.push(1);
                         totalWeight += 1;
@@ -785,37 +885,29 @@
                     }
                 }
             } else {
-                // Chia tự động theo cấu hình (7.5H hoặc 11H)
                 if (mode === 7.5) {
-                    // Logic 7.5H: Slot 8 (15:15-16:15) tính 0.5, còn lại tính 1
                     for(let i=0; i<9; i++) {
-                        if (i === 4) { weights.push(0); continue; } // Lunch
-                        if (i === 8) { weights.push(0.5); totalWeight += 0.5; } // 0.5H slot
+                        if (i === 4) { weights.push(0); continue; }
+                        if (i === 8) { weights.push(0.5); totalWeight += 0.5; } 
                         else { weights.push(1); totalWeight += 1; }
                     }
                 } else {
-                    // Logic 11H: 11 slot full (bỏ 4 và 12)
                     for(let i=0; i<13; i++) {
-                        if (i === 4 || i === 12) { weights.push(0); continue; } // Lunch & Dinner
+                        if (i === 4 || i === 12) { weights.push(0); continue; }
                         weights.push(1); totalWeight += 1;
                     }
                 }
             }
 
-            // Phân phối giá trị
             let currentTotal = 0;
             let distributedValues = weights.map(w => {
                 if(w === 0) return 0;
-                // Công thức: (Target * Weight) / TotalWeight
-                // Math.floor để lấy số nguyên, phần dư sẽ cộng vào slot cuối
                 return Math.floor(target * w / totalWeight);
             });
 
-            // Tính tổng hiện tại
             currentTotal = distributedValues.reduce((a,b) => a+b, 0);
             let remainder = target - currentTotal;
 
-            // Cộng phần dư vào slot hợp lệ cuối cùng (có weight > 0)
             for(let i = distributedValues.length - 1; i >= 0; i--) {
                 if (weights[i] > 0) {
                     distributedValues[i] += remainder;
@@ -823,7 +915,6 @@
                 }
             }
 
-            // Fill vào ô input
             inputs.forEach((inp, idx) => {
                 if (distributedValues[idx] !== undefined && !inp.disabled) {
                     if(distributedValues[idx] > 0) {
@@ -833,7 +924,6 @@
                 }
             });
         }
-        // ------------------------------------------------------------------
 
         function processManualData() {
             let total = 0;
