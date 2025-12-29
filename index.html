@@ -1,13 +1,13 @@
-<!-- START OF FILE ai_studio_code_v7.0_fixed.html -->
+<!-- START OF FILE ai_studio_code_v7.0_fixed_final.html -->
 <!DOCTYPE html>
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MES System Production V7.0 </title>
+    <title>MES Production V7.0 (Fixed Auto-Select)</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        /* CSS CHUNG - Giữ nguyên từ trước */
+        /* CSS CHUNG - GIỮ NGUYÊN TỪ V6.8 */
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
         body { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; padding: 20px; color: #333; }
         .container { max-width: 1200px; margin: 0 auto; background: white; border-radius: 15px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2); overflow: hidden; position: relative; }
@@ -15,6 +15,37 @@
         .header h1 { font-size: 28px; margin-bottom: 10px; display: flex; align-items: center; justify-content: center; gap: 15px; }
         .header p { opacity: 0.9; font-size: 14px; }
         .content { padding: 30px; display: flex; flex-direction: column; gap: 30px; }
+        
+        /* AUTO-SELECT BANNER - ĐƠN GIẢN */
+        .auto-select-banner {
+            margin: 15px 0;
+            padding: 12px 15px;
+            background: #e8f5e9;
+            border-radius: 8px;
+            border: 2px solid #4CAF50;
+        }
+        .auto-select-text {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 600;
+            color: #2e7d32;
+            margin-bottom: 5px;
+        }
+        .auto-select-details {
+            font-size: 13px;
+            color: #666;
+            margin-left: 28px;
+        }
+        .machine-one-badge {
+            background: #4CAF50;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 11px;
+            font-weight: bold;
+            margin-left: 8px;
+        }
         
         /* FORM & INPUTS */
         .config-section { background: #f8f9fa; padding: 25px; border-radius: 10px; border-left: 5px solid #2196F3; }
@@ -117,54 +148,6 @@
         .btn-sm { padding: 5px 10px; font-size: 12px; }
         .action-buttons { display: flex; gap: 10px; margin-top: 20px; }
 
-        /* DEFAULT SELECTION INFO - NEW */
-        .default-selection-info {
-            margin: 15px 0;
-            padding: 15px;
-            background: #e8f5e9;
-            border-radius: 8px;
-            border: 2px solid #4CAF50;
-            border-left: 5px solid #4CAF50;
-        }
-        .default-selection-title {
-            font-weight: bold;
-            color: #2e7d32;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin-bottom: 10px;
-        }
-        .default-machine-details {
-            background: white;
-            padding: 12px;
-            border-radius: 6px;
-            margin-top: 8px;
-            border: 1px solid #c8e6c9;
-        }
-        .default-machine-row {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 5px;
-            font-size: 14px;
-        }
-        .default-machine-label {
-            color: #666;
-            font-weight: 600;
-        }
-        .default-machine-value {
-            color: #1565c0;
-            font-weight: bold;
-        }
-        .opserial-one-badge {
-            background: #4CAF50;
-            color: white;
-            padding: 2px 8px;
-            border-radius: 10px;
-            font-size: 11px;
-            font-weight: bold;
-            margin-left: 8px;
-        }
-
         /* STEPS & OTHERS */
         .step-container { display: none; background: white; border: 2px solid #e0e0e0; border-radius: 10px; padding: 25px; animation: fadeIn 0.5s; }
         .step-container.active { display: block; border-color: #2196F3; box-shadow: 0 5px 20px rgba(33, 150, 243, 0.1); }
@@ -212,7 +195,7 @@
         .machine-item { padding: 12px 15px; border-bottom: 1px solid #eee; cursor: pointer; transition: 0.2s; display: flex; align-items: center; gap: 10px; position: relative; }
         .machine-item:hover { background: #f5f5f5; }
         .machine-item.selected { background: #e3f2fd; border-left: 4px solid #2196F3; }
-        .machine-item.default-selected { background: #e8f5e9; border-left: 4px solid #4CAF50; }
+        .machine-item.auto-selected { background: #e8f5e9; border-left: 4px solid #4CAF50; }
         .type-badge { font-size: 11px; padding: 3px 8px; border-radius: 12px; color: white; font-weight: bold; margin-left: 8px; }
         .badge-fa { background: #4CAF50; }
         .badge-non-fa { background: #FF9800; }
@@ -265,7 +248,7 @@
     <div class="container">
         <div class="header">
             <h1><i class="fas fa-industry"></i> MES Production V7.0</h1>
-            <p>Smart List & Auto-Sync Summary</p>
+            <p>Fixed Auto-Select Machine #1</p>
         </div>
         
         <div class="content">
@@ -301,7 +284,7 @@
                     </div>
                     
                     <div class="action-buttons" style="margin-bottom: 20px;">
-                        <button class="btn btn-primary" onclick="loadPackages()"><i class="fas fa-sync"></i> Tải Danh Sách Package</button>
+                        <button class="btn btn-primary" onclick="loadPackages()"><i class="fas fa-sync"></i> Tải DS</button>
                     </div>
 
                     <div id="loadingSummary" class="hidden" style="background: #e8f5e9; color: #2e7d32; padding: 15px; border-radius: 8px; margin-bottom: 15px; border: 1px solid #c8e6c9; font-size: 14px; box-shadow: 0 2px 5px rgba(0,0,0,0.05);"></div>
@@ -310,7 +293,7 @@
                         <label>Chọn Package (Tìm kiếm):</label>
                         <div class="search-box-wrapper">
                             <i class="fas fa-search"></i>
-                            <input type="text" id="packageSearch" class="form-control search-input" placeholder="Nhập Package ID, Style,Buyer hoặc Line..." oninput="filterPackages()">
+                            <input type="text" id="packageSearch" class="form-control search-input" placeholder="Nhập Package ID, Style hoặc Line..." oninput="filterPackages()">
                         </div>
                         <div id="packageListContainer" class="package-list-container">
                             <div style="text-align:center; padding:20px; color:#999;">Vui lòng tải danh sách...</div>
@@ -429,6 +412,17 @@
                     <div class="context-line" id="contextLineInfo"></div>
                 </div>
 
+                <!-- AUTO-SELECT BANNER - ĐƠN GIẢN -->
+                <div id="autoSelectBanner" class="auto-select-banner hidden">
+                    <div class="auto-select-text">
+                        <i class="fas fa-check-circle"></i>
+                        <span>Đã tự động chọn máy số 1</span>
+                    </div>
+                    <div class="auto-select-details">
+                        <span id="autoSelectMachineName">N/A</span> - OPSERIAL: <b id="autoSelectMachineSerial">N/A</b>
+                    </div>
+                </div>
+
                 <div class="fa-control-panel" id="faControlPanel" style="display: none;">
                     <label class="fa-toggle-label">
                         <input type="checkbox" id="globalFaToggle" checked onchange="toggleGlobalFA()">
@@ -437,36 +431,6 @@
                     </label>
                     <p style="font-size:12px; color:#666; margin-top:5px;">
                         <i class="fas fa-info-circle"></i> Tắt nếu bạn chỉ muốn gửi sản lượng, không gửi FA
-                    </p>
-                </div>
-
-                <!-- DEFAULT SELECTION INFO - NEW -->
-                <div id="defaultSelectionInfo" class="default-selection-info hidden">
-                    <div class="default-selection-title">
-                        <i class="fas fa-check-circle"></i>
-                        <span>Máy mặc định được chọn tự động</span>
-                    </div>
-                    <div class="default-machine-details">
-                        <div class="default-machine-row">
-                            <span class="default-machine-label">Tên máy:</span>
-                            <span class="default-machine-value" id="defaultMachineName">N/A</span>
-                        </div>
-                        <div class="default-machine-row">
-                            <span class="default-machine-label">OPSERIAL:</span>
-                            <span class="default-machine-value" id="defaultMachineSerial">N/A</span>
-                        </div>
-                        <div class="default-machine-row">
-                            <span class="default-machine-label">OPNUM:</span>
-                            <span class="default-machine-value" id="defaultMachineOpnum">N/A</span>
-                        </div>
-                        <div class="default-machine-row">
-                            <span class="default-machine-label">Loại máy:</span>
-                            <span class="default-machine-value" id="defaultMachineType">N/A</span>
-                        </div>
-                    </div>
-                    <p style="margin-top: 10px; font-size: 13px; color: #666;">
-                        <i class="fas fa-info-circle"></i> Hệ thống ưu tiên chọn máy có OPSERIAL:1 hoặc OPNUM:1. 
-                        Nếu muốn chọn máy khác, vui lòng nhập thủ công bên dưới.
                     </p>
                 </div>
 
@@ -551,11 +515,13 @@
     </div>
 
     <script>
+        // API ENDPOINTS - GIỮ NGUYÊN
         const PROD_API = "https://hourly-target.chiscoong-cloudflare-com.workers.dev/api/production";
         const PACKAGE_API = "https://today-package.chiscoong-cloudflare-com.workers.dev/api/packages";
         const MODULE_API = "https://module-requests.chiscoong-cloudflare-com.workers.dev/opdetails";
         const SCANNER_API = "https://mes-qr-scanner.chiscoong-cloudflare-com.workers.dev/";
         
+        // BIẾN TOÀN CỤC - GIỮ NGUYÊN
         let allPackages = []; 
         let productionData = {};
         let dailyTarget = 0; 
@@ -570,9 +536,6 @@
         let faStatus = {};
         let globalFaEnabled = true;
         let manualFaRequested = true;
-        
-        // NEW: Variables for default selection
-        let defaultMachine = null;
 
         const timeSlots = [
             "07:15 - 08:15", "08:15 - 09:15", "09:15 - 10:15", "10:15 - 11:15", 
@@ -580,6 +543,54 @@
             "15:15 - 16:15", "16:15 - 17:15", "17:15 - 18:15", "18:15 - 19:15", "19:15 - 20:15"
         ];
 
+        // ============ HÀM MỚI: TÌM VÀ CHỌN MÁY SỐ 1 ============
+        function findAndSelectMachineOne(allOps) {
+            console.log("🔍 Looking for machine #1...");
+            
+            // Tìm máy có opserial = 1 (bất kể format)
+            for (let op of allOps) {
+                if (op.opserial != null) {
+                    const serialStr = String(op.opserial);
+                    const serialNum = parseInt(serialStr);
+                    
+                    console.log(`Checking: ${op.remarks || op.opname} - OPSERIAL: "${serialStr}"`);
+                    
+                    if (!isNaN(serialNum) && serialNum === 1) {
+                        console.log(`✅ Found machine #1: ${op.remarks || op.opname} (OPSERIAL: "${serialStr}")`);
+                        
+                        // Hiển thị banner
+                        document.getElementById('autoSelectMachineName').textContent = op.remarks || op.opname;
+                        document.getElementById('autoSelectMachineSerial').textContent = serialStr;
+                        document.getElementById('autoSelectBanner').classList.remove('hidden');
+                        
+                        // Tự động chọn máy
+                        selectMachine(serialStr, op.remarks || op.opname, op.iottype === 'FA');
+                        
+                        // Đánh dấu trong danh sách
+                        const element = document.getElementById(`machine-${serialStr}`);
+                        if (element) {
+                            element.classList.add('auto-selected');
+                            
+                            // Thêm badge "Máy 1"
+                            const badge = document.createElement('span');
+                            badge.className = 'machine-one-badge';
+                            badge.textContent = 'Máy 1';
+                            const titleElement = element.querySelector('.machine-info-container h4');
+                            if (titleElement) {
+                                titleElement.appendChild(badge);
+                            }
+                        }
+                        
+                        return true;
+                    }
+                }
+            }
+            
+            console.log("⚠️ No machine with opserial=1 found");
+            return false;
+        }
+
+        // ============ HÀM CHÍNH - GIỮ NGUYÊN LOGIC CŨ ============
         document.addEventListener('DOMContentLoaded', function() {
             document.getElementById('dateSelect').value = new Date().toISOString().split('T')[0];
             const savedKey = localStorage.getItem('mesApiKey');
@@ -595,7 +606,7 @@
             if(selectedPackageId) recalculateTarget();
         }
 
-        // ============ SMART LIST LOGIC ============
+        // ============ SMART LIST LOGIC (V6.8) - GIỮ NGUYÊN ============
         async function loadPackages() {
             const apiKey = document.getElementById('apiKey').value;
             const factory = document.getElementById('factory').value;
@@ -808,7 +819,7 @@
             generateManualGrid(); 
         }
 
-        // ============ DETAILS MODAL ============
+        // ============ DETAILS MODAL - GIỮ NGUYÊN ============
         async function viewPackageDetails() {
             const apiKey = document.getElementById('apiKey').value;
             document.getElementById('detailModal').classList.add('open');
@@ -845,7 +856,7 @@
             if (txt) navigator.clipboard.writeText(txt).then(() => alert("Đã copy danh sách Remarks vào bộ nhớ đệm!"));
         }
 
-        // ============ INPUT & AUTO SPLIT LOGIC ============
+        // ============ INPUT & AUTO SPLIT LOGIC - GIỮ NGUYÊN ============
         function generateManualGrid() {
             const container = document.getElementById('manualGrid');
             container.innerHTML = '';
@@ -1021,151 +1032,23 @@
             tbody.innerHTML += `<tr style="background:#e8f5e9"><td colspan="2"><b>TỔNG</b></td><td colspan="2"><b>${total}</b></td></tr>`;
         }
 
-        // ============ FA & SELECTION FUNCTIONS (FIXED V7.0) ============
-        // NEW: Find default machine (OPSERIAL:1 or OPNUM:1)
-        function findDefaultMachine(allOps) {
-            // Priority 1: Machine with opserial = 1
-            let machineWithSerial1 = allOps.find(op => 
-                op.opserial != null && String(op.opserial).trim() === "1"
-            );
-            
-            // Priority 2: Machine with opnum = 1
-            let machineWithOpnum1 = allOps.find(op => 
-                op.opnum != null && String(op.opnum).trim() === "1"
-            );
-            
-            // Priority 3: First machine in list
-            let firstMachine = allOps.length > 0 ? allOps[0] : null;
-            
-            if (machineWithSerial1) {
-                return {
-                    machine: machineWithSerial1,
-                    reason: "OPSERIAL:1",
-                    priority: 1
-                };
-            } else if (machineWithOpnum1) {
-                return {
-                    machine: machineWithOpnum1,
-                    reason: "OPNUM:1",
-                    priority: 2
-                };
-            } else if (firstMachine) {
-                return {
-                    machine: firstMachine,
-                    reason: "Máy đầu tiên trong danh sách",
-                    priority: 3
-                };
-            }
-            
-            return null;
-        }
-
-        // NEW: Update default selection info display
-        function updateDefaultSelectionInfo(defaultMachineInfo) {
-            if (!defaultMachineInfo) return;
-            
-            const machine = defaultMachineInfo.machine;
-            const opserial = String(machine.opserial).trim();
-            const opnum = machine.opnum || "N/A";
-            const name = machine.remarks || machine.opname;
-            const isFA = machine.iottype === 'FA';
-            
-            document.getElementById('defaultMachineName').innerText = name;
-            document.getElementById('defaultMachineSerial').innerText = opserial;
-            document.getElementById('defaultMachineOpnum').innerText = opnum;
-            document.getElementById('defaultMachineType').innerText = isFA ? "FA" : "Non-FA";
-            
-            // Show default selection info
-            document.getElementById('defaultSelectionInfo').classList.remove('hidden');
-            
-            // Store default machine
-            defaultMachine = {
-                opserial: opserial,
-                name: name,
-                isFA: isFA,
-                reason: defaultMachineInfo.reason
-            };
-            
-            return opserial;
-        }
-
-        // NEW: Auto-select default machine
-        function autoSelectDefaultMachine(defaultMachineInfo) {
-            if (!defaultMachineInfo) return null;
-            
-            const machine = defaultMachineInfo.machine;
-            const opserial = String(machine.opserial).trim();
-            const name = machine.remarks || machine.opname;
-            const isFA = machine.iottype === 'FA';
-            
-            // Select the machine
-            selectMachine(opserial, name, isFA);
-            
-            // Mark it as default selected
-            const element = document.getElementById(`machine-${opserial}`);
-            if (element) {
-                element.classList.add('default-selected');
-            }
-            
-            return opserial;
-        }
-
-        async function sendFaCommand(apiKey, packageId, opserial) {
-            try {
-                const url = `${SCANNER_API}?apikey=${encodeURIComponent(apiKey)}&mxpackage=${encodeURIComponent(packageId)}&mcid=&opserial=${opserial}&processtype=FA`;
-                const response = await fetch(url);
-                const isSent = response.ok; 
-                return { 
-                    success: isSent, 
-                    message: isSent ? "Server received command" : "Server Error: " + response.status,
-                    simpleMessage: isSent ? "✅ Đã gửi lệnh" : "❌ Lỗi mạng/Server",
-                    data: null 
-                };
-            } catch (error) {
-                return { 
-                    success: false, 
-                    message: error.message || "Connection Error", 
-                    simpleMessage: "❌ Lỗi kết nối",
-                    error: error 
-                };
-            }
-        }
-
-        function toggleGlobalFA() {
-            globalFaEnabled = document.getElementById('globalFaToggle').checked;
-            updateFAStatusText();
-        }
-
-        function updateFAStatusText() {
-            const faStatusText = document.getElementById('faStatusText');
-            if (faStatusText) {
-                if (globalFaEnabled) {
-                    faStatusText.innerHTML = '<i class="fas fa-robot"></i> SẼ GỬI LỆNH FA';
-                    faStatusText.style.color = '#4CAF50';
-                } else {
-                    faStatusText.innerHTML = '<i class="fas fa-ban"></i> KHÔNG gửi lệnh FA';
-                    faStatusText.style.color = '#F44336';
-                }
-            }
-        }
-
+        // ============ FA & SELECTION FUNCTIONS - CẬP NHẬT ============
         async function scanFAMachines() {
             const apiKey = document.getElementById('apiKey').value;
             const btn = document.getElementById('scanBtn');
             const resDiv = document.getElementById('scanResult');
             const manualDiv = document.getElementById('manualSerialInput');
             const faPanel = document.getElementById('faControlPanel');
-            const defaultInfo = document.getElementById('defaultSelectionInfo');
+            const autoBanner = document.getElementById('autoSelectBanner');
             
             btn.innerHTML = '<div class="loader"></div> Đang tìm máy...';
             btn.disabled = true;
             resDiv.innerHTML = ''; resDiv.className = 'hidden'; 
             manualDiv.classList.add('hidden');
-            defaultInfo.classList.add('hidden');
+            autoBanner.classList.add('hidden');
             
             hasFaOption = false;
             faStatus = {};
-            defaultMachine = null;
 
             try {
                 const url = `${MODULE_API}?mxpackage=${selectedPackageId}&mode=operations&apikey=${apiKey}`;
@@ -1176,14 +1059,20 @@
                     throw new Error("Không tìm thấy operation.");
                 }
                 
+                console.log("📦 Raw API response:", json.data.operations);
+                
                 const allOps = json.data.operations
-                    .filter(op => op.opserial != null && String(op.opserial).trim() !== '')
-                    .map(op => ({
-                        ...op,
-                        opserial: String(op.opserial).trim(),
-                        opnum: op.opnum || "N/A",
-                        displayText: `${op.remarks || op.opname} (OPSERIAL: ${op.opserial})`
-                    }));
+                    .filter(op => op.opserial != null)
+                    .map(op => {
+                        // GIỮ NGUYÊN FORMAT GỐC của opserial
+                        return {
+                            ...op,
+                            opserial: op.opserial,  // KHÔNG chuyển đổi
+                            opnum: op.opnum || "N/A"
+                        };
+                    });
+
+                console.log("🔧 Processed machines:", allOps);
 
                 let faCandidates = allOps.filter(op => op.iottype === 'FA');
                 let nonFaCandidates = allOps.filter(op => op.iottype !== 'FA');
@@ -1200,18 +1089,9 @@
                 document.getElementById('globalFaToggle').checked = true;
                 globalFaEnabled = true;
                 
-                // NEW: Find and display default machine
-                const defaultMachineInfo = findDefaultMachine(allOps);
-                let defaultOpserial = null;
-                
-                if (defaultMachineInfo) {
-                    defaultOpserial = updateDefaultSelectionInfo(defaultMachineInfo);
-                }
-                
                 let html = '';
                 const renderItem = (op, isFaGroup) => {
-                    const opserial = String(op.opserial).trim();
-                    const isDefault = opserial === defaultOpserial;
+                    const opserial = String(op.opserial); // Chỉ chuyển thành string khi hiển thị
                     
                     faStatus[opserial] = {
                         displayName: op.remarks || op.opname,
@@ -1225,19 +1105,10 @@
                             <i class="fas fa-robot"></i>
                         </button>` : '';
 
-                    const opserialBadge = (opserial === "1") ? 
-                        '<span class="opserial-one-badge">OPSERIAL:1</span>' : '';
-                    
-                    const opnumBadge = (op.opnum === "1") ? 
-                        '<span class="opserial-one-badge">OPNUM:1</span>' : '';
-
-                    return `<li class="machine-item ${isFaGroup ? '' : 'non-fa'} ${isDefault ? 'default-selected' : ''}" id="machine-${opserial}" onclick="selectMachine('${opserial}', '${(op.remarks || op.opname).replace(/'/g, "\\'").replace(/"/g, '&quot;')}', ${isFaGroup})">
-                                <input type="radio" name="machineSelect" value="${opserial}" class="machine-radio" ${(selectedOpserial === opserial || isDefault) ? 'checked' : ''}>
+                    return `<li class="machine-item ${isFaGroup ? '' : 'non-fa'}" id="machine-${opserial}" onclick="selectMachine('${opserial}', '${(op.remarks || op.opname).replace(/'/g, "\\'").replace(/"/g, '&quot;')}', ${isFaGroup})">
+                                <input type="radio" name="machineSelect" value="${opserial}" class="machine-radio" ${selectedOpserial === opserial ? 'checked' : ''}>
                                 <div class="machine-info-container" style="flex: 1;">
-                                    <h4>${op.remarks || op.opname} 
-                                        <span class="type-badge ${isFaGroup?'badge-fa':'badge-non-fa'}">${isFaGroup?'FA':'NON-FA'}</span>
-                                        ${opserialBadge} ${opnumBadge}
-                                    </h4>
+                                    <h4>${op.remarks || op.opname} <span class="type-badge ${isFaGroup?'badge-fa':'badge-non-fa'}">${isFaGroup?'FA':'NON-FA'}</span></h4>
                                     <p>OPSERIAL: <b>${opserial}</b> | OPNUM: <b>${op.opnum || 'N/A'}</b></p>
                                 </div>
                                 ${faToggle}
@@ -1254,16 +1125,17 @@
                 
                 resDiv.innerHTML += html;
                 
-                // NEW: Auto-select default machine
-                if (defaultMachineInfo) {
-                    autoSelectDefaultMachine(defaultMachineInfo);
-                } else if (allOps.length === 1) {
-                    // Fallback: select the only machine
+                // 🔥 QUAN TRỌNG: Tự động chọn máy số 1
+                const foundMachineOne = findAndSelectMachineOne(allOps);
+                
+                if (!foundMachineOne && allOps.length === 1) {
+                    // Nếu không có máy số 1 và chỉ có 1 máy, chọn máy đó
                     const machine = allOps[0];
-                    selectMachine(machine.opserial, machine.remarks || machine.opname, machine.iottype === 'FA');
+                    selectMachine(String(machine.opserial), machine.remarks || machine.opname, machine.iottype === 'FA');
                 }
                 
             } catch (e) {
+                console.error("❌ Error in scanFAMachines:", e);
                 resDiv.className = "result-box result-warning";
                 resDiv.innerHTML = `<p><i class="fas fa-exclamation-triangle"></i> ${e.message}</p>`;
                 document.getElementById('manualSerialInput').classList.remove('hidden');
@@ -1295,33 +1167,40 @@
         }
 
         function selectMachine(serial, name, isFA = false) {
-            if (selectedOpserial && selectedOpserial !== serial) {
+            console.log(`🎯 selectMachine called: serial="${serial}", name="${name}"`);
+            
+            // Đảm bảo serial là string nhưng giữ nguyên giá trị
+            const serialStr = String(serial);
+            
+            if (selectedOpserial && selectedOpserial !== serialStr) {
                 const old = document.getElementById(`machine-${selectedOpserial}`);
                 if (old) {
                     old.classList.remove('selected');
-                    old.classList.remove('default-selected');
+                    old.classList.remove('auto-selected');
                     old.querySelector('.machine-radio').checked = false;
                 }
             }
             
-            selectedOpserial = serial;
+            selectedOpserial = serialStr;
             selectedMachineName = name;
             
-            const element = document.getElementById(`machine-${serial}`);
+            const element = document.getElementById(`machine-${serialStr}`);
             if (element) {
                 element.classList.add('selected');
                 element.querySelector('.machine-radio').checked = true;
             }
             
-            if (faStatus[serial]) {
-                faStatus[serial].faRequested = globalFaEnabled;
+            if (faStatus[serialStr]) {
+                faStatus[serialStr].faRequested = globalFaEnabled;
             }
             
             document.getElementById('selectedMachineName').innerText = name;
-            document.getElementById('selectedMachineSerial').innerText = serial;
+            document.getElementById('selectedMachineSerial').innerText = serialStr;
             document.getElementById('selectionInfo').classList.remove('hidden');
             document.getElementById('unselectBtn').classList.remove('hidden');
             updateFAStatusText();
+            
+            console.log(`✅ Machine selected: ${name} (${serialStr})`);
         }
 
         function clearMachineSelection() {
@@ -1329,7 +1208,7 @@
             const old = document.getElementById(`machine-${selectedOpserial}`);
             if (old) {
                 old.classList.remove('selected');
-                old.classList.remove('default-selected');
+                old.classList.remove('auto-selected');
                 old.querySelector('.machine-radio').checked = false;
             }
             selectedOpserial = null;
@@ -1375,9 +1254,50 @@
             }
         }
 
+        function toggleGlobalFA() {
+            globalFaEnabled = document.getElementById('globalFaToggle').checked;
+            updateFAStatusText();
+        }
+
+        function updateFAStatusText() {
+            const faStatusText = document.getElementById('faStatusText');
+            if (faStatusText) {
+                if (globalFaEnabled) {
+                    faStatusText.innerHTML = '<i class="fas fa-robot"></i> SẼ GỬI LỆNH FA';
+                    faStatusText.style.color = '#4CAF50';
+                } else {
+                    faStatusText.innerHTML = '<i class="fas fa-ban"></i> KHÔNG gửi lệnh FA';
+                    faStatusText.style.color = '#F44336';
+                }
+            }
+        }
+
+        async function sendFaCommand(apiKey, packageId, opserial) {
+            try {
+                const url = `${SCANNER_API}?apikey=${encodeURIComponent(apiKey)}&mxpackage=${encodeURIComponent(packageId)}&mcid=&opserial=${opserial}&processtype=FA`;
+                const response = await fetch(url);
+                const isSent = response.ok; 
+                return { 
+                    success: isSent, 
+                    message: isSent ? "Server received command" : "Server Error: " + response.status,
+                    simpleMessage: isSent ? "✅ Đã gửi lệnh" : "❌ Lỗi mạng/Server",
+                    data: null 
+                };
+            } catch (error) {
+                return { 
+                    success: false, 
+                    message: error.message || "Connection Error", 
+                    simpleMessage: "❌ Lỗi kết nối",
+                    error: error 
+                };
+            }
+        }
+
         // ============ GỬI DỮ LIỆU & HIỂN THỊ KẾT QUẢ ============
         async function sendToMES() {
             const currentSerial = String(selectedOpserial || '');
+            console.log("🚀 Sending to MES with opserial:", currentSerial);
+            
             if(!currentSerial) return alert("Vui lòng CHỌN MÁY trước khi gửi!");
             
             const hasData = Object.keys(productionData).length > 0;
@@ -1425,6 +1345,12 @@
             try {
                 const apiKey = document.getElementById('apiKey').value;
                 const currentTime = new Date().toLocaleString('vi-VN');
+                
+                console.log("📤 Sending production data:", {
+                    mxpackage: selectedPackageId,
+                    opserial: currentSerial,
+                    production_data: productionData
+                });
                 
                 const prodPromise = fetch(PROD_API, {
                     method: 'POST',
@@ -1508,7 +1434,7 @@
                         </div>
 
                         <div style="margin-top:15px; padding-top:8px; border-top:2px dashed #eee; display:flex; justify-content:space-between; align-items:center;">
-                            <span class="status-pill pill-success"><i class="fas fa-database"></i> Database: ĐÃ LƯU</span>
+                            <span class="status-pill pill-success"><i class="fas fa-database"></i> DB: ĐÃ LƯU</span>
                             ${faStatusHtml}
                         </div>
                     </div>
@@ -1522,6 +1448,7 @@
                 goToStep(4);
                 
             } catch(e) {
+                console.error("❌ Error sending to MES:", e);
                 alert("ĐÃ CÓ LỖI XẢY RA:\n" + (e.message || e));
                 btn.innerHTML = originalBtnText;
                 btn.disabled = false;
@@ -1546,9 +1473,8 @@
                 }
                 updateFAStatusText();
                 
-                // Reset default selection state
-                defaultMachine = null;
-                document.getElementById('defaultSelectionInfo').classList.add('hidden');
+                // Ẩn auto-select banner khi vào step 3
+                document.getElementById('autoSelectBanner').classList.add('hidden');
             }
         }
         
@@ -1567,4 +1493,4 @@
     </script>
 </body>
 </html>
-<!-- END OF FILE ai_studio_code_v7.0_fixed.html -->
+<!-- END OF FILE ai_studio_code_v7.0_fixed_final.html -->
