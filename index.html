@@ -1,13 +1,13 @@
-<!-- START OF FILE ai_studio_code_v7.0_fixed_final.html -->
+<!-- START OF FILE ai_studio_code_v7.2_refined.html -->
 <!DOCTYPE html>
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MES Production V7.0 (Fixed Auto-Select)</title>
+    <title>MES Production V7.2 (Group & Smart Split)</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        /* CSS CHUNG - GIỮ NGUYÊN TỪ V6.8 */
+        /* CSS CHUNG */
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
         body { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; padding: 20px; color: #333; }
         .container { max-width: 1200px; margin: 0 auto; background: white; border-radius: 15px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2); overflow: hidden; position: relative; }
@@ -16,43 +16,11 @@
         .header p { opacity: 0.9; font-size: 14px; }
         .content { padding: 30px; display: flex; flex-direction: column; gap: 30px; }
         
-        /* AUTO-SELECT BANNER - ĐƠN GIẢN */
-        .auto-select-banner {
-            margin: 15px 0;
-            padding: 12px 15px;
-            background: #e8f5e9;
-            border-radius: 8px;
-            border: 2px solid #4CAF50;
-        }
-        .auto-select-text {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            font-weight: 600;
-            color: #2e7d32;
-            margin-bottom: 5px;
-        }
-        .auto-select-details {
-            font-size: 13px;
-            color: #666;
-            margin-left: 28px;
-        }
-        .machine-one-badge {
-            background: #4CAF50;
-            color: white;
-            padding: 2px 8px;
-            border-radius: 10px;
-            font-size: 11px;
-            font-weight: bold;
-            margin-left: 8px;
-        }
-        
         /* FORM & INPUTS */
         .config-section { background: #f8f9fa; padding: 25px; border-radius: 10px; border-left: 5px solid #2196F3; }
         .form-group { margin-bottom: 20px; }
         .form-group label { display: block; margin-bottom: 8px; font-weight: 600; color: #444; }
         .form-control { width: 100%; padding: 12px 15px; border: 2px solid #ddd; border-radius: 8px; font-size: 16px; transition: all 0.3s; }
-        .form-control:focus { border-color: #2196F3; outline: none; box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.1); }
         
         /* WORK MODE */
         .work-mode-container { display: flex; gap: 20px; margin-top: 10px; }
@@ -63,79 +31,102 @@
         .mode-icon { font-size: 32px; margin-bottom: 10px; display: block; }
         .mode-title { font-weight: bold; font-size: 18px; display: block; margin-bottom: 5px; }
         
-        /* LIST & SEARCH */
-        .search-box-wrapper { position: relative; margin-bottom: 10px; }
+        /* === GROUP HEADER === */
+        .line-header {
+            background: #fff3e0;
+            color: #e65100;
+            padding: 10px 15px;
+            font-weight: 800;
+            border-left: 5px solid #ff9800;
+            margin-top: 15px;
+            margin-bottom: 5px;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 16px;
+        }
+        .line-header::before { content: ""; flex: 1; height: 1px; background: #ffe0b2; margin-right: 10px; }
+        .line-header::after { content: ""; flex: 1; height: 1px; background: #ffe0b2; margin-left: 10px; }
+
+        /* SEARCH & FILTER */
+        .search-row { display: flex; gap: 10px; align-items: center; }
+        .search-box-wrapper { position: relative; flex: 1; }
         .search-box-wrapper i { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: #999; }
         .search-input { padding-left: 40px; }
-        .package-list-container { max-height: 500px; overflow-y: auto; border: 1px solid #ddd; border-radius: 8px; background: white; padding: 5px; }
         
-        /* === PACKAGE CARD DESIGN === */
+        .filter-select {
+            padding: 12px 15px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: bold;
+            color: #555;
+            cursor: pointer;
+            background: white;
+            min-width: 140px;
+        }
+
+        .package-list-container { max-height: 550px; overflow-y: auto; border: 1px solid #ddd; border-radius: 8px; background: white; padding: 5px; }
+        
+        /* === PACKAGE CARD V7.2 === */
         .package-card {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 12px;
+            padding: 15px;
             border-bottom: 1px solid #eee;
             cursor: pointer;
             transition: 0.2s;
             border-radius: 6px;
-            margin-bottom: 2px;
+            margin-bottom: 4px;
             background: white;
+            border: 1px solid #e0e0e0;
         }
-        .package-card:hover { background: #f5f5f5; }
-        .package-card.selected { background: #e3f2fd; border: 1px solid #2196F3; }
+        .package-card:hover { background: #f5f5f5; border-color: #ccc; }
+        .package-card.selected { background: #e3f2fd; border: 2px solid #2196F3; }
 
         .pkg-left { flex: 1; padding-right: 15px; }
-        .pkg-id { font-weight: bold; color: #1565c0; font-size: 15px; margin-bottom: 4px; word-break: break-all; }
-        .pkg-meta { font-size: 13px; color: #555; display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
-        .pkg-tag { background: #eee; padding: 2px 8px; border-radius: 12px; font-size: 11px; font-weight: 600; color: #444; }
-        .pkg-tag.tag-target { background: #fff3e0; color: #e65100; }
-        .pkg-tag.tag-style { background: #e8f5e9; color: #2e7d32; }
+        
+        /* Typography V7.2 - Equal Size */
+        .pkg-id { font-weight: 800; color: #1565c0; font-size: 16px; margin-bottom: 8px; word-break: break-all; }
+        .pkg-meta { font-size: 16px; color: #333; display: flex; flex-direction: column; gap: 6px; font-weight: 600; }
+        .pkg-meta-row { display: flex; align-items: center; gap: 10px; }
+        .meta-icon { width: 20px; text-align: center; color: #777; font-size: 14px; }
 
         .pkg-right { 
             text-align: right; 
-            min-width: 100px;
+            min-width: 110px;
             display: flex;
             flex-direction: column;
             align-items: flex-end;
             justify-content: center;
         }
         
-        .qty-display {
-            font-size: 18px;
-            font-weight: 800;
-            line-height: 1.2;
-            padding: 2px 8px;
-            border-radius: 6px;
-            margin-bottom: 2px;
-            display: inline-block;
-        }
-        
-        .status-text {
-            font-size: 11px;
-            font-weight: 600;
-            opacity: 0.9;
-        }
+        .qty-display { font-size: 20px; font-weight: 800; line-height: 1.2; padding: 2px 8px; border-radius: 6px; margin-bottom: 2px; display: inline-block; }
+        .status-text { font-size: 12px; font-weight: 600; opacity: 0.9; }
 
-        .st-done .qty-display { color: #2e7d32; background: #e8f5e9; }
-        .st-done .status-text { color: #2e7d32; }
-        .st-over .qty-display { color: #1565c0; background: #e3f2fd; }
-        .st-over .status-text { color: #1565c0; }
-        .st-miss .qty-display { color: #e65100; background: #fff3e0; }
-        .st-miss .status-text { color: #e65100; }
-        .st-pend .qty-display { color: #757575; background: #f5f5f5; font-size: 14px; }
-        .st-pend .status-text { color: #757575; }
-
+        .st-done .qty-display { color: #2e7d32; background: #e8f5e9; } .st-done .status-text { color: #2e7d32; }
+        .st-over .qty-display { color: #1565c0; background: #e3f2fd; } .st-over .status-text { color: #1565c0; }
+        .st-miss .qty-display { color: #e65100; background: #fff3e0; } .st-miss .status-text { color: #e65100; }
+        .st-pend .qty-display { color: #757575; background: #f5f5f5; font-size: 16px; } .st-pend .status-text { color: #757575; }
         .status-loading { color: #2196F3; font-size: 12px; font-style: italic; }
         .mini-loader { width: 12px; height: 12px; border: 2px solid #ddd; border-top-color: #2196F3; border-radius: 50%; animation: spin 1s linear infinite; display: inline-block; }
+
+        /* SUMMARY BANNER - BIGGER FONT */
+        .summary-banner {
+            display: flex; justify-content: space-between; align-items: center;
+            font-size: 16px;
+        }
+        .summary-val { font-size: 18px; font-weight: bold; }
 
         /* STEP 2: SUMMARY */
         .manual-summary { margin-top: 20px; padding: 20px; background: #263238; color: white; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; }
         .summary-block { display: flex; align-items: baseline; gap: 10px; margin-top: 5px; }
-        .summary-num { font-size: 28px; font-weight: bold; line-height: 1; }
+        .summary-num { font-size: 32px; font-weight: bold; line-height: 1; } /* Bigger */
         .summary-label { font-size: 14px; color: #aaa; font-weight: normal; }
 
-        /* BUTTONS */
+        /* BUTTONS & OTHERS */
         .btn { padding: 12px 25px; border: none; border-radius: 8px; font-size: 16px; font-weight: 600; cursor: pointer; transition: all 0.3s; display: inline-flex; align-items: center; gap: 10px; }
         .btn:disabled { opacity: 0.6; cursor: not-allowed; }
         .btn-primary { background: linear-gradient(90deg, #2196F3 0%, #21CBF3 100%); color: white; }
@@ -147,8 +138,6 @@
         .btn-secondary { background: #7f8c8d; color: white; }
         .btn-sm { padding: 5px 10px; font-size: 12px; }
         .action-buttons { display: flex; gap: 10px; margin-top: 20px; }
-
-        /* STEPS & OTHERS */
         .step-container { display: none; background: white; border: 2px solid #e0e0e0; border-radius: 10px; padding: 25px; animation: fadeIn 0.5s; }
         .step-container.active { display: block; border-color: #2196F3; box-shadow: 0 5px 20px rgba(33, 150, 243, 0.1); }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
@@ -158,19 +147,12 @@
         .step-indicator { display: flex; justify-content: center; margin: 20px 0 40px; gap: 10px; }
         .step-dot { width: 12px; height: 12px; border-radius: 50%; background: #ddd; transition: 0.3s; }
         .step-dot.active { background: #2196F3; transform: scale(1.2); }
-
-        /* PACKAGE INFO */
         .package-info-card { background: #f0f7ff; border: 1px solid #bbdefb; border-radius: 8px; padding: 15px; margin: 15px 0; }
         .package-info-row { display: flex; margin-bottom: 8px; }
         .package-info-label { font-weight: 600; min-width: 140px; color: #1565c0; }
         .hidden { display: none !important; }
-
-        /* SPLIT TOOLBAR */
         .split-toolbar { background: #fff3e0; border: 1px solid #ffe0b2; border-radius: 8px; padding: 15px; margin-bottom: 20px; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
-        .split-toolbar h4 { margin-right: 10px; color: #e65100; font-size: 15px; }
         .custom-hour-input { width: 80px; padding: 8px; border: 1px solid #ccc; border-radius: 5px; text-align: center; font-weight: bold; }
-
-        /* INPUT GRID */
         .manual-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin-top: 20px; }
         .slot-card { border: 1px solid #ddd; border-radius: 8px; padding: 15px; position: relative; background: white; transition: 0.3s; min-height: 120px; }
         .slot-card:hover { transform: translateY(-3px); box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
@@ -189,8 +171,6 @@
         .status-success { background-color: #e8f5e9 !important; border-color: #4CAF50 !important; }
         .status-warning { background-color: #fffde7 !important; border-color: #FBC02D !important; }
         .status-error { background-color: #ffebee !important; border-color: #e53935 !important; }
-        
-        /* OTHERS */
         .machine-list { list-style: none; margin-top: 15px; max-height: 300px; overflow-y: auto; border: 1px solid #eee; border-radius: 8px; }
         .machine-item { padding: 12px 15px; border-bottom: 1px solid #eee; cursor: pointer; transition: 0.2s; display: flex; align-items: center; gap: 10px; position: relative; }
         .machine-item:hover { background: #f5f5f5; }
@@ -203,52 +183,475 @@
         .context-title { font-size: 12px; color: #666; text-transform: uppercase; letter-spacing: 1px; }
         .context-value { font-size: 16px; font-weight: bold; color: #e65100; margin-top: 5px; line-height: 1.4; word-break: break-all; }
         .context-line { font-size: 15px; color: #1565c0; margin-top: 5px; font-weight: 600; border-top: 1px dashed #ffb74d; padding-top: 5px; }
-        .loader { display: inline-block; width: 20px; height: 20px; border: 3px solid #f3f3f3; border-top: 3px solid #2196F3; border-radius: 50%; animation: spin 1s linear infinite; }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        table { width: 100%; border-collapse: collapse; margin: 15px 0; font-size: 14px; }
-        th { background: #1e3c72; color: white; padding: 10px; text-align: left; }
-        td { padding: 8px 10px; border-bottom: 1px solid #eee; }
-        .result-box { padding: 15px 20px; border-radius: 10px; margin: 10px 0; }
-        .result-success { background: #e8f5e9; border-left: 5px solid #4CAF50; }
-        .result-warning { background: #fff3e0; border-left: 5px solid #FF9800; }
-        .result-info { background: #e3f2fd; border-left: 5px solid #2196F3; }
-        .manual-input-box { background: #f8f9fa; border: 2px dashed #95a5a6; padding: 20px; border-radius: 10px; margin-top: 15px; }
         .selection-info { margin: 15px 0; padding: 15px; background: #e3f2fd; border-radius: 8px; border-left: 5px solid #2196F3; }
         .fa-toggle-btn { position: absolute; right: 15px; top: 50%; transform: translateY(-50%); width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 2; border-radius: 50%; transition: all 0.2s; background: transparent; border: none; color: #4CAF50; }
         .fa-control-panel { margin: 15px 0; padding: 15px; background: #e8f5e9; border-radius: 8px; border: 1px solid #4CAF50; }
         .fa-toggle-label { display: flex; align-items: center; gap: 10px; font-weight: bold; cursor: pointer; }
-        .detail-list { background: #fff; padding: 5px 15px; border-radius: 8px; border: 1px solid #e0e0e0; margin-top: 10px; }
-        .detail-item { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px dashed #eee; align-items: center; font-size: 13px; }
-        .detail-item:last-child { border-bottom: none; }
-        .detail-label { color: #666; font-weight: 600; display: flex; align-items: center; gap: 8px; min-width: 100px; }
-        .detail-value { font-weight: 700; color: #333; text-align: right; font-size: 14px; }
-        .status-pill { padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: bold; display: inline-flex; align-items: center; gap: 5px; }
-        .pill-success { background: #e8f5e9; color: #2e7d32; border: 1px solid #c8e6c9; }
-        .pill-error { background: #ffebee; color: #c62828; border: 1px solid #ffcdd2; }
-        .pill-gray { background: #f5f5f5; color: #616161; border: 1px solid #e0e0e0; }
+        .auto-select-banner { margin: 15px 0; padding: 12px 15px; background: #e8f5e9; border-radius: 8px; border: 2px solid #4CAF50; }
+        .auto-select-text { display: flex; align-items: center; gap: 10px; font-weight: 600; color: #2e7d32; margin-bottom: 5px; }
+        .auto-select-details { font-size: 13px; color: #666; margin-left: 28px; }
+        .machine-one-badge { background: #4CAF50; color: white; padding: 2px 8px; border-radius: 10px; font-size: 11px; font-weight: bold; margin-left: 8px; }
         
-        /* MODAL */
-        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; display: flex; justify-content: center; align-items: center; opacity: 0; visibility: hidden; transition: 0.3s; }
+        /* STEP 3: PREVIEW TABLE - ENHANCED */
+        .preview-container {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+            border: 2px solid #e3f2fd;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.05);
+        }
+        
+        .preview-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #e3f2fd;
+        }
+        
+        .preview-header h4 {
+            margin: 0;
+            color: #1e3c72;
+        }
+        
+        .preview-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+        
+        .preview-table thead {
+            background: linear-gradient(90deg, #2196F3 0%, #21CBF3 100%);
+            color: white;
+        }
+        
+        .preview-table th {
+            padding: 15px 12px;
+            text-align: center;
+            font-weight: 600;
+            font-size: 14px;
+            border-right: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .preview-table th:last-child {
+            border-right: none;
+        }
+        
+        .preview-table tbody tr {
+            transition: all 0.2s;
+        }
+        
+        .preview-table tbody tr:nth-child(even) {
+            background-color: #f8f9fa;
+        }
+        
+        .preview-table tbody tr:nth-child(odd) {
+            background-color: white;
+        }
+        
+        .preview-table tbody tr:hover {
+            background-color: #e3f2fd;
+            transform: translateY(-1px);
+        }
+        
+        .preview-table td {
+            padding: 12px 10px;
+            text-align: center;
+            border-bottom: 1px solid #eee;
+            font-size: 14px;
+        }
+        
+        .preview-table td:nth-child(1) {
+            font-weight: bold;
+            color: #1565c0;
+            width: 60px;
+        }
+        
+        .preview-table td:nth-child(2) {
+            color: #555;
+            width: 150px;
+        }
+        
+        .preview-table td:nth-child(3) {
+            font-weight: bold;
+            color: #e65100;
+            font-size: 16px;
+            width: 100px;
+        }
+        
+        .preview-table td:nth-child(4) {
+            color: #666;
+            width: 80px;
+        }
+        
+        .preview-table .total-row {
+            background: linear-gradient(90deg, #e8f5e9 0%, #c8e6c9 100%) !important;
+            font-weight: bold;
+            border-top: 2px solid #4CAF50;
+        }
+        
+        .preview-table .total-row td {
+            padding: 15px 10px;
+            font-size: 16px;
+            color: #1b5e20;
+        }
+        
+        /* MODAL & SUPER MODAL */
+        .modal-overlay { 
+            position: fixed; 
+            top: 0; left: 0; 
+            width: 100%; height: 100%; 
+            background: rgba(0,0,0,0.7); 
+            z-index: 2000; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            opacity: 0; 
+            visibility: hidden; 
+            transition: 0.3s; 
+            backdrop-filter: blur(3px);
+        }
+        
         .modal-overlay.open { opacity: 1; visibility: visible; }
-        .modal-box { background: white; width: 95%; max-width: 900px; border-radius: 10px; box-shadow: 0 10px 40px rgba(0,0,0,0.3); display: flex; flex-direction: column; max-height: 90vh; }
-        .modal-header { padding: 20px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; background: #f8f9fa; border-radius: 10px 10px 0 0; }
-        .modal-body { padding: 20px; overflow-y: auto; flex: 1; }
-        .modal-footer { padding: 15px 20px; border-top: 1px solid #eee; display: flex; gap: 10px; justify-content: flex-end; background: #fff; border-radius: 0 0 10px 10px; flex-wrap: wrap; }
-        .detail-module { margin-bottom: 20px; border: 1px solid #eee; border-radius: 5px; overflow: hidden; }
-        .detail-module-header { background: #e3f2fd; padding: 10px 15px; font-weight: bold; color: #1565c0; display: flex; justify-content: space-between; }
-        .detail-row { padding: 8px 15px; border-bottom: 1px solid #f0f0f0; display: flex; align-items: center; gap: 10px; font-size: 14px; }
-        .serial-tag { background: #eee; padding: 2px 6px; border-radius: 4px; font-family: monospace; color: #333; }
         
-        ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-track { background: #f1f1f1; }
-        ::-webkit-scrollbar-thumb { background: #ccc; border-radius: 3px; }
+        .modal-box { 
+            background: white; 
+            width: 95%; 
+            max-width: 900px; 
+            border-radius: 15px; 
+            box-shadow: 0 15px 50px rgba(0,0,0,0.4); 
+            display: flex; 
+            flex-direction: column; 
+            max-height: 90vh; 
+            overflow: hidden;
+            transform: translateY(-20px);
+            transition: transform 0.3s ease-out;
+        }
+        
+        .modal-overlay.open .modal-box {
+            transform: translateY(0);
+        }
+        
+        .modal-header { 
+            padding: 20px 25px; 
+            border-bottom: 1px solid #eee; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            background: linear-gradient(90deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            border-radius: 15px 15px 0 0;
+        }
+        
+        .modal-header h3 {
+            margin: 0;
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .modal-body { 
+            padding: 25px; 
+            overflow-y: auto; 
+            flex: 1; 
+        }
+        
+        .modal-footer { 
+            padding: 20px 25px; 
+            border-top: 1px solid #eee; 
+            display: flex; 
+            gap: 10px; 
+            justify-content: flex-end; 
+            background: #f8f9fa; 
+            border-radius: 0 0 15px 15px; 
+            flex-wrap: wrap; 
+        }
+        
+        .detail-module { 
+            margin-bottom: 20px; 
+            border: 1px solid #e0e0e0; 
+            border-radius: 10px; 
+            overflow: hidden; 
+            box-shadow: 0 3px 10px rgba(0,0,0,0.05);
+        }
+        
+        .detail-module-header { 
+            background: linear-gradient(90deg, #e3f2fd 0%, #bbdefb 100%); 
+            padding: 12px 18px; 
+            font-weight: bold; 
+            color: #1565c0; 
+            display: flex; 
+            justify-content: space-between; 
+            font-size: 15px;
+        }
+        
+        .detail-row { 
+            padding: 10px 18px; 
+            border-bottom: 1px solid #f0f0f0; 
+            display: flex; 
+            align-items: center; 
+            gap: 12px; 
+            font-size: 14px; 
+            transition: background 0.2s;
+        }
+        
+        .detail-row:hover {
+            background: #f9f9f9;
+        }
+        
+        .detail-row:last-child {
+            border-bottom: none;
+        }
+        
+        .serial-tag { 
+            background: #e0e0e0; 
+            padding: 4px 10px; 
+            border-radius: 20px; 
+            font-family: monospace; 
+            color: #333;
+            font-weight: 600;
+            font-size: 13px;
+        }
+        
+        /* SUPER CONFIRM MODAL */
+        .confirm-modal {
+            max-width: 600px !important;
+        }
+        
+        .confirm-modal .modal-header {
+            background: linear-gradient(90deg, #FF9800 0%, #FFC107 100%);
+        }
+        
+        .confirm-details {
+            margin: 20px 0;
+        }
+        
+        .confirm-item {
+            display: flex;
+            margin-bottom: 12px;
+            padding: 10px 15px;
+            background: #f9f9f9;
+            border-radius: 8px;
+            border-left: 4px solid #2196F3;
+        }
+        
+        .confirm-label {
+            font-weight: 600;
+            color: #555;
+            min-width: 120px;
+        }
+        
+        .confirm-value {
+            flex: 1;
+            font-weight: bold;
+            color: #1565c0;
+        }
+        
+        .confirm-highlight {
+            color: #e65100;
+            font-size: 18px;
+        }
+        
+        .confirm-warning {
+            background: #fff3e0;
+            border-left-color: #FF9800;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+        }
+        
+        .confirm-warning i {
+            color: #FF9800;
+            font-size: 20px;
+            margin-top: 2px;
+        }
+        
+        /* STEP 4: RESULT PAGE ENHANCED */
+        .result-success-animation {
+            display: flex;
+            justify-content: center;
+            margin: 20px 0 30px;
+        }
+        
+        .checkmark-circle {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: #4CAF50;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: pulse 2s infinite;
+            box-shadow: 0 5px 15px rgba(76, 175, 80, 0.4);
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); box-shadow: 0 5px 15px rgba(76, 175, 80, 0.4); }
+            50% { transform: scale(1.05); box-shadow: 0 8px 25px rgba(76, 175, 80, 0.6); }
+            100% { transform: scale(1); box-shadow: 0 5px 15px rgba(76, 175, 80, 0.4); }
+        }
+        
+        .checkmark {
+            color: white;
+            font-size: 40px;
+        }
+        
+        .result-box {
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            animation: slideInUp 0.5s ease-out;
+        }
+        
+        @keyframes slideInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .result-success {
+            background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
+            border: 2px solid #4CAF50;
+        }
+        
+        .result-error {
+            background: linear-gradient(135deg, #ffebee 0%, #ffcdd2 100%);
+            border: 2px solid #f44336;
+        }
+        
+        .result-box h3 {
+            margin-top: 0;
+            margin-bottom: 20px;
+            color: #1b5e20;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 22px;
+        }
+        
+        .result-error h3 {
+            color: #c62828;
+        }
+        
+        .detail-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+        
+        .detail-item {
+            display: flex;
+            align-items: center;
+            padding: 10px 15px;
+            background: rgba(255,255,255,0.7);
+            border-radius: 8px;
+            transition: all 0.2s;
+        }
+        
+        .detail-item:hover {
+            background: rgba(255,255,255,0.9);
+            transform: translateX(5px);
+        }
+        
+        .detail-label {
+            font-weight: 600;
+            color: #555;
+            min-width: 140px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .detail-value {
+            flex: 1;
+            font-weight: bold;
+            color: #1565c0;
+            font-size: 16px;
+        }
+        
+        .status-row {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 2px dashed rgba(0,0,0,0.1);
+            flex-wrap: wrap;
+        }
+        
+        .status-pill {
+            padding: 8px 18px;
+            border-radius: 30px;
+            font-weight: bold;
+            font-size: 14px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 3px 8px rgba(0,0,0,0.1);
+        }
+        
+        .pill-success {
+            background: #4CAF50;
+            color: white;
+        }
+        
+        .pill-warning {
+            background: #FF9800;
+            color: white;
+        }
+        
+        .pill-error {
+            background: #f44336;
+            color: white;
+        }
+        
+        .pill-gray {
+            background: #607D8B;
+            color: white;
+        }
+        
+        .pill-info {
+            background: #2196F3;
+            color: white;
+        }
+        
+        /* LOADER & ANIMATIONS */
+        .loader {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #2196F3;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            animation: spin 1s linear infinite;
+            display: inline-block;
+            vertical-align: middle;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb { background: #ccc; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #aaa; }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <h1><i class="fas fa-industry"></i> MES Production V7.0</h1>
-            <p>Fixed Auto-Select Machine #1</p>
+            <h1><i class="fas fa-industry"></i> MES Production V7.2</h1>
+            <p>Smart Grouping & Intelligent Split</p>
         </div>
         
         <div class="content">
@@ -284,16 +687,24 @@
                     </div>
                     
                     <div class="action-buttons" style="margin-bottom: 20px;">
-                        <button class="btn btn-primary" onclick="loadPackages()"><i class="fas fa-sync"></i> Tải Danh Sách Package</button>
+                        <button class="btn btn-primary" onclick="loadPackages()"><i class="fas fa-sync"></i> Tải Danh Sách</button>
                     </div>
 
                     <div id="loadingSummary" class="hidden" style="background: #e8f5e9; color: #2e7d32; padding: 15px; border-radius: 8px; margin-bottom: 15px; border: 1px solid #c8e6c9; font-size: 14px; box-shadow: 0 2px 5px rgba(0,0,0,0.05);"></div>
                     
                     <div class="form-group">
-                        <label>Chọn Package (Tìm kiếm):</label>
-                        <div class="search-box-wrapper">
-                            <i class="fas fa-search"></i>
-                            <input type="text" id="packageSearch" class="form-control search-input" placeholder="Nhập Package ID, Style hoặc Line..." oninput="filterPackages()">
+                        <label>Chọn Package:</label>
+                        <div class="search-row">
+                            <div class="search-box-wrapper">
+                                <i class="fas fa-search"></i>
+                                <input type="text" id="packageSearch" class="form-control search-input" placeholder="Tìm Package, Style, Line..." oninput="filterPackages()">
+                            </div>
+                            <!-- FILTER DROPDOWN -->
+                            <select id="statusFilter" class="filter-select" onchange="filterPackages()">
+                                <option value="all">⚡ Tất cả</option>
+                                <option value="pending">⚪ Chưa nhập</option>
+                                <option value="done">🟢 Đã nhập</option>
+                            </select>
                         </div>
                         <div id="packageListContainer" class="package-list-container">
                             <div style="text-align:center; padding:20px; color:#999;">Vui lòng tải danh sách...</div>
@@ -368,14 +779,13 @@
                         </button>
                         <div style="border-left: 2px solid #ddd; height: 30px; margin: 0 5px;"></div>
                         <div style="display: flex; align-items: center; gap: 5px;">
-                            <input type="number" id="customSplitHours" class="custom-hour-input" placeholder="Số giờ" min="1" max="13">
+                            <input type="number" id="customSplitHours" class="custom-hour-input" placeholder="Số giờ" min="0.5" max="13" step="0.5">
                             <button class="btn btn-sm btn-info" onclick="autoDistributeCustom()">
                                 <i class="fas fa-sliders-h"></i> Chia theo giờ tùy chỉnh
                             </button>
                         </div>
                     </div>
 
-                    <!-- FIXED PROGRESS SECTION -->
                     <div class="manual-summary" style="flex-direction: column; align-items: flex-start; gap: 5px;">
                         <div style="width: 100%; display: flex; justify-content: space-between; align-items: center;">
                             <h3 style="margin: 0; font-size: 16px;"><i class="fas fa-chart-pie"></i> Tiến độ:</h3>
@@ -412,7 +822,6 @@
                     <div class="context-line" id="contextLineInfo"></div>
                 </div>
 
-                <!-- AUTO-SELECT BANNER - ĐƠN GIẢN -->
                 <div id="autoSelectBanner" class="auto-select-banner hidden">
                     <div class="auto-select-text">
                         <i class="fas fa-check-circle"></i>
@@ -468,12 +877,28 @@
                     </p>
                 </div>
                 
-                <h4 style="margin-top: 20px;"><i class="fas fa-eye"></i> Xem trước dữ liệu sản lượng:</h4>
-                <div style="max-height: 250px; overflow-y: auto; border: 1px solid #ddd; margin-top: 10px;">
-                    <table id="previewTable">
-                        <thead><tr><th>Slot</th><th>Thời gian</th><th>Sản lượng</th><th>Target</th></tr></thead>
-                        <tbody id="previewTableBody"></tbody>
-                    </table>
+                <!-- ENHANCED PREVIEW SECTION -->
+                <div class="preview-container">
+                    <div class="preview-header">
+                        <i class="fas fa-eye" style="color:#2196F3;"></i>
+                        <h4>Xem trước dữ liệu sản lượng:</h4>
+                    </div>
+                    
+                    <div style="overflow-x: auto;">
+                        <table class="preview-table">
+                            <thead>
+                                <tr>
+                                    <th>Slot</th>
+                                    <th>Thời gian</th>
+                                    <th>Sản lượng</th>
+                                    <th>Target</th>
+                                </tr>
+                            </thead>
+                            <tbody id="previewTableBody">
+                                <!-- Data will be inserted here -->
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
 
                 <div class="action-buttons" style="margin-top: 20px;">
@@ -481,7 +906,7 @@
                     <button class="btn btn-dark hidden" onclick="clearMachineSelection()" id="unselectBtn">
                         <i class="fas fa-times"></i> Hủy chọn máy
                     </button>
-                    <button class="btn btn-success" onclick="sendToMES()" id="sendBtn">🚀 Gửi Hệ thống</button>
+                    <button class="btn btn-success" onclick="showConfirmModal()" id="sendBtn">🚀 Gửi Hệ thống</button>
                 </div>
             </div>
 
@@ -490,17 +915,31 @@
                 <div class="step-header">
                     <div class="step-title"><span class="step-number">4</span> Kết quả</div>
                 </div>
-                <div id="resultMessage"></div>
-                <button class="btn btn-primary" onclick="location.reload()" style="margin-top:15px; width:100%">Làm mới toàn bộ</button>
+                
+                <div class="result-success-animation" id="successAnimation" style="display: none;">
+                    <div class="checkmark-circle">
+                        <i class="fas fa-check checkmark"></i>
+                    </div>
+                </div>
+                
+                <div id="resultMessage">
+                    <!-- Result content will be inserted here -->
+                </div>
+                
+                <div class="action-buttons" style="justify-content: center; margin-top: 30px;">
+                    <button class="btn btn-primary" onclick="location.reload()" style="padding: 12px 30px;">
+                        <i class="fas fa-redo"></i> Làm mới toàn bộ
+                    </button>
+                </div>
             </div>
         </div>
     </div>
 
-    <!-- MODAL -->
+    <!-- DETAIL MODAL -->
     <div class="modal-overlay" id="detailModal">
         <div class="modal-box">
             <div class="modal-header">
-                <h3 id="modalTitle">Chi tiết Package</h3>
+                <h3><i class="fas fa-info-circle"></i> Chi tiết Package</h3>
                 <button class="btn btn-sm btn-danger" onclick="closeModal()"><i class="fas fa-times"></i></button>
             </div>
             <div class="modal-body" id="modalContent">
@@ -514,14 +953,29 @@
         </div>
     </div>
 
+    <!-- SUPER CONFIRM MODAL -->
+    <div class="modal-overlay" id="confirmModal">
+        <div class="modal-box confirm-modal">
+            <div class="modal-header">
+                <h3><i class="fas fa-exclamation-triangle"></i> XÁC NHẬN GỬI DỮ LIỆU</h3>
+                <button class="btn btn-sm btn-danger" onclick="closeConfirmModal()"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="modal-body" id="confirmContent">
+                <!-- Content will be inserted here -->
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeConfirmModal()">Hủy bỏ</button>
+                <button class="btn btn-success" onclick="confirmSendToMES()">Xác nhận & Gửi</button>
+            </div>
+        </div>
+    </div>
+
     <script>
-        // API ENDPOINTS - GIỮ NGUYÊN
         const PROD_API = "https://hourly-target.chiscoong-cloudflare-com.workers.dev/api/production";
         const PACKAGE_API = "https://today-package.chiscoong-cloudflare-com.workers.dev/api/packages";
         const MODULE_API = "https://module-requests.chiscoong-cloudflare-com.workers.dev/opdetails";
         const SCANNER_API = "https://mes-qr-scanner.chiscoong-cloudflare-com.workers.dev/";
         
-        // BIẾN TOÀN CỤC - GIỮ NGUYÊN
         let allPackages = []; 
         let productionData = {};
         let dailyTarget = 0; 
@@ -543,54 +997,6 @@
             "15:15 - 16:15", "16:15 - 17:15", "17:15 - 18:15", "18:15 - 19:15", "19:15 - 20:15"
         ];
 
-        // ============ HÀM MỚI: TÌM VÀ CHỌN MÁY SỐ 1 ============
-        function findAndSelectMachineOne(allOps) {
-            console.log("🔍 Looking for machine #1...");
-            
-            // Tìm máy có opserial = 1 (bất kể format)
-            for (let op of allOps) {
-                if (op.opserial != null) {
-                    const serialStr = String(op.opserial);
-                    const serialNum = parseInt(serialStr);
-                    
-                    console.log(`Checking: ${op.remarks || op.opname} - OPSERIAL: "${serialStr}"`);
-                    
-                    if (!isNaN(serialNum) && serialNum === 1) {
-                        console.log(`✅ Found machine #1: ${op.remarks || op.opname} (OPSERIAL: "${serialStr}")`);
-                        
-                        // Hiển thị banner
-                        document.getElementById('autoSelectMachineName').textContent = op.remarks || op.opname;
-                        document.getElementById('autoSelectMachineSerial').textContent = serialStr;
-                        document.getElementById('autoSelectBanner').classList.remove('hidden');
-                        
-                        // Tự động chọn máy
-                        selectMachine(serialStr, op.remarks || op.opname, op.iottype === 'FA');
-                        
-                        // Đánh dấu trong danh sách
-                        const element = document.getElementById(`machine-${serialStr}`);
-                        if (element) {
-                            element.classList.add('auto-selected');
-                            
-                            // Thêm badge "Máy 1"
-                            const badge = document.createElement('span');
-                            badge.className = 'machine-one-badge';
-                            badge.textContent = 'Máy 1';
-                            const titleElement = element.querySelector('.machine-info-container h4');
-                            if (titleElement) {
-                                titleElement.appendChild(badge);
-                            }
-                        }
-                        
-                        return true;
-                    }
-                }
-            }
-            
-            console.log("⚠️ No machine with opserial=1 found");
-            return false;
-        }
-
-        // ============ HÀM CHÍNH - GIỮ NGUYÊN LOGIC CŨ ============
         document.addEventListener('DOMContentLoaded', function() {
             document.getElementById('dateSelect').value = new Date().toISOString().split('T')[0];
             const savedKey = localStorage.getItem('mesApiKey');
@@ -606,7 +1012,7 @@
             if(selectedPackageId) recalculateTarget();
         }
 
-        // ============ SMART LIST LOGIC (V6.8) - GIỮ NGUYÊN ============
+        // ============ SMART LIST LOGIC (V7.2 - GROUP & SORT) ============
         async function loadPackages() {
             const apiKey = document.getElementById('apiKey').value;
             const factory = document.getElementById('factory').value;
@@ -633,7 +1039,7 @@
                         line: p.lineName || (p.remarks?.match(/LINE\s*([A-Za-z0-9]+)/i)?.[1]) || pid.split('_')[1] || "N/A",
                         target: parseInt(p.target || p.MXTARGET || 0),
                         color: p.color || p.COLOR || p.Color || "",
-                        actual: null,
+                        actual: null, 
                         loading: true,
                         searchString: `${pid} ${p.styleText} ${p.lineName} ${p.color}`.toLowerCase()
                     };
@@ -665,26 +1071,20 @@
 
             const processNext = async () => {
                 if (index >= packages.length) return;
-                
                 const p = packages[index++];
                 activeRequests++;
-                
                 try {
                     const url = `${MODULE_API}?mxpackage=${p.id}&mode=summary&apikey=${apiKey}`;
                     const res = await fetch(url);
                     const json = await res.json();
-                    
                     let totalEntered = 0;
                     if (json.success && json.data && json.data.summary) {
                         totalEntered = json.data.summary.total_manual_input || 0;
                     }
-
                     p.actual = totalEntered;
                     p.loading = false;
-                    
                     updateCardStatus(p);
                     updateSummary();
-
                 } catch (err) {
                     console.warn(`Lỗi sync gói ${p.id}:`, err);
                     p.loading = false;
@@ -694,7 +1094,6 @@
                     processNext(); 
                 }
             };
-
             for (let i = 0; i < concurrencyLimit && i < packages.length; i++) {
                 processNext();
             }
@@ -703,7 +1102,6 @@
         function updateCardStatus(p) {
             const statusDiv = document.getElementById(`status-${p.id}`);
             if (!statusDiv) return;
-
             statusDiv.className = 'pkg-right';
             statusDiv.classList.remove('st-done', 'st-over', 'st-miss', 'st-pend');
 
@@ -711,38 +1109,53 @@
                 statusDiv.innerHTML = `<span class="status-loading"><span class="mini-loader"></span> Kiểm tra...</span>`;
             } else if (p.actual === 0 || p.actual === null) {
                 statusDiv.classList.add('st-pend');
-                statusDiv.innerHTML = `<span class="qty-display"><i class="far fa-circle"></i></span>
-                                       <span class="status-text">Chưa nhập</span>`;
+                statusDiv.innerHTML = `<span class="qty-display"><i class="far fa-circle"></i></span><span class="status-text">Chưa nhập</span>`;
             } else {
                 let diff = p.actual - p.target;
                 if (p.actual > p.target) {
                     statusDiv.classList.add('st-over');
-                    statusDiv.innerHTML = `<span class="qty-display">${p.actual}</span>
-                                           <span class="status-text">Vượt ${diff}</span>`;
+                    statusDiv.innerHTML = `<span class="qty-display">${p.actual}</span><span class="status-text">Vượt ${diff}</span>`;
                 } else if (p.actual === p.target) {
                     statusDiv.classList.add('st-done');
-                    statusDiv.innerHTML = `<span class="qty-display">${p.actual}</span>
-                                           <span class="status-text">Đủ Target</span>`;
+                    statusDiv.innerHTML = `<span class="qty-display">${p.actual}</span><span class="status-text">Đủ Target</span>`;
                 } else {
                     statusDiv.classList.add('st-miss');
-                    statusDiv.innerHTML = `<span class="qty-display">${p.actual}</span>
-                                           <span class="status-text">Thiếu ${Math.abs(diff)}</span>`;
+                    statusDiv.innerHTML = `<span class="qty-display">${p.actual}</span><span class="status-text">Thiếu ${Math.abs(diff)}</span>`;
                 }
             }
         }
 
         function updateSummaryDiv(div, totalPkg, totalTarget, totalActual) {
-            const percent = totalTarget > 0 ? Math.round((totalActual/totalTarget)*100) : 0;
+            // Logic % mới: Math.floor
+            const percent = totalTarget > 0 ? Math.floor((totalActual/totalTarget)*100) : 0;
             div.innerHTML = `
-                <div style="display:flex; justify-content:space-between; align-items:center;">
+                <div class="summary-banner">
                     <span><i class="fas fa-cubes"></i> Gói: <b>${totalPkg}</b></span>
-                    <span><i class="fas fa-bullseye"></i> Target: <b>${totalTarget.toLocaleString()}</b></span>
-                    <span style="color:${percent >= 100 ? '#2e7d32' : (percent > 0 ? '#e65100' : '#666')}">
+                    <span class="summary-val"><i class="fas fa-bullseye"></i> Target: <b>${totalTarget.toLocaleString()}</b></span>
+                    <span class="summary-val" style="color:${percent >= 100 ? '#2e7d32' : '#e65100'}">
                         <i class="fas fa-check"></i> Thực tế: <b>${totalActual.toLocaleString()}</b> (${percent}%)
                     </span>
                 </div>
             `;
             div.classList.remove('hidden');
+        }
+
+        // --- SORTING HELPER FOR LINES ---
+        function compareLines(a, b) {
+            const lineA = a.line.toUpperCase();
+            const lineB = b.line.toUpperCase();
+            
+            // Extract number if present
+            const matchA = lineA.match(/(\d+)/);
+            const matchB = lineB.match(/(\d+)/);
+            
+            const numA = matchA ? parseInt(matchA[0]) : 9999; // Non-numeric lines go last
+            const numB = matchB ? parseInt(matchB[0]) : 9999;
+            
+            if (numA !== numB) {
+                return numA - numB;
+            }
+            return lineA.localeCompare(lineB);
         }
 
         function renderPackageList(list) {
@@ -754,17 +1167,47 @@
                 return;
             }
 
-            list.forEach(p => {
+            // 1. Filter logic
+            const statusFilter = document.getElementById('statusFilter').value;
+            let filteredList = list;
+            if (statusFilter === 'pending') {
+                filteredList = list.filter(p => p.actual === null || p.actual === 0);
+            } else if (statusFilter === 'done') {
+                filteredList = list.filter(p => p.actual > 0);
+            }
+
+            // 2. Sort by Line
+            filteredList.sort(compareLines);
+
+            // 3. Render with Group Headers
+            let currentLine = null;
+
+            filteredList.forEach(p => {
+                // Check if line changed
+                if (p.line !== currentLine) {
+                    currentLine = p.line;
+                    const header = document.createElement('div');
+                    header.className = 'line-header';
+                    header.innerText = `- LINE ${currentLine} -`;
+                    container.appendChild(header);
+                }
+
                 const card = document.createElement('div');
                 card.className = 'package-card';
                 card.innerHTML = `
                     <div class="pkg-left">
                         <div class="pkg-id">${p.id}</div>
                         <div class="pkg-meta">
-                            <span class="pkg-tag tag-style"><i class="fas fa-tshirt"></i> ${p.style}</span>
-                            <span class="pkg-tag"><i class="fas fa-project-diagram"></i> LINE ${p.line}</span>
-                            <span class="pkg-tag tag-target"><i class="fas fa-bullseye"></i> Target: ${p.target}</span>
-                            ${p.color ? `<span class="pkg-tag"><i class="fas fa-palette"></i> ${p.color}</span>` : ''}
+                            <div class="pkg-meta-row">
+                                <i class="fas fa-tshirt meta-icon"></i> ${p.style}
+                            </div>
+                            <div class="pkg-meta-row">
+                                <i class="fas fa-project-diagram meta-icon"></i> LINE ${p.line}
+                            </div>
+                            <div class="pkg-meta-row" style="color:#e65100">
+                                <i class="fas fa-bullseye meta-icon"></i> Target: ${p.target}
+                            </div>
+                            ${p.color ? `<div class="pkg-meta-row"><i class="fas fa-palette meta-icon"></i> ${p.color}</div>` : ''}
                         </div>
                     </div>
                     <div class="pkg-right" id="status-${p.id}">
@@ -774,13 +1217,17 @@
                 card.onclick = () => selectPackageFromCard(p, card);
                 container.appendChild(card);
             });
+            
+            // Re-update status visuals for rendered items
+            filteredList.forEach(p => updateCardStatus(p));
         }
 
         function filterPackages() {
             const term = document.getElementById('packageSearch').value.toLowerCase();
-            const filtered = allPackages.filter(p => p.searchString.includes(term));
-            renderPackageList(filtered);
-            filtered.forEach(p => updateCardStatus(p));
+            // Filter by text first
+            const textFiltered = allPackages.filter(p => p.searchString.includes(term));
+            // Then render (which applies status filter)
+            renderPackageList(textFiltered);
         }
 
         function selectPackageFromCard(p, cardElem) {
@@ -819,7 +1266,7 @@
             generateManualGrid(); 
         }
 
-        // ============ DETAILS MODAL - GIỮ NGUYÊN ============
+        // ============ DETAILS MODAL ============
         async function viewPackageDetails() {
             const apiKey = document.getElementById('apiKey').value;
             document.getElementById('detailModal').classList.add('open');
@@ -847,6 +1294,7 @@
             } catch (e) { content.innerHTML = `<p class="result-box result-error">Lỗi: ${e.message}</p>`; }
         }
         function closeModal() { document.getElementById('detailModal').classList.remove('open'); }
+        function closeConfirmModal() { document.getElementById('confirmModal').classList.remove('open'); }
         function copySerials(mode) {
             const txt = Array.from(document.querySelectorAll('.serial-checkbox')).map(cb => cb.value).join('\n');
             if (txt) navigator.clipboard.writeText(txt).then(() => alert("Đã copy danh sách Serial vào bộ nhớ đệm!"));
@@ -856,7 +1304,7 @@
             if (txt) navigator.clipboard.writeText(txt).then(() => alert("Đã copy danh sách Remarks vào bộ nhớ đệm!"));
         }
 
-        // ============ INPUT & AUTO SPLIT LOGIC - GIỮ NGUYÊN ============
+        // ============ INPUT & AUTO SPLIT LOGIC (V7.2 - SMART SPLIT) ============
         function generateManualGrid() {
             const container = document.getElementById('manualGrid');
             container.innerHTML = '';
@@ -928,48 +1376,80 @@
         function autoDistributeCustom() {
             const h = parseFloat(document.getElementById('customSplitHours').value);
             const mode = parseFloat(document.getElementById('workHoursInput').value);
-            const availableSlots = mode > 8 ? 11 : 8;
+            const availableSlots = mode > 8 ? 11 : 8; // Available slots excluding lunch
 
             if(!h || h <= 0) return alert("Vui lòng nhập số giờ hợp lệ!");
-            if(h > availableSlots) return alert(`Số giờ không được vượt quá số slot khả dụng (${availableSlots} giờ) của chế độ hiện tại!`);
-            autoDistribute(h, true);
+            if(h > availableSlots) return alert(`Số giờ không được vượt quá số slot khả dụng (${availableSlots} giờ)!`);
+            
+            // LOGIC CHIA THÔNG MINH V7.2
+            resetManualInputs();
+            const inputs = document.querySelectorAll('.slot-input');
+            const target = dailyTarget;
+            
+            // 1. Tính Rate/Giờ dựa trên tổng số giờ nhập vào (kể cả số lẻ)
+            // Ví dụ: 318 / 2.5 = 127.2 -> 127
+            const hourlyRate = Math.floor(target / h);
+            
+            // 2. Xác định số slot đầy đủ và phần lẻ
+            const fullSlots = Math.floor(h);
+            const partialSlotRatio = h - fullSlots; // Ví dụ 0.5
+            
+            let distributedValues = [];
+            let currentSum = 0;
+
+            // 3. Phân bổ các slot đầy đủ
+            for(let i=0; i<fullSlots; i++) {
+                distributedValues.push(hourlyRate);
+                currentSum += hourlyRate;
+            }
+
+            // 4. Phân bổ slot lẻ (nếu có)
+            if (partialSlotRatio > 0) {
+                // Phần còn lại sẽ đổ vào slot này
+                distributedValues.push(target - currentSum);
+            } else {
+                // Nếu không có slot lẻ, cộng phần dư vào slot cuối cùng
+                if(distributedValues.length > 0) {
+                    distributedValues[distributedValues.length - 1] += (target - currentSum);
+                }
+            }
+
+            // 5. Điền vào Grid (bỏ qua giờ ăn trưa)
+            let valIndex = 0;
+            inputs.forEach((inp, idx) => {
+                if (valIndex < distributedValues.length && !inp.disabled) {
+                    // Logic bỏ qua giờ ăn trưa (idx 4) đã được handle bởi !inp.disabled
+                    // Nhưng cần chắc chắn thứ tự đúng
+                    if (idx === 4 || idx === 12) return; // Skip lunch/dinner explicitly just in case
+
+                    inp.value = distributedValues[valIndex];
+                    checkPerf(inp, idx);
+                    valIndex++;
+                }
+            });
         }
 
-        function autoDistribute(customHours, isCustom = false) {
+        function autoDistribute(customHours) {
+            // Fallback for standard auto-distribute button (using weights)
+            // This is the old logic kept for the main button
             resetManualInputs();
             const mode = parseFloat(document.getElementById('workHoursInput').value);
             const inputs = document.querySelectorAll('.slot-input');
             const target = dailyTarget;
             
-            if (target <= 0) return alert("Target phải lớn hơn 0!");
-
             let weights = [];
             let totalWeight = 0;
 
-            if (isCustom) {
-                let hoursLeft = customHours;
-                for(let i=0; i<inputs.length; i++) {
-                    if (i === 4 || i === 12) { weights.push(0); continue; } 
-                    if (hoursLeft > 0) {
-                        weights.push(1);
-                        totalWeight += 1;
-                        hoursLeft--;
-                    } else {
-                        weights.push(0);
-                    }
+            if (mode === 7.5) {
+                for(let i=0; i<9; i++) {
+                    if (i === 4) { weights.push(0); continue; }
+                    if (i === 8) { weights.push(0.5); totalWeight += 0.5; } 
+                    else { weights.push(1); totalWeight += 1; }
                 }
             } else {
-                if (mode === 7.5) {
-                    for(let i=0; i<9; i++) {
-                        if (i === 4) { weights.push(0); continue; }
-                        if (i === 8) { weights.push(0.5); totalWeight += 0.5; } 
-                        else { weights.push(1); totalWeight += 1; }
-                    }
-                } else {
-                    for(let i=0; i<13; i++) {
-                        if (i === 4 || i === 12) { weights.push(0); continue; }
-                        weights.push(1); totalWeight += 1;
-                    }
+                for(let i=0; i<13; i++) {
+                    if (i === 4 || i === 12) { weights.push(0); continue; }
+                    weights.push(1); totalWeight += 1;
                 }
             }
 
@@ -1023,16 +1503,71 @@
             const tbody = document.getElementById('previewTableBody');
             tbody.innerHTML = '';
             let total = 0;
+            let rowCount = 0;
+            
             timeSlots.forEach((slot, i) => {
                 if (productionData.hasOwnProperty(slot)) {
-                    tbody.innerHTML += `<tr><td>${i+1}</td><td>${slot}</td><td><b>${productionData[slot]}</b></td><td>${hourlyTarget}</td></tr>`;
+                    const isEvenRow = rowCount % 2 === 0;
+                    tbody.innerHTML += `
+                        <tr>
+                            <td>${i+1}</td>
+                            <td>${slot}</td>
+                            <td><b>${productionData[slot]}</b></td>
+                            <td>${hourlyTarget}</td>
+                        </tr>`;
                     total += productionData[slot];
+                    rowCount++;
                 }
             });
-            tbody.innerHTML += `<tr style="background:#e8f5e9"><td colspan="2"><b>TỔNG</b></td><td colspan="2"><b>${total}</b></td></tr>`;
+            
+            // Add total row
+            tbody.innerHTML += `
+                <tr class="total-row">
+                    <td colspan="2"><b>TỔNG</b></td>
+                    <td colspan="2"><b>${total}</b></td>
+                </tr>`;
         }
 
-        // ============ FA & SELECTION FUNCTIONS - CẬP NHẬT ============
+        // ============ FA & SELECTION FUNCTIONS ============
+        async function sendFaCommand(apiKey, packageId, opserial) {
+            try {
+                const url = `${SCANNER_API}?apikey=${encodeURIComponent(apiKey)}&mxpackage=${encodeURIComponent(packageId)}&mcid=&opserial=${opserial}&processtype=FA`;
+                const response = await fetch(url);
+                const isSent = response.ok; 
+                return { 
+                    success: isSent, 
+                    message: isSent ? "Server received command" : "Server Error: " + response.status,
+                    simpleMessage: isSent ? "✅ Đã gửi lệnh" : "❌ Lỗi mạng/Server",
+                    data: null 
+                };
+            } catch (error) {
+                return { 
+                    success: false, 
+                    message: error.message || "Connection Error", 
+                    simpleMessage: "❌ Lỗi kết nối",
+                    error: error 
+                };
+            }
+        }
+
+        function toggleGlobalFA() {
+            globalFaEnabled = document.getElementById('globalFaToggle').checked;
+            updateFAStatusText();
+        }
+
+        function updateFAStatusText() {
+            const faStatusText = document.getElementById('faStatusText');
+            if (faStatusText) {
+                if (globalFaEnabled) {
+                    faStatusText.innerHTML = '<i class="fas fa-robot"></i> SẼ GỬI LỆNH FA';
+                    faStatusText.style.color = '#4CAF50';
+                } else {
+                    faStatusText.innerHTML = '<i class="fas fa-ban"></i> KHÔNG gửi lệnh FA';
+                    faStatusText.style.color = '#F44336';
+                }
+            }
+        }
+
         async function scanFAMachines() {
             const apiKey = document.getElementById('apiKey').value;
             const btn = document.getElementById('scanBtn');
@@ -1059,20 +1594,13 @@
                     throw new Error("Không tìm thấy operation.");
                 }
                 
-                console.log("📦 Raw API response:", json.data.operations);
-                
                 const allOps = json.data.operations
                     .filter(op => op.opserial != null)
-                    .map(op => {
-                        // GIỮ NGUYÊN FORMAT GỐC của opserial
-                        return {
-                            ...op,
-                            opserial: op.opserial,  // KHÔNG chuyển đổi
-                            opnum: op.opnum || "N/A"
-                        };
-                    });
-
-                console.log("🔧 Processed machines:", allOps);
+                    .map(op => ({
+                        ...op,
+                        opserial: op.opserial,
+                        opnum: op.opnum || "N/A"
+                    }));
 
                 let faCandidates = allOps.filter(op => op.iottype === 'FA');
                 let nonFaCandidates = allOps.filter(op => op.iottype !== 'FA');
@@ -1091,19 +1619,9 @@
                 
                 let html = '';
                 const renderItem = (op, isFaGroup) => {
-                    const opserial = String(op.opserial); // Chỉ chuyển thành string khi hiển thị
-                    
-                    faStatus[opserial] = {
-                        displayName: op.remarks || op.opname,
-                        isFA: isFaGroup,
-                        opnum: op.opnum,
-                        iottype: op.iottype
-                    };
-                    
-                    const faToggle = !isFaGroup ? 
-                        `<button class="fa-toggle-btn" id="fa-toggle-${opserial}" onclick="toggleMachineFA(event, '${opserial}')" title="Bật/Tắt gửi FA cho máy này">
-                            <i class="fas fa-robot"></i>
-                        </button>` : '';
+                    const opserial = String(op.opserial);
+                    faStatus[opserial] = { displayName: op.remarks || op.opname, isFA: isFaGroup, opnum: op.opnum, iottype: op.iottype };
+                    const faToggle = !isFaGroup ? `<button class="fa-toggle-btn" id="fa-toggle-${opserial}" onclick="toggleMachineFA(event, '${opserial}')"><i class="fas fa-robot"></i></button>` : '';
 
                     return `<li class="machine-item ${isFaGroup ? '' : 'non-fa'}" id="machine-${opserial}" onclick="selectMachine('${opserial}', '${(op.remarks || op.opname).replace(/'/g, "\\'").replace(/"/g, '&quot;')}', ${isFaGroup})">
                                 <input type="radio" name="machineSelect" value="${opserial}" class="machine-radio" ${selectedOpserial === opserial ? 'checked' : ''}>
@@ -1115,21 +1633,15 @@
                             </li>`;
                 };
 
-                if (faCandidates.length > 0) {
-                    html += '<ul class="machine-list">' + faCandidates.map(op => renderItem(op, true)).join('') + '</ul>';
-                }
+                if (faCandidates.length > 0) html += '<ul class="machine-list">' + faCandidates.map(op => renderItem(op, true)).join('') + '</ul>';
                 if (nonFaCandidates.length > 0) {
                     if (faCandidates.length > 0) html += '<div class="section-divider"><span>Máy khác</span></div>';
                     html += '<ul class="machine-list">' + nonFaCandidates.map(op => renderItem(op, false)).join('') + '</ul>';
                 }
                 
                 resDiv.innerHTML += html;
-                
-                // 🔥 QUAN TRỌNG: Tự động chọn máy số 1
                 const foundMachineOne = findAndSelectMachineOne(allOps);
-                
                 if (!foundMachineOne && allOps.length === 1) {
-                    // Nếu không có máy số 1 và chỉ có 1 máy, chọn máy đó
                     const machine = allOps[0];
                     selectMachine(String(machine.opserial), machine.remarks || machine.opname, machine.iottype === 'FA');
                 }
@@ -1146,32 +1658,50 @@
             }
         }
 
+        function findAndSelectMachineOne(allOps) {
+            for (let op of allOps) {
+                if (op.opserial != null) {
+                    const serialStr = String(op.opserial);
+                    const serialNum = parseInt(serialStr);
+                    if (!isNaN(serialNum) && serialNum === 1) {
+                        document.getElementById('autoSelectMachineName').textContent = op.remarks || op.opname;
+                        document.getElementById('autoSelectMachineSerial').textContent = serialStr;
+                        document.getElementById('autoSelectBanner').classList.remove('hidden');
+                        selectMachine(serialStr, op.remarks || op.opname, op.iottype === 'FA');
+                        const element = document.getElementById(`machine-${serialStr}`);
+                        if (element) {
+                            element.classList.add('auto-selected');
+                            const badge = document.createElement('span');
+                            badge.className = 'machine-one-badge';
+                            badge.textContent = 'Máy 1';
+                            const titleElement = element.querySelector('.machine-info-container h4');
+                            if (titleElement) titleElement.appendChild(badge);
+                        }
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+
         function toggleMachineFA(event, serial) {
             event.stopPropagation();
             serial = String(serial);
             if (!faStatus[serial]) return;
-            
             faStatus[serial].faRequested = !faStatus[serial].faRequested;
             const toggleBtn = document.getElementById(`fa-toggle-${serial}`);
             const toggleIcon = toggleBtn.querySelector('i');
-            
             if (faStatus[serial].faRequested) {
                 toggleBtn.style.color = '#4CAF50';
                 toggleIcon.className = 'fas fa-robot';
-                toggleBtn.title = "Đang BẬT gửi FA";
             } else {
                 toggleBtn.style.color = '#ccc';
                 toggleIcon.className = 'fas fa-ban';
-                toggleBtn.title = "Đang TẮT gửi FA";
             }
         }
 
         function selectMachine(serial, name, isFA = false) {
-            console.log(`🎯 selectMachine called: serial="${serial}", name="${name}"`);
-            
-            // Đảm bảo serial là string nhưng giữ nguyên giá trị
             const serialStr = String(serial);
-            
             if (selectedOpserial && selectedOpserial !== serialStr) {
                 const old = document.getElementById(`machine-${selectedOpserial}`);
                 if (old) {
@@ -1180,27 +1710,19 @@
                     old.querySelector('.machine-radio').checked = false;
                 }
             }
-            
             selectedOpserial = serialStr;
             selectedMachineName = name;
-            
             const element = document.getElementById(`machine-${serialStr}`);
             if (element) {
                 element.classList.add('selected');
                 element.querySelector('.machine-radio').checked = true;
             }
-            
-            if (faStatus[serialStr]) {
-                faStatus[serialStr].faRequested = globalFaEnabled;
-            }
-            
+            if (faStatus[serialStr]) faStatus[serialStr].faRequested = globalFaEnabled;
             document.getElementById('selectedMachineName').innerText = name;
             document.getElementById('selectedMachineSerial').innerText = serialStr;
             document.getElementById('selectionInfo').classList.remove('hidden');
             document.getElementById('unselectBtn').classList.remove('hidden');
             updateFAStatusText();
-            
-            console.log(`✅ Machine selected: ${name} (${serialStr})`);
         }
 
         function clearMachineSelection() {
@@ -1220,30 +1742,19 @@
         function toggleManualInput() {
             const el = document.getElementById('manualSerialInput');
             el.classList.toggle('hidden');
-            if(!el.classList.contains('hidden')) {
-                document.getElementById('manualOpserial').focus();
-            }
+            if(!el.classList.contains('hidden')) document.getElementById('manualOpserial').focus();
         }
 
         function confirmManualSerial() {
             const val = String(document.getElementById('manualOpserial').value);
             manualFaRequested = globalFaEnabled; 
-            
             if(val) {
                 selectedOpserial = val;
                 selectedMachineName = "Manual: " + val;
                 document.getElementById('selectedMachineName').innerText = selectedMachineName;
                 document.getElementById('selectedMachineSerial').innerText = val;
                 document.getElementById('selectionInfo').classList.remove('hidden');
-                
-                let msg = `<div class="result-box result-success">
-                    <p><i class="fas fa-check"></i> Chọn thủ công: <b>${val}</b></p>`;
-                if(manualFaRequested) {
-                    msg += `<p><i class="fas fa-robot" style="color:#4CAF50;"></i> <b>SẼ GỬI LỆNH FA CÙNG LÚC</b></p>`;
-                }
-                msg += `</div>`;
-                
-                document.getElementById('scanResult').innerHTML = msg;
+                document.getElementById('scanResult').innerHTML = `<div class="result-box result-success"><p><i class="fas fa-check"></i> Chọn thủ công: <b>${val}</b></p></div>`;
                 document.getElementById('scanResult').classList.remove('hidden');
                 document.getElementById('manualSerialInput').classList.add('hidden');
                 document.getElementById('unselectBtn').classList.remove('hidden');
@@ -1254,88 +1765,98 @@
             }
         }
 
-        function toggleGlobalFA() {
-            globalFaEnabled = document.getElementById('globalFaToggle').checked;
-            updateFAStatusText();
-        }
-
-        function updateFAStatusText() {
-            const faStatusText = document.getElementById('faStatusText');
-            if (faStatusText) {
-                if (globalFaEnabled) {
-                    faStatusText.innerHTML = '<i class="fas fa-robot"></i> SẼ GỬI LỆNH FA';
-                    faStatusText.style.color = '#4CAF50';
-                } else {
-                    faStatusText.innerHTML = '<i class="fas fa-ban"></i> KHÔNG gửi lệnh FA';
-                    faStatusText.style.color = '#F44336';
-                }
+        // ============ SUPER CONFIRM MODAL ============
+        function showConfirmModal() {
+            const currentSerial = String(selectedOpserial || '');
+            if(!currentSerial) return alert("Vui lòng CHỌN MÁY trước khi gửi!");
+            
+            const hasData = Object.keys(productionData).length > 0;
+            if(!hasData) {
+                if(!confirm("CẢNH BÁO: Không có dữ liệu sản lượng!\nBạn có chắc chắn muốn gửi để XÓA dữ liệu cũ không?")) return;
             }
-        }
-
-        async function sendFaCommand(apiKey, packageId, opserial) {
-            try {
-                const url = `${SCANNER_API}?apikey=${encodeURIComponent(apiKey)}&mxpackage=${encodeURIComponent(packageId)}&mcid=&opserial=${opserial}&processtype=FA`;
-                const response = await fetch(url);
-                const isSent = response.ok; 
-                return { 
-                    success: isSent, 
-                    message: isSent ? "Server received command" : "Server Error: " + response.status,
-                    simpleMessage: isSent ? "✅ Đã gửi lệnh" : "❌ Lỗi mạng/Server",
-                    data: null 
-                };
-            } catch (error) {
-                return { 
-                    success: false, 
-                    message: error.message || "Connection Error", 
-                    simpleMessage: "❌ Lỗi kết nối",
-                    error: error 
-                };
+            
+            let sendFa = false;
+            if (hasFaOption) {
+                if (faStatus[currentSerial]) sendFa = globalFaEnabled && faStatus[currentSerial].faRequested !== false;
+            } else {
+                sendFa = manualFaRequested;
             }
+            
+            const slotsCount = Object.keys(productionData).length;
+            const totalQty = Object.values(productionData).reduce((a,b) => a+b, 0);
+            const currentTime = new Date().toLocaleString('vi-VN');
+            
+            let warningHtml = '';
+            if (totalQty > dailyTarget) {
+                warningHtml = `
+                    <div class="confirm-warning">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <div>
+                            <strong>CẢNH BÁO SẢN LƯỢNG!</strong><br>
+                            Tổng nhập: <b style="color:#e65100">${totalQty}</b> | Target ngày: <b>${dailyTarget}</b><br>
+                            Bạn đang nhập <b>VƯỢT</b> quá Target quy định.
+                        </div>
+                    </div>
+                `;
+            }
+            
+            document.getElementById('confirmContent').innerHTML = `
+                <div class="confirm-details">
+                    <div class="confirm-item">
+                        <span class="confirm-label"><i class="fas fa-cube"></i> Package:</span>
+                        <span class="confirm-value">${selectedPackageId}</span>
+                    </div>
+                    <div class="confirm-item">
+                        <span class="confirm-label"><i class="fas fa-robot"></i> Máy:</span>
+                        <span class="confirm-value">${selectedMachineName}</span>
+                    </div>
+                    <div class="confirm-item">
+                        <span class="confirm-label"><i class="fas fa-hashtag"></i> OPSERIAL:</span>
+                        <span class="confirm-value">${currentSerial}</span>
+                    </div>
+                    <div class="confirm-item">
+                        <span class="confirm-label"><i class="fas fa-boxes"></i> Tổng SL:</span>
+                        <span class="confirm-value confirm-highlight">${totalQty} cái</span>
+                    </div>
+                    <div class="confirm-item">
+                        <span class="confirm-label"><i class="fas fa-clock"></i> Thời gian:</span>
+                        <span class="confirm-value">${currentTime}</span>
+                    </div>
+                    <div class="confirm-item">
+                        <span class="confirm-label"><i class="fas fa-bolt"></i> Gửi FA:</span>
+                        <span class="confirm-value" style="color:${sendFa ? '#4CAF50' : '#F44336'}">
+                            ${sendFa ? 'CÓ gửi lệnh FA' : 'KHÔNG gửi lệnh FA'}
+                        </span>
+                    </div>
+                </div>
+                ${warningHtml}
+                <div style="margin-top:20px; padding:15px; background:#f5f5f5; border-radius:8px; border-left:4px solid #2196F3;">
+                    <strong><i class="fas fa-info-circle"></i> Bạn có chắc chắn muốn gửi dữ liệu này lên hệ thống?</strong>
+                </div>
+            `;
+            
+            document.getElementById('confirmModal').classList.add('open');
+        }
+        
+        function confirmSendToMES() {
+            closeConfirmModal();
+            sendToMES();
         }
 
         // ============ GỬI DỮ LIỆU & HIỂN THỊ KẾT QUẢ ============
         async function sendToMES() {
             const currentSerial = String(selectedOpserial || '');
-            console.log("🚀 Sending to MES with opserial:", currentSerial);
-            
-            if(!currentSerial) return alert("Vui lòng CHỌN MÁY trước khi gửi!");
-            
             const hasData = Object.keys(productionData).length > 0;
-            if(!hasData && !confirm("CẢNH BÁO: Không có dữ liệu sản lượng!\nBạn có chắc chắn muốn gửi để XÓA dữ liệu cũ không?")) return;
             
             let sendFa = false;
-            let faReason = "";
-            
             if (hasFaOption) {
-                if (faStatus[currentSerial]) {
-                    sendFa = globalFaEnabled && faStatus[currentSerial].faRequested !== false;
-                    faReason = faStatus[currentSerial].isFA ? "Máy FA" : "Máy non-FA";
-                }
+                if (faStatus[currentSerial]) sendFa = globalFaEnabled && faStatus[currentSerial].faRequested !== false;
             } else {
                 sendFa = manualFaRequested;
-                faReason = "Thủ công";
             }
             
             const slotsCount = Object.keys(productionData).length;
             const totalQty = Object.values(productionData).reduce((a,b) => a+b, 0);
-
-            let confirmMsg = `XÁC NHẬN GỬI DỮ LIỆU?\n\n`;
-            confirmMsg += `🏭 Factory: ${document.getElementById('factory').value}\n`;
-            confirmMsg += `📍 Line: ${selectedLine}\n`;
-            confirmMsg += `👕 Style: ${selectedStyle}\n`;
-            confirmMsg += `📦 Package: ${selectedPackageId}\n`;
-            confirmMsg += `🤖 Máy: ${selectedMachineName}\n`;
-            confirmMsg += `🔢 OPSERIAL: ${currentSerial}\n`;
-            confirmMsg += `⏱️ Slots: ${slotsCount} slot(s)\n`;
-            confirmMsg += `∑  Tổng SL: ${totalQty} cái\n`;
-            confirmMsg += `-----------------------------------\n`;
-            if (sendFa) {
-                confirmMsg += `⚠️ HỆ THỐNG SẼ GỬI LỆNH FA (${faReason})`;
-            } else {
-                confirmMsg += `🚫 KHÔNG gửi lệnh FA`;
-            }
-            
-            if(!confirm(confirmMsg)) return;
 
             const btn = document.getElementById('sendBtn');
             const originalBtnText = btn.innerHTML;
@@ -1345,12 +1866,6 @@
             try {
                 const apiKey = document.getElementById('apiKey').value;
                 const currentTime = new Date().toLocaleString('vi-VN');
-                
-                console.log("📤 Sending production data:", {
-                    mxpackage: selectedPackageId,
-                    opserial: currentSerial,
-                    production_data: productionData
-                });
                 
                 const prodPromise = fetch(PROD_API, {
                     method: 'POST',
@@ -1364,9 +1879,7 @@
                 }).then(res => res.ok ? res.json() : Promise.reject(`Server Error: ${res.status}`));
 
                 let faPromise = Promise.resolve(null);
-                if (sendFa) {
-                    faPromise = sendFaCommand(apiKey, selectedPackageId, currentSerial);
-                }
+                if (sendFa) faPromise = sendFaCommand(apiKey, selectedPackageId, currentSerial);
 
                 const [prodResult, faResult] = await Promise.allSettled([prodPromise, faPromise]);
                 
@@ -1376,80 +1889,92 @@
                 
                 const faSuccess = faResult.status === 'fulfilled' ? faResult.value?.success : false;
                 
+                // Show success animation
+                document.getElementById('successAnimation').style.display = 'flex';
+                
                 let faStatusHtml = '';
                 if(sendFa) {
-                    if(faSuccess) faStatusHtml = `<span class="status-pill pill-success"><i class="fas fa-check"></i> FA: ĐÃ GỬI</span>`;
-                    else faStatusHtml = `<span class="status-pill pill-error"><i class="fas fa-exclamation-triangle"></i> FA: LỖI</span>`;
+                    faStatusHtml = `<span class="status-pill ${faSuccess ? 'pill-success' : 'pill-error'}">
+                        <i class="fas ${faSuccess ? 'fa-check' : 'fa-times'}"></i> FA: ${faSuccess ? 'ĐÃ GỬI' : 'THẤT BẠI'}
+                    </span>`;
                 } else {
-                    faStatusHtml = `<span class="status-pill pill-gray"><i class="fas fa-ban"></i> FA: KHÔNG GỬI</span>`;
+                    faStatusHtml = `<span class="status-pill pill-gray">
+                        <i class="fas fa-ban"></i> FA: KHÔNG GỬI
+                    </span>`;
                 }
 
-                let resHtml = `
+                document.getElementById('resultMessage').innerHTML = `
                     <div class="result-box result-success">
-                        <h3 style="font-size:18px; border-bottom:1px solid rgba(0,0,0,0.1); padding-bottom:8px; margin-bottom:10px;">
-                            <i class="fas fa-check-circle"></i> GỬI THÀNH CÔNG
-                        </h3>
-                        
+                        <h3><i class="fas fa-check-circle"></i> GỬI THÀNH CÔNG</h3>
                         <div class="detail-list">
                             <div class="detail-item">
-                                <span class="detail-label"><i class="fas fa-industry"></i> Factory:</span>
-                                <span class="detail-value">${document.getElementById('factory').value}</span>
-                            </div>
-                            <div class="detail-item">
-                                <span class="detail-label"><i class="fas fa-project-diagram"></i> Line:</span>
-                                <span class="detail-value">${selectedLine}</span>
-                            </div>
-                            <div class="detail-item">
-                                <span class="detail-label"><i class="fas fa-tshirt"></i> Style:</span>
-                                <span class="detail-value">${selectedStyle}</span>
-                            </div>
-                            <div class="detail-item">
-                                <span class="detail-label"><i class="fas fa-box"></i> Package:</span>
-                                <span class="detail-value" style="color:#1565c0; word-break:break-all; text-align:right; max-width:60%">${selectedPackageId}</span>
+                                <span class="detail-label"><i class="fas fa-cube"></i> Package:</span>
+                                <span class="detail-value">${selectedPackageId}</span>
                             </div>
                             <div class="detail-item">
                                 <span class="detail-label"><i class="fas fa-robot"></i> Máy:</span>
                                 <span class="detail-value">${selectedMachineName}</span>
                             </div>
                             <div class="detail-item">
-                                <span class="detail-label"><i class="fas fa-barcode"></i> OPSERIAL:</span>
-                                <span class="detail-value" style="color:#d32f2f; font-family:monospace; background:#ffebee; padding:0 5px; border-radius:3px;">${currentSerial}</span>
+                                <span class="detail-label"><i class="fas fa-hashtag"></i> OPSERIAL:</span>
+                                <span class="detail-value">${currentSerial}</span>
                             </div>
                             <div class="detail-item">
-                                <span class="detail-label"><i class="fas fa-crosshairs"></i> Target/Giờ:</span>
-                                <span class="detail-value">${hourlyTarget}</span>
+                                <span class="detail-label"><i class="fas fa-boxes"></i> Tổng SL:</span>
+                                <span class="detail-value" style="color:#e65100; font-size:18px">${totalQty} cái</span>
                             </div>
                             <div class="detail-item">
-                                <span class="detail-label"><i class="fas fa-layer-group"></i> Slots:</span>
-                                <span class="detail-value">${slotsCount} slot(s)</span>
-                            </div>
-                            <div class="detail-item">
-                                <span class="detail-label"><i class="fas fa-calculator"></i> Tổng SL:</span>
-                                <span class="detail-value" style="color:#e65100; font-size:15px">${totalQty} cái</span>
-                            </div>
-                            <div class="detail-item">
-                                <span class="detail-label"><i class="far fa-clock"></i> Thời gian:</span>
+                                <span class="detail-label"><i class="fas fa-clock"></i> Thời gian:</span>
                                 <span class="detail-value">${currentTime}</span>
                             </div>
                         </div>
-
-                        <div style="margin-top:15px; padding-top:8px; border-top:2px dashed #eee; display:flex; justify-content:space-between; align-items:center;">
-                            <span class="status-pill pill-success"><i class="fas fa-database"></i> DB: ĐÃ LƯU</span>
+                        <div class="status-row">
+                            <span class="status-pill pill-success">
+                                <i class="fas fa-database"></i> DB: ĐÃ LƯU
+                            </span>
                             ${faStatusHtml}
+                            <span class="status-pill pill-info">
+                                <i class="fas fa-slots"></i> SLOT: ${slotsCount}
+                            </span>
                         </div>
-                    </div>
+                    </div>`;
                     
-                    ${sendFa && !faSuccess ? `<div style="margin-top:10px; padding:8px; background:#ffebee; color:#c62828; border-radius:5px; font-size:12px; text-align:center;">
-                        <i class="fas fa-info-circle"></i> Lưu ý: Lệnh FA lỗi nhưng SL đã được lưu.
-                    </div>` : ''}
-                `;
-                
-                document.getElementById('resultMessage').innerHTML = resHtml;
                 goToStep(4);
                 
+                // Reset button after success
+                setTimeout(() => {
+                    btn.innerHTML = originalBtnText;
+                    btn.disabled = false;
+                }, 1000);
+                
             } catch(e) {
-                console.error("❌ Error sending to MES:", e);
-                alert("ĐÃ CÓ LỖI XẢY RA:\n" + (e.message || e));
+                document.getElementById('resultMessage').innerHTML = `
+                    <div class="result-box result-error">
+                        <h3><i class="fas fa-exclamation-circle"></i> LỖI GỬI DỮ LIỆU</h3>
+                        <div class="detail-list">
+                            <div class="detail-item">
+                                <span class="detail-label"><i class="fas fa-cube"></i> Package:</span>
+                                <span class="detail-value">${selectedPackageId}</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label"><i class="fas fa-robot"></i> Máy:</span>
+                                <span class="detail-value">${selectedMachineName}</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label"><i class="fas fa-exclamation-triangle"></i> Lỗi:</span>
+                                <span class="detail-value" style="color:#c62828">${e.message || "Không xác định"}</span>
+                            </div>
+                        </div>
+                        <div class="status-row">
+                            <span class="status-pill pill-error">
+                                <i class="fas fa-times"></i> THẤT BẠI
+                            </span>
+                        </div>
+                    </div>`;
+                    
+                goToStep(4);
+                
+                // Reset button after error
                 btn.innerHTML = originalBtnText;
                 btn.disabled = false;
             }
@@ -1461,31 +1986,19 @@
             document.getElementById(`step${step}`).classList.add('active');
             document.getElementById(`stepDot${step}`).classList.add('active');
             if(step === 3) {
-                document.getElementById('contextPackageInfo').innerHTML = `${selectedPackageId}<br>`;
-                document.getElementById('contextPackageInfo').innerHTML += `<small style="display:block; margin-top:3px; color:#444;">${selectedStyle} | Target: ${dailyTarget}</small>`;
-                
+                document.getElementById('contextPackageInfo').innerHTML = `${selectedPackageId}<br><small>${selectedStyle} | Target: ${dailyTarget}</small>`;
                 document.getElementById('contextLineInfo').innerHTML = `LINE: ${selectedLine}`;
-                if(selectedColor) document.getElementById('contextLineInfo').innerHTML += ` | ${selectedColor}`;
-                
                 globalFaEnabled = true;
-                if (document.getElementById('globalFaToggle')) {
-                    document.getElementById('globalFaToggle').checked = true;
-                }
+                if (document.getElementById('globalFaToggle')) document.getElementById('globalFaToggle').checked = true;
                 updateFAStatusText();
-                
-                // Ẩn auto-select banner khi vào step 3
                 document.getElementById('autoSelectBanner').classList.add('hidden');
             }
         }
         
         function resetManualInputs() {
-            document.querySelectorAll('.slot-input').forEach(inp => {
-                if(!inp.disabled) inp.value = '';
-            });
+            document.querySelectorAll('.slot-input').forEach(inp => { if(!inp.disabled) inp.value = ''; });
             document.getElementById('manualTotalDisplay').innerText = '0';
-            document.querySelectorAll('.slot-card').forEach(card => {
-                card.classList.remove('status-success', 'status-warning', 'status-error');
-            });
+            document.querySelectorAll('.slot-card').forEach(card => card.classList.remove('status-success', 'status-warning', 'status-error'));
             document.getElementById('manualRemainingDisplay').innerText = dailyTarget;
             document.getElementById('manualRemainingDisplay').style.color = '#4CAF50';
             document.getElementById('manualRemainingDisplay').previousElementSibling.innerText = "Còn lại:";
@@ -1493,4 +2006,3 @@
     </script>
 </body>
 </html>
-<!-- END OF FILE ai_studio_code_v7.0_fixed_final.html -->
