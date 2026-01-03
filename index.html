@@ -1,15 +1,19 @@
-<!-- START OF FILE ai_studio_code_v7.2_refined.html -->
+<!-- START OF FILE mes_production_v7.2_secured.html -->
 <!DOCTYPE html>
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MES Production V7.2 (Group & Smart Split)</title>
+    <title>MES Production V7.2 (Secured)</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- 1. THÊM SCRIPT TURNSTILE -->
+    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+
     <style>
-        /* CSS CHUNG */
+        /* CSS CHUNG - GIỮ NGUYÊN */
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-        body { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; padding: 20px; color: #333; }
+        body { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; padding: 20px; color: #333; padding-bottom: 80px; /* Thêm padding để tránh widget che */ }
         .container { max-width: 1200px; margin: 0 auto; background: white; border-radius: 15px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2); overflow: hidden; position: relative; }
         .header { background: linear-gradient(90deg, #1e3c72 0%, #2a5298 100%); color: white; padding: 25px 40px; text-align: center; }
         .header h1 { font-size: 28px; margin-bottom: 10px; display: flex; align-items: center; justify-content: center; gap: 15px; }
@@ -113,7 +117,7 @@
         .status-loading { color: #2196F3; font-size: 12px; font-style: italic; }
         .mini-loader { width: 12px; height: 12px; border: 2px solid #ddd; border-top-color: #2196F3; border-radius: 50%; animation: spin 1s linear infinite; display: inline-block; }
 
-        /* SUMMARY BANNER - BIGGER FONT */
+        /* SUMMARY BANNER */
         .summary-banner {
             display: flex; justify-content: space-between; align-items: center;
             font-size: 16px;
@@ -123,7 +127,7 @@
         /* STEP 2: SUMMARY */
         .manual-summary { margin-top: 20px; padding: 20px; background: #263238; color: white; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; }
         .summary-block { display: flex; align-items: baseline; gap: 10px; margin-top: 5px; }
-        .summary-num { font-size: 32px; font-weight: bold; line-height: 1; } /* Bigger */
+        .summary-num { font-size: 32px; font-weight: bold; line-height: 1; }
         .summary-label { font-size: 14px; color: #aaa; font-weight: normal; }
 
         /* BUTTONS & OTHERS */
@@ -192,466 +196,137 @@
         .auto-select-details { font-size: 13px; color: #666; margin-left: 28px; }
         .machine-one-badge { background: #4CAF50; color: white; padding: 2px 8px; border-radius: 10px; font-size: 11px; font-weight: bold; margin-left: 8px; }
         
-        /* STEP 3: PREVIEW TABLE - ENHANCED */
-        .preview-container {
-            background: #f8f9fa;
-            border-radius: 10px;
-            padding: 20px;
-            margin-top: 20px;
-            border: 2px solid #e3f2fd;
-            box-shadow: 0 3px 10px rgba(0,0,0,0.05);
-        }
+        /* PREVIEW TABLE */
+        .preview-container { background: #f8f9fa; border-radius: 10px; padding: 20px; margin-top: 20px; border: 2px solid #e3f2fd; box-shadow: 0 3px 10px rgba(0,0,0,0.05); }
+        .preview-header { display: flex; align-items: center; gap: 10px; margin-bottom: 15px; padding-bottom: 10px; border-bottom: 2px solid #e3f2fd; }
+        .preview-header h4 { margin: 0; color: #1e3c72; }
+        .preview-table { width: 100%; border-collapse: separate; border-spacing: 0; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+        .preview-table thead { background: linear-gradient(90deg, #2196F3 0%, #21CBF3 100%); color: white; }
+        .preview-table th { padding: 15px 12px; text-align: center; font-weight: 600; font-size: 14px; border-right: 1px solid rgba(255,255,255,0.1); }
+        .preview-table th:last-child { border-right: none; }
+        .preview-table tbody tr { transition: all 0.2s; }
+        .preview-table tbody tr:nth-child(even) { background-color: #f8f9fa; }
+        .preview-table tbody tr:nth-child(odd) { background-color: white; }
+        .preview-table tbody tr:hover { background-color: #e3f2fd; transform: translateY(-1px); }
+        .preview-table td { padding: 12px 10px; text-align: center; border-bottom: 1px solid #eee; font-size: 14px; }
+        .preview-table td:nth-child(1) { font-weight: bold; color: #1565c0; width: 60px; }
+        .preview-table td:nth-child(2) { color: #555; width: 150px; }
+        .preview-table td:nth-child(3) { font-weight: bold; color: #e65100; font-size: 16px; width: 100px; }
+        .preview-table td:nth-child(4) { color: #666; width: 80px; }
+        .preview-table .total-row { background: linear-gradient(90deg, #e8f5e9 0%, #c8e6c9 100%) !important; font-weight: bold; border-top: 2px solid #4CAF50; }
+        .preview-table .total-row td { padding: 15px 10px; font-size: 16px; color: #1b5e20; }
         
-        .preview-header {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin-bottom: 15px;
-            padding-bottom: 10px;
-            border-bottom: 2px solid #e3f2fd;
-        }
-        
-        .preview-header h4 {
-            margin: 0;
-            color: #1e3c72;
-        }
-        
-        .preview-table {
-            width: 100%;
-            border-collapse: separate;
-            border-spacing: 0;
-            border-radius: 8px;
-            overflow: hidden;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-        }
-        
-        .preview-table thead {
-            background: linear-gradient(90deg, #2196F3 0%, #21CBF3 100%);
-            color: white;
-        }
-        
-        .preview-table th {
-            padding: 15px 12px;
-            text-align: center;
-            font-weight: 600;
-            font-size: 14px;
-            border-right: 1px solid rgba(255,255,255,0.1);
-        }
-        
-        .preview-table th:last-child {
-            border-right: none;
-        }
-        
-        .preview-table tbody tr {
-            transition: all 0.2s;
-        }
-        
-        .preview-table tbody tr:nth-child(even) {
-            background-color: #f8f9fa;
-        }
-        
-        .preview-table tbody tr:nth-child(odd) {
-            background-color: white;
-        }
-        
-        .preview-table tbody tr:hover {
-            background-color: #e3f2fd;
-            transform: translateY(-1px);
-        }
-        
-        .preview-table td {
-            padding: 12px 10px;
-            text-align: center;
-            border-bottom: 1px solid #eee;
-            font-size: 14px;
-        }
-        
-        .preview-table td:nth-child(1) {
-            font-weight: bold;
-            color: #1565c0;
-            width: 60px;
-        }
-        
-        .preview-table td:nth-child(2) {
-            color: #555;
-            width: 150px;
-        }
-        
-        .preview-table td:nth-child(3) {
-            font-weight: bold;
-            color: #e65100;
-            font-size: 16px;
-            width: 100px;
-        }
-        
-        .preview-table td:nth-child(4) {
-            color: #666;
-            width: 80px;
-        }
-        
-        .preview-table .total-row {
-            background: linear-gradient(90deg, #e8f5e9 0%, #c8e6c9 100%) !important;
-            font-weight: bold;
-            border-top: 2px solid #4CAF50;
-        }
-        
-        .preview-table .total-row td {
-            padding: 15px 10px;
-            font-size: 16px;
-            color: #1b5e20;
-        }
-        
-        /* MODAL & SUPER MODAL */
-        .modal-overlay { 
-            position: fixed; 
-            top: 0; left: 0; 
-            width: 100%; height: 100%; 
-            background: rgba(0,0,0,0.7); 
-            z-index: 2000; 
-            display: flex; 
-            justify-content: center; 
-            align-items: center; 
-            opacity: 0; 
-            visibility: hidden; 
-            transition: 0.3s; 
-            backdrop-filter: blur(3px);
-        }
-        
+        /* MODALS */
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 2000; display: flex; justify-content: center; align-items: center; opacity: 0; visibility: hidden; transition: 0.3s; backdrop-filter: blur(3px); }
         .modal-overlay.open { opacity: 1; visibility: visible; }
+        .modal-box { background: white; width: 95%; max-width: 900px; border-radius: 15px; box-shadow: 0 15px 50px rgba(0,0,0,0.4); display: flex; flex-direction: column; max-height: 90vh; overflow: hidden; transform: translateY(-20px); transition: transform 0.3s ease-out; }
+        .modal-overlay.open .modal-box { transform: translateY(0); }
+        .modal-header { padding: 20px 25px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; background: linear-gradient(90deg, #1e3c72 0%, #2a5298 100%); color: white; border-radius: 15px 15px 0 0; }
+        .modal-header h3 { margin: 0; font-size: 18px; display: flex; align-items: center; gap: 10px; }
+        .modal-body { padding: 25px; overflow-y: auto; flex: 1; }
+        .modal-footer { padding: 20px 25px; border-top: 1px solid #eee; display: flex; gap: 10px; justify-content: flex-end; background: #f8f9fa; border-radius: 0 0 15px 15px; flex-wrap: wrap; }
+        .detail-module { margin-bottom: 20px; border: 1px solid #e0e0e0; border-radius: 10px; overflow: hidden; box-shadow: 0 3px 10px rgba(0,0,0,0.05); }
+        .detail-module-header { background: linear-gradient(90deg, #e3f2fd 0%, #bbdefb 100%); padding: 12px 18px; font-weight: bold; color: #1565c0; display: flex; justify-content: space-between; font-size: 15px; }
+        .detail-row { padding: 10px 18px; border-bottom: 1px solid #f0f0f0; display: flex; align-items: center; gap: 12px; font-size: 14px; transition: background 0.2s; }
+        .detail-row:hover { background: #f9f9f9; }
+        .detail-row:last-child { border-bottom: none; }
+        .serial-tag { background: #e0e0e0; padding: 4px 10px; border-radius: 20px; font-family: monospace; color: #333; font-weight: 600; font-size: 13px; }
         
-        .modal-box { 
-            background: white; 
-            width: 95%; 
-            max-width: 900px; 
-            border-radius: 15px; 
-            box-shadow: 0 15px 50px rgba(0,0,0,0.4); 
-            display: flex; 
-            flex-direction: column; 
-            max-height: 90vh; 
-            overflow: hidden;
-            transform: translateY(-20px);
-            transition: transform 0.3s ease-out;
-        }
+        /* CONFIRM MODAL */
+        .confirm-modal { max-width: 600px !important; }
+        .confirm-modal .modal-header { background: linear-gradient(90deg, #FF9800 0%, #FFC107 100%); }
+        .confirm-details { margin: 20px 0; }
+        .confirm-item { display: flex; margin-bottom: 12px; padding: 10px 15px; background: #f9f9f9; border-radius: 8px; border-left: 4px solid #2196F3; }
+        .confirm-label { font-weight: 600; color: #555; min-width: 120px; }
+        .confirm-value { flex: 1; font-weight: bold; color: #1565c0; }
+        .confirm-highlight { color: #e65100; font-size: 18px; }
+        .confirm-warning { background: #fff3e0; border-left-color: #FF9800; padding: 15px; border-radius: 8px; margin: 15px 0; display: flex; align-items: flex-start; gap: 10px; }
+        .confirm-warning i { color: #FF9800; font-size: 20px; margin-top: 2px; }
         
-        .modal-overlay.open .modal-box {
-            transform: translateY(0);
-        }
-        
-        .modal-header { 
-            padding: 20px 25px; 
-            border-bottom: 1px solid #eee; 
-            display: flex; 
-            justify-content: space-between; 
-            align-items: center; 
-            background: linear-gradient(90deg, #1e3c72 0%, #2a5298 100%);
-            color: white;
-            border-radius: 15px 15px 0 0;
-        }
-        
-        .modal-header h3 {
-            margin: 0;
-            font-size: 18px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        
-        .modal-body { 
-            padding: 25px; 
-            overflow-y: auto; 
-            flex: 1; 
-        }
-        
-        .modal-footer { 
-            padding: 20px 25px; 
-            border-top: 1px solid #eee; 
-            display: flex; 
-            gap: 10px; 
-            justify-content: flex-end; 
-            background: #f8f9fa; 
-            border-radius: 0 0 15px 15px; 
-            flex-wrap: wrap; 
-        }
-        
-        .detail-module { 
-            margin-bottom: 20px; 
-            border: 1px solid #e0e0e0; 
-            border-radius: 10px; 
-            overflow: hidden; 
-            box-shadow: 0 3px 10px rgba(0,0,0,0.05);
-        }
-        
-        .detail-module-header { 
-            background: linear-gradient(90deg, #e3f2fd 0%, #bbdefb 100%); 
-            padding: 12px 18px; 
-            font-weight: bold; 
-            color: #1565c0; 
-            display: flex; 
-            justify-content: space-between; 
-            font-size: 15px;
-        }
-        
-        .detail-row { 
-            padding: 10px 18px; 
-            border-bottom: 1px solid #f0f0f0; 
-            display: flex; 
-            align-items: center; 
-            gap: 12px; 
-            font-size: 14px; 
-            transition: background 0.2s;
-        }
-        
-        .detail-row:hover {
-            background: #f9f9f9;
-        }
-        
-        .detail-row:last-child {
-            border-bottom: none;
-        }
-        
-        .serial-tag { 
-            background: #e0e0e0; 
-            padding: 4px 10px; 
-            border-radius: 20px; 
-            font-family: monospace; 
-            color: #333;
-            font-weight: 600;
-            font-size: 13px;
-        }
-        
-        /* SUPER CONFIRM MODAL */
-        .confirm-modal {
-            max-width: 600px !important;
-        }
-        
-        .confirm-modal .modal-header {
-            background: linear-gradient(90deg, #FF9800 0%, #FFC107 100%);
-        }
-        
-        .confirm-details {
-            margin: 20px 0;
-        }
-        
-        .confirm-item {
-            display: flex;
-            margin-bottom: 12px;
-            padding: 10px 15px;
-            background: #f9f9f9;
-            border-radius: 8px;
-            border-left: 4px solid #2196F3;
-        }
-        
-        .confirm-label {
-            font-weight: 600;
-            color: #555;
-            min-width: 120px;
-        }
-        
-        .confirm-value {
-            flex: 1;
-            font-weight: bold;
-            color: #1565c0;
-        }
-        
-        .confirm-highlight {
-            color: #e65100;
-            font-size: 18px;
-        }
-        
-        .confirm-warning {
-            background: #fff3e0;
-            border-left-color: #FF9800;
-            padding: 15px;
-            border-radius: 8px;
-            margin: 15px 0;
-            display: flex;
-            align-items: flex-start;
-            gap: 10px;
-        }
-        
-        .confirm-warning i {
-            color: #FF9800;
-            font-size: 20px;
-            margin-top: 2px;
-        }
-        
-        /* STEP 4: RESULT PAGE ENHANCED */
-        .result-success-animation {
-            display: flex;
-            justify-content: center;
-            margin: 20px 0 30px;
-        }
-        
-        .checkmark-circle {
-            width: 80px;
-            height: 80px;
-            border-radius: 50%;
-            background: #4CAF50;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            animation: pulse 2s infinite;
-            box-shadow: 0 5px 15px rgba(76, 175, 80, 0.4);
-        }
-        
-        @keyframes pulse {
-            0% { transform: scale(1); box-shadow: 0 5px 15px rgba(76, 175, 80, 0.4); }
-            50% { transform: scale(1.05); box-shadow: 0 8px 25px rgba(76, 175, 80, 0.6); }
-            100% { transform: scale(1); box-shadow: 0 5px 15px rgba(76, 175, 80, 0.4); }
-        }
-        
-        .checkmark {
-            color: white;
-            font-size: 40px;
-        }
-        
-        .result-box {
-            border-radius: 12px;
-            padding: 25px;
-            margin-bottom: 20px;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
-            animation: slideInUp 0.5s ease-out;
-        }
-        
-        @keyframes slideInUp {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        
-        .result-success {
-            background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
-            border: 2px solid #4CAF50;
-        }
-        
-        .result-error {
-            background: linear-gradient(135deg, #ffebee 0%, #ffcdd2 100%);
-            border: 2px solid #f44336;
-        }
-        
-        .result-box h3 {
-            margin-top: 0;
-            margin-bottom: 20px;
-            color: #1b5e20;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            font-size: 22px;
-        }
-        
-        .result-error h3 {
-            color: #c62828;
-        }
-        
-        .detail-list {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-            margin-bottom: 20px;
-        }
-        
-        .detail-item {
-            display: flex;
-            align-items: center;
-            padding: 10px 15px;
-            background: rgba(255,255,255,0.7);
-            border-radius: 8px;
-            transition: all 0.2s;
-        }
-        
-        .detail-item:hover {
-            background: rgba(255,255,255,0.9);
-            transform: translateX(5px);
-        }
-        
-        .detail-label {
-            font-weight: 600;
-            color: #555;
-            min-width: 140px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        
-        .detail-value {
-            flex: 1;
-            font-weight: bold;
-            color: #1565c0;
-            font-size: 16px;
-        }
-        
-        .status-row {
-            display: flex;
-            gap: 15px;
-            margin-top: 20px;
-            padding-top: 20px;
-            border-top: 2px dashed rgba(0,0,0,0.1);
-            flex-wrap: wrap;
-        }
-        
-        .status-pill {
-            padding: 8px 18px;
-            border-radius: 30px;
-            font-weight: bold;
-            font-size: 14px;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            box-shadow: 0 3px 8px rgba(0,0,0,0.1);
-        }
-        
-        .pill-success {
-            background: #4CAF50;
-            color: white;
-        }
-        
-        .pill-warning {
-            background: #FF9800;
-            color: white;
-        }
-        
-        .pill-error {
-            background: #f44336;
-            color: white;
-        }
-        
-        .pill-gray {
-            background: #607D8B;
-            color: white;
-        }
-        
-        .pill-info {
-            background: #2196F3;
-            color: white;
-        }
-        
-        /* LOADER & ANIMATIONS */
-        .loader {
-            border: 3px solid #f3f3f3;
-            border-top: 3px solid #2196F3;
-            border-radius: 50%;
-            width: 24px;
-            height: 24px;
-            animation: spin 1s linear infinite;
-            display: inline-block;
-            vertical-align: middle;
-        }
-        
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-        
+        /* RESULT PAGE */
+        .result-success-animation { display: flex; justify-content: center; margin: 20px 0 30px; }
+        .checkmark-circle { width: 80px; height: 80px; border-radius: 50%; background: #4CAF50; display: flex; align-items: center; justify-content: center; animation: pulse 2s infinite; box-shadow: 0 5px 15px rgba(76, 175, 80, 0.4); }
+        @keyframes pulse { 0% { transform: scale(1); box-shadow: 0 5px 15px rgba(76, 175, 80, 0.4); } 50% { transform: scale(1.05); box-shadow: 0 8px 25px rgba(76, 175, 80, 0.6); } 100% { transform: scale(1); box-shadow: 0 5px 15px rgba(76, 175, 80, 0.4); } }
+        .checkmark { color: white; font-size: 40px; }
+        .result-box { border-radius: 12px; padding: 25px; margin-bottom: 20px; box-shadow: 0 5px 20px rgba(0,0,0,0.1); animation: slideInUp 0.5s ease-out; }
+        @keyframes slideInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        .result-success { background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%); border: 2px solid #4CAF50; }
+        .result-error { background: linear-gradient(135deg, #ffebee 0%, #ffcdd2 100%); border: 2px solid #f44336; }
+        .result-box h3 { margin-top: 0; margin-bottom: 20px; color: #1b5e20; display: flex; align-items: center; gap: 10px; font-size: 22px; }
+        .result-error h3 { color: #c62828; }
+        .detail-list { display: flex; flex-direction: column; gap: 12px; margin-bottom: 20px; }
+        .detail-item { display: flex; align-items: center; padding: 10px 15px; background: rgba(255,255,255,0.7); border-radius: 8px; transition: all 0.2s; }
+        .detail-item:hover { background: rgba(255,255,255,0.9); transform: translateX(5px); }
+        .detail-label { font-weight: 600; color: #555; min-width: 140px; display: flex; align-items: center; gap: 8px; }
+        .detail-value { flex: 1; font-weight: bold; color: #1565c0; font-size: 16px; }
+        .status-row { display: flex; gap: 15px; margin-top: 20px; padding-top: 20px; border-top: 2px dashed rgba(0,0,0,0.1); flex-wrap: wrap; }
+        .status-pill { padding: 8px 18px; border-radius: 30px; font-weight: bold; font-size: 14px; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 3px 8px rgba(0,0,0,0.1); }
+        .pill-success { background: #4CAF50; color: white; }
+        .pill-warning { background: #FF9800; color: white; }
+        .pill-error { background: #f44336; color: white; }
+        .pill-gray { background: #607D8B; color: white; }
+        .pill-info { background: #2196F3; color: white; }
+        .loader { border: 3px solid #f3f3f3; border-top: 3px solid #2196F3; border-radius: 50%; width: 24px; height: 24px; animation: spin 1s linear infinite; display: inline-block; vertical-align: middle; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         ::-webkit-scrollbar { width: 8px; }
         ::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 10px; }
         ::-webkit-scrollbar-thumb { background: #ccc; border-radius: 10px; }
         ::-webkit-scrollbar-thumb:hover { background: #aaa; }
+
+        /* === 2. CSS CHO FLOATING WIDGET === */
+        .turnstile-floating {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 9999;
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(12px);
+            border-radius: 16px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255,255,255,0.1);
+            border: 1px solid rgba(59, 130, 246, 0.4);
+            width: 320px;
+            overflow: hidden;
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .turnstile-header {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 10px 16px;
+            background: linear-gradient(to right, #eff6ff, #fff);
+            border-bottom: 1px solid rgba(59, 130, 246, 0.1);
+        }
+        .turnstile-title { font-size: 0.85rem; font-weight: 700; color: #2563eb; display: flex; gap: 8px; align-items: center; }
+        .turnstile-badge { font-size: 0.7rem; padding: 2px 8px; border-radius: 6px; font-weight: 600; }
+        .status-pending { background: #fff7ed; color: #c2410c; border: 1px solid #ffedd5; }
+        .status-success { background: #f0fdf4; color: #15803d; border: 1px solid #dcfce7; }
+        .btn-icon { background: none; border: none; cursor: pointer; font-size: 1.2rem; color: #64748b; padding: 0 4px; }
+        .turnstile-body { padding: 16px; display: flex; flex-direction: column; align-items: center; }
+        .turnstile-note { font-size: 0.7rem; color: #64748b; margin-top: 10px; text-align: center; }
+        
+        .turnstile-content { opacity: 1; visibility: visible; transition: opacity 0.3s; width: 100%; }
+        .turnstile-minimized-icon {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.5rem; cursor: pointer;
+            opacity: 0; visibility: hidden; transition: opacity 0.3s;
+            background: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%);
+            color: white;
+        }
+        .turnstile-floating.minimized {
+            width: 56px; height: 56px; border-radius: 50%;
+            cursor: pointer; border-color: transparent;
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.5);
+            bottom: 30px; right: 30px;
+        }
+        .turnstile-floating.minimized .turnstile-content { opacity: 0; visibility: hidden; position: absolute; }
+        .turnstile-floating.minimized .turnstile-minimized-icon { opacity: 1; visibility: visible; }
+        .turnstile-floating.minimized:hover { transform: scale(1.1); }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
             <h1><i class="fas fa-industry"></i> MES Production V7.2</h1>
-            <p>Smart Grouping & Intelligent Split</p>
+            <p>Smart Grouping & Intelligent Split (Secured)</p>
         </div>
         
         <div class="content">
@@ -935,6 +610,32 @@
         </div>
     </div>
 
+    <!-- 3. FLOATING TURNSTILE WIDGET -->
+    <div id="turnstileWidget" class="turnstile-floating">
+        <div class="turnstile-content">
+            <div class="turnstile-header">
+                <div class="turnstile-title"><i class="fas fa-shield-alt"></i> Bảo Mật Hệ Thống</div>
+                <div style="display:flex; align-items:center; gap:8px;">
+                   <span id="turnstileStatus" class="turnstile-badge status-pending">Đang chờ</span>
+                   <button id="btnMinimize" class="btn-icon" title="Thu nhỏ">─</button>
+                </div>
+            </div>
+            <div class="turnstile-body">
+                <div id="cf-turnstile-widget" class="cf-turnstile" 
+                     data-sitekey="0x4AAAAAACKJOBIKvTV3je0V" 
+                     data-callback="onTurnstileSuccess"
+                     data-error-callback="onTurnstileError"
+                     data-expired-callback="onTurnstileExpired"
+                     data-theme="light">
+                </div>
+                <div class="turnstile-note">Tự động ẩn sau khi xác thực thành công.</div>
+            </div>
+        </div>
+        <div class="turnstile-minimized-icon" title="Nhấn để mở xác thực">
+            <span id="minimizedIconChar">🔐</span>
+        </div>
+    </div>
+
     <!-- DETAIL MODAL -->
     <div class="modal-overlay" id="detailModal">
         <div class="modal-box">
@@ -976,6 +677,13 @@
         const MODULE_API = "https://module-requests.chiscoong-cloudflare-com.workers.dev/opdetails";
         const SCANNER_API = "https://mes-qr-scanner.chiscoong-cloudflare-com.workers.dev/";
         
+        // --- 4. CẤU HÌNH & VARIABLES TURNSTILE ---
+        const TOKEN_MAX_AGE = 270 * 1000; // 4.5 Phút
+        let turnstileToken = null;
+        let tokenTimestamp = 0;
+        let tokenRefreshResolver = null;
+        let isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+
         let allPackages = []; 
         let productionData = {};
         let dailyTarget = 0; 
@@ -997,10 +705,67 @@
             "15:15 - 16:15", "16:15 - 17:15", "17:15 - 18:15", "18:15 - 19:15", "19:15 - 20:15"
         ];
 
+        // --- 5. LOGIC TURNSTILE WIDGET ---
+        const widgetEl = document.getElementById('turnstileWidget');
+        const btnMinimize = document.getElementById('btnMinimize');
+
+        function toggleWidgetState(forceMinimize = false) {
+            if (forceMinimize) widgetEl.classList.add('minimized');
+            else widgetEl.classList.toggle('minimized');
+        }
+
+        btnMinimize.addEventListener('click', (e) => { e.stopPropagation(); toggleWidgetState(true); });
+        widgetEl.addEventListener('click', () => { if (widgetEl.classList.contains('minimized')) toggleWidgetState(false); });
+
+        window.onTurnstileSuccess = function(token) {
+            turnstileToken = token;
+            tokenTimestamp = Date.now();
+            
+            // Update UI
+            document.getElementById('turnstileStatus').textContent = "Đã xác thực";
+            document.getElementById('turnstileStatus').className = "turnstile-badge status-success";
+            document.getElementById('minimizedIconChar').textContent = "✅";
+            
+            // Logic Auto-Resume khi treo máy
+            if (tokenRefreshResolver) {
+                tokenRefreshResolver(true);
+                tokenRefreshResolver = null;
+                setTimeout(() => toggleWidgetState(true), 1000);
+            } else {
+                setTimeout(() => toggleWidgetState(true), 1500);
+            }
+        };
+
+        window.onTurnstileError = function() {
+            turnstileToken = null;
+            document.getElementById('minimizedIconChar').textContent = "⚠️";
+        };
+
+        window.onTurnstileExpired = function() {
+            turnstileToken = null;
+            if (!tokenRefreshResolver) {
+                document.getElementById('minimizedIconChar').textContent = "🔐";
+                toggleWidgetState(false);
+            }
+        };
+
+        async function refreshTurnstileToken() {
+            toggleWidgetState(false);
+            document.getElementById('turnstileStatus').textContent = "Cần gia hạn";
+            document.getElementById('turnstileStatus').className = "turnstile-badge status-pending";
+            if(window.turnstile) window.turnstile.reset('#cf-turnstile-widget');
+            await new Promise(resolve => { tokenRefreshResolver = resolve; });
+        }
+
         document.addEventListener('DOMContentLoaded', function() {
             document.getElementById('dateSelect').value = new Date().toISOString().split('T')[0];
             const savedKey = localStorage.getItem('mesApiKey');
             if(savedKey) document.getElementById('apiKey').value = savedKey;
+            
+            // Localhost bypass
+            if (isLocalhost) {
+                document.getElementById('turnstileWidget').style.display = 'none';
+            }
         });
 
         function saveConfig() { localStorage.setItem('mesApiKey', document.getElementById('apiKey').value); }
@@ -1126,7 +891,6 @@
         }
 
         function updateSummaryDiv(div, totalPkg, totalTarget, totalActual) {
-            // Logic % mới: Math.floor
             const percent = totalTarget > 0 ? Math.floor((totalActual/totalTarget)*100) : 0;
             div.innerHTML = `
                 <div class="summary-banner">
@@ -1140,18 +904,13 @@
             div.classList.remove('hidden');
         }
 
-        // --- SORTING HELPER FOR LINES ---
         function compareLines(a, b) {
             const lineA = a.line.toUpperCase();
             const lineB = b.line.toUpperCase();
-            
-            // Extract number if present
             const matchA = lineA.match(/(\d+)/);
             const matchB = lineB.match(/(\d+)/);
-            
-            const numA = matchA ? parseInt(matchA[0]) : 9999; // Non-numeric lines go last
+            const numA = matchA ? parseInt(matchA[0]) : 9999; 
             const numB = matchB ? parseInt(matchB[0]) : 9999;
-            
             if (numA !== numB) {
                 return numA - numB;
             }
@@ -1167,7 +926,6 @@
                 return;
             }
 
-            // 1. Filter logic
             const statusFilter = document.getElementById('statusFilter').value;
             let filteredList = list;
             if (statusFilter === 'pending') {
@@ -1176,14 +934,11 @@
                 filteredList = list.filter(p => p.actual > 0);
             }
 
-            // 2. Sort by Line
             filteredList.sort(compareLines);
 
-            // 3. Render with Group Headers
             let currentLine = null;
 
             filteredList.forEach(p => {
-                // Check if line changed
                 if (p.line !== currentLine) {
                     currentLine = p.line;
                     const header = document.createElement('div');
@@ -1218,15 +973,12 @@
                 container.appendChild(card);
             });
             
-            // Re-update status visuals for rendered items
             filteredList.forEach(p => updateCardStatus(p));
         }
 
         function filterPackages() {
             const term = document.getElementById('packageSearch').value.toLowerCase();
-            // Filter by text first
             const textFiltered = allPackages.filter(p => p.searchString.includes(term));
-            // Then render (which applies status filter)
             renderPackageList(textFiltered);
         }
 
@@ -1376,52 +1128,39 @@
         function autoDistributeCustom() {
             const h = parseFloat(document.getElementById('customSplitHours').value);
             const mode = parseFloat(document.getElementById('workHoursInput').value);
-            const availableSlots = mode > 8 ? 11 : 8; // Available slots excluding lunch
+            const availableSlots = mode > 8 ? 11 : 8; 
 
             if(!h || h <= 0) return alert("Vui lòng nhập số giờ hợp lệ!");
             if(h > availableSlots) return alert(`Số giờ không được vượt quá số slot khả dụng (${availableSlots} giờ)!`);
             
-            // LOGIC CHIA THÔNG MINH V7.2
             resetManualInputs();
             const inputs = document.querySelectorAll('.slot-input');
             const target = dailyTarget;
             
-            // 1. Tính Rate/Giờ dựa trên tổng số giờ nhập vào (kể cả số lẻ)
-            // Ví dụ: 318 / 2.5 = 127.2 -> 127
             const hourlyRate = Math.floor(target / h);
-            
-            // 2. Xác định số slot đầy đủ và phần lẻ
             const fullSlots = Math.floor(h);
-            const partialSlotRatio = h - fullSlots; // Ví dụ 0.5
+            const partialSlotRatio = h - fullSlots;
             
             let distributedValues = [];
             let currentSum = 0;
 
-            // 3. Phân bổ các slot đầy đủ
             for(let i=0; i<fullSlots; i++) {
                 distributedValues.push(hourlyRate);
                 currentSum += hourlyRate;
             }
 
-            // 4. Phân bổ slot lẻ (nếu có)
             if (partialSlotRatio > 0) {
-                // Phần còn lại sẽ đổ vào slot này
                 distributedValues.push(target - currentSum);
             } else {
-                // Nếu không có slot lẻ, cộng phần dư vào slot cuối cùng
                 if(distributedValues.length > 0) {
                     distributedValues[distributedValues.length - 1] += (target - currentSum);
                 }
             }
 
-            // 5. Điền vào Grid (bỏ qua giờ ăn trưa)
             let valIndex = 0;
             inputs.forEach((inp, idx) => {
                 if (valIndex < distributedValues.length && !inp.disabled) {
-                    // Logic bỏ qua giờ ăn trưa (idx 4) đã được handle bởi !inp.disabled
-                    // Nhưng cần chắc chắn thứ tự đúng
-                    if (idx === 4 || idx === 12) return; // Skip lunch/dinner explicitly just in case
-
+                    if (idx === 4 || idx === 12) return; 
                     inp.value = distributedValues[valIndex];
                     checkPerf(inp, idx);
                     valIndex++;
@@ -1430,8 +1169,6 @@
         }
 
         function autoDistribute(customHours) {
-            // Fallback for standard auto-distribute button (using weights)
-            // This is the old logic kept for the main button
             resetManualInputs();
             const mode = parseFloat(document.getElementById('workHoursInput').value);
             const inputs = document.querySelectorAll('.slot-input');
@@ -1845,6 +1582,11 @@
 
         // ============ GỬI DỮ LIỆU & HIỂN THỊ KẾT QUẢ ============
         async function sendToMES() {
+            // --- 6. CHECK TURNSTILE TRƯỚC KHI GỬI ---
+            if (!isLocalhost && (!turnstileToken || Date.now() - tokenTimestamp > TOKEN_MAX_AGE)) {
+                await refreshTurnstileToken(); // Tự động bung widget và chờ user xác thực
+            }
+
             const currentSerial = String(selectedOpserial || '');
             const hasData = Object.keys(productionData).length > 0;
             
@@ -1867,15 +1609,19 @@
                 const apiKey = document.getElementById('apiKey').value;
                 const currentTime = new Date().toLocaleString('vi-VN');
                 
+                // --- 7. TÍCH HỢP TOKEN VÀO REQUEST (NẾU CẦN) ---
+                const payload = {
+                    mxpackage: selectedPackageId,
+                    opserial: currentSerial,
+                    production_data: productionData,
+                    action: 'update'
+                };
+                if(turnstileToken && !isLocalhost) payload.cf_turnstile_response = turnstileToken;
+
                 const prodPromise = fetch(PROD_API, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json', 'X-API-Key': apiKey },
-                    body: JSON.stringify({
-                        mxpackage: selectedPackageId,
-                        opserial: currentSerial,
-                        production_data: productionData,
-                        action: 'update'
-                    })
+                    body: JSON.stringify(payload)
                 }).then(res => res.ok ? res.json() : Promise.reject(`Server Error: ${res.status}`));
 
                 let faPromise = Promise.resolve(null);
