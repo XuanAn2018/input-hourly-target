@@ -128,7 +128,7 @@
         }
 
         /* ========== OT BADGE ========== */
-        .ot-badge { display: inline-block; background: linear-gradient(135deg, #7b1fa2 0%, #9c27b0 100%); color: white; font-size: 10px; font-weight: 800; padding: 2px 4px; border-radius: 4px; margin-right: 3px; vertical-align: middle; }
+        .ot-badge { display: inline-block; background: linear-gradient(135deg, #7b1fa2 0%, #9c27b0 100%); color: white; font-size: 12px; font-weight: 800; padding: 2px 4px; border-radius: 4px; margin-right: 3px; vertical-align: middle; }
         
         /* ========== PACKAGE STATUS ========== */
         .qty-display { font-size: 24px; font-weight: 800; line-height: 1.2; padding: 2px 8px; border-radius: 6px; margin-bottom: 2px; display: inline-block; } /* Tăng font số */
@@ -1030,7 +1030,7 @@
             statusDiv.className = 'pkg-status-col';
             statusDiv.classList.remove('st-done', 'st-over', 'st-miss', 'st-pend');
 
-            const otBadge = p.hasOT ? '<span class="ot-badge">OT</span>' : '';
+            const otBadge = p.hasOT ? '<span class="ot-badge">Overtime</span>' : '';
 
             if (p.loading) {
                 statusDiv.innerHTML = `<span class="status-loading"><span class="mini-loader"></span></span>`;
