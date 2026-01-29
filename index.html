@@ -1,4 +1,4 @@
-<!-- START OF FILE mes_production_v7.7_final.html -->
+<!-- START OF FILE mes_production_v7.7_final_with_shortcuts_fixed.html -->
 <!DOCTYPE html>
 <html lang="vi">
 <head>
@@ -138,7 +138,7 @@
         .st-miss .qty-display { color: #e65100; background: #fff3e0; } .st-miss .status-text { color: #e65100; }
         .st-pend .qty-display { color: #757575; background: #f5f5f5; font-size: 20px; } .st-pend .status-text { color: #757575; }
         .status-loading { color: #2196F3; font-size: 12px; font-style: italic; }
-        .mini-loader { width: 12px; height: 12px; border: 2px solid #ddd; border-top-color: #2196F3; border-radius: 50%; animation: spin 1s linear infinite; display: inline-block; }
+        .mini-loader { width: 12px; height: 12px; border: 2px solid #ddd; border-top-color = #2196F3; border-radius: 50%; animation: spin 1s linear infinite; display: inline-block; }
         
         /* ========== SUMMARY BANNER ========== */
         .summary-banner { display: flex; justify-content: space-between; align-items: center; font-size: 16px; }
@@ -813,32 +813,67 @@
             await new Promise(resolve => { tokenRefreshResolver = resolve; });
         }
 
+        // ========== SHORTCUT KEY HANDLING ==========
+        document.addEventListener('keydown', function(e) {
+            // Chỉ xử lý khi không phải đang nhập trong input/textarea (trừ một số trường hợp đặc biệt)
+            const isTextInput = e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA';
+            const isNumberInput = e.target.type === 'number';
+            
+            // Trang 1: Enter → "Tiếp tục" (chuyển sang Step 2)
+            if (document.getElementById('step1').classList.contains('active')) {
+                if (e.key === 'Enter' && !isTextInput) {
+                    e.preventDefault();
+                    const nextBtn = document.getElementById('nextToStep2Btn');
+                    if (!nextBtn.disabled) {
+                        goToStep(2);
+                    }
+                    return; // ✅ THÊM: Ngăn chặn xử lý tiếp
+                }
+            }
+            
+            // Trang 2: Ctrl + Enter → "Xác nhận & Tiếp tục" (chuyển sang Step 3)
+            if (document.getElementById('step2').classList.contains('active')) {
+                if (e.key === 'Enter' && e.ctrlKey) {
+                    e.preventDefault();
+                    processManualData();
+                    return; // ✅ THÊM: Ngăn chặn trigger showConfirmModal() ở step 3
+                }
+            }
+            
+            // Trang 3: Ctrl + Enter → "Gửi Hệ thống" (mở confirm modal)
+            if (document.getElementById('step3').classList.contains('active')) {
+                if (e.key === 'Enter' && e.ctrlKey) {
+                    e.preventDefault();
+                    showConfirmModal();
+                    return; // ✅ THÊM: Best practice - thoát sau khi xử lý xong
+                }
+            }
+            
+            // Xử lý Enter chung (đã có từ trước)
+            if (e.key === 'Enter') {
+                // 1. Confirm Modal
+                const confirmModal = document.getElementById('confirmModal');
+                if (confirmModal.classList.contains('open')) {
+                    e.preventDefault();
+                    confirmSendToMES();
+                    return;
+                }
+                // 2. Result Page (Step 4 active)
+                const step4 = document.getElementById('step4');
+                if (step4.classList.contains('active')) {
+                    e.preventDefault();
+                    location.reload();
+                    return;
+                }
+            }
+        });
+
         // ========== INITIALIZATION ==========
         document.addEventListener('DOMContentLoaded', function() {
             document.getElementById('dateSelect').value = new Date().toISOString().split('T')[0];
             const savedKey = localStorage.getItem('mesApiKey');
             if(savedKey) document.getElementById('apiKey').value = savedKey;
             if (isLocalhost) document.getElementById('turnstileWidget').style.display = 'none';
-
-            // Global Keydown for Enter Key
-            document.addEventListener('keydown', (e) => {
-                if (e.key === 'Enter') {
-                    // 1. Confirm Modal
-                    const confirmModal = document.getElementById('confirmModal');
-                    if (confirmModal.classList.contains('open')) {
-                        e.preventDefault();
-                        confirmSendToMES();
-                        return;
-                    }
-                    // 2. Result Page (Step 4 active)
-                    const step4 = document.getElementById('step4');
-                    if (step4.classList.contains('active')) {
-                        e.preventDefault();
-                        location.reload();
-                        return;
-                    }
-                }
-            });
         });
 
         // ========== CONFIG FUNCTIONS ==========
@@ -1387,6 +1422,7 @@
             });
         }
 
+        // ========== HÀM processManualData() ĐÃ SỬA ==========
         function processManualData() {
             let total = 0;
             productionData = {};
@@ -1399,11 +1435,21 @@
                 }
             });
             
-            if (total > dailyTarget) { 
-                if (!confirm(`CẢNH BÁO SẢN LƯỢNG!\n\nTổng nhập: ${total}\nTarget ngày: ${dailyTarget}\n\nBạn đang nhập VƯỢT quá Target quy định.\nXác nhận đây là số liệu đúng (vượt sản lượng)?`)) 
-                    return; 
+            // Kiểm tra xem có nhập dữ liệu không
+            if (total === 0) {
+                if (!confirm("Bạn chưa nhập bất kỳ sản lượng nào!\n\nVẫn tiếp tục để xóa dữ liệu cũ?")) {
+                    return;
+                }
             }
             
+            // Kiểm tra sản lượng vượt target
+            if (total > dailyTarget) { 
+                if (!confirm(`CẢNH BÁO SẢN LƯỢNG!\n\nTổng nhập: ${total}\nTarget ngày: ${dailyTarget}\n\nBạn đang nhập VƯỢT quá Target quy định.\nXác nhận đây là số liệu đúng (vượt sản lượng)?`)) {
+                    return;
+                }
+            }
+            
+            // Cập nhật bảng preview và chuyển bước
             updatePreviewTable();
             goToStep(3);
         }
@@ -2062,4 +2108,4 @@
     </script>
 </body>
 </html>
-<!-- END OF FILE mes_production_v7.7_final.html -->
+<!-- END OF FILE mes_production_v7.7_final_with_shortcuts_fixed.html -->
