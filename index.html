@@ -3,13 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>MES Production V7.9 (Integrated Full) | Hover Image Preview</title>
+    <title>MES Production v8.0 (Integrated Full) | Hover Image Preview</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
     <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
 
     <style>
         /* ========== CSS CHUNG ========== */
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', 'Segoe UI', sans-serif; }
         body { 
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
             min-height: 100vh; 
@@ -31,6 +32,7 @@
             color: white; 
             padding: 12px 24px;
             text-align: center; 
+            position: relative;
         }
         .header h1 { 
             font-size: 22px;
@@ -45,11 +47,178 @@
             font-size: 12px;
         }
         
+        /* LOGOUT BUTTON */
+        .logout-btn {
+            position: absolute;
+            top: 50%;
+            right: 24px;
+            transform: translateY(-50%);
+            background: rgba(255,255,255,0.2);
+            border: 1px solid rgba(255,255,255,0.3);
+            color: white;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .logout-btn:hover {
+            background: rgba(255,255,255,0.3);
+            transform: translateY(-50%) scale(1.02);
+        }
+        
         .content { 
             padding: 20px 24px;
             display: flex; 
             flex-direction: column; 
             gap: 20px; 
+        }
+        
+        /* ========== LOGIN OVERLAY ========== */
+        .login-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            z-index: 10000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            backdrop-filter: blur(0px);
+            transition: all 0.3s;
+        }
+        .login-card {
+            background: white;
+            border-radius: 32px;
+            padding: 40px;
+            width: 90%;
+            max-width: 420px;
+            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);
+            animation: fadeInUp 0.5s ease-out;
+        }
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        .login-header {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+        .login-icon {
+            width: 64px;
+            height: 64px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+        }
+        .login-icon i {
+            font-size: 32px;
+            color: white;
+        }
+        .login-header h2 {
+            font-size: 28px;
+            font-weight: 700;
+            color: #1e293b;
+            margin-bottom: 8px;
+        }
+        .login-header p {
+            font-size: 14px;
+            color: #64748b;
+        }
+        .login-form .form-group {
+            margin-bottom: 20px;
+        }
+        .login-form label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            color: #334155;
+            margin-bottom: 8px;
+        }
+        .login-form .input-wrapper {
+            position: relative;
+        }
+        .login-form .input-wrapper i {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #94a3b8;
+            font-size: 16px;
+        }
+        .login-form input {
+            width: 100%;
+            padding: 12px 12px 12px 42px;
+            border: 2px solid #e2e8f0;
+            border-radius: 16px;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s;
+            background: #f8fafc;
+        }
+        .login-form input:focus {
+            outline: none;
+            border-color: #667eea;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        .login-btn {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 16px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-top: 8px;
+        }
+        .login-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px -5px rgba(102, 126, 234, 0.4);
+        }
+        .login-btn:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+            transform: none;
+        }
+        .login-error {
+            background: #fef2f2;
+            border-left: 4px solid #ef4444;
+            padding: 12px;
+            border-radius: 12px;
+            margin-top: 16px;
+            font-size: 13px;
+            color: #dc2626;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .login-error i {
+            font-size: 16px;
+        }
+        .login-footer {
+            text-align: center;
+            margin-top: 24px;
+            font-size: 12px;
+            color: #94a3b8;
         }
         
         /* ========== STEP INDICATOR COMPACT ========== */
@@ -663,340 +832,386 @@
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <h1><i class="fas fa-industry"></i> MES Production V7.9</h1>
-            <p>Smart Grouping & Gallery Mode | Hover Image Preview | Full Integrated</p>
+    <!-- LOGIN OVERLAY -->
+    <div id="loginOverlay" class="login-overlay" style="display: flex;">
+        <div class="login-card">
+            <div class="login-header">
+                <div class="login-icon">
+                    <i class="fas fa-lock"></i>
+                </div>
+                <h2>Đăng nhập</h2>
+                <p>Nhập thông tin để truy cập hệ thống</p>
+            </div>
+            <form class="login-form" id="loginForm">
+                <div class="form-group">
+                    <label>Tên đăng nhập</label>
+                    <div class="input-wrapper">
+                        <i class="fas fa-user"></i>
+                        <input type="text" id="loginUsername" placeholder="Nhập username" autocomplete="username">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Mật khẩu</label>
+                    <div class="input-wrapper">
+                        <i class="fas fa-key"></i>
+                        <input type="password" id="loginPassword" placeholder="Nhập mật khẩu" autocomplete="current-password">
+                    </div>
+                </div>
+                <button type="submit" class="login-btn" id="loginBtn">
+                    <i class="fas fa-sign-in-alt"></i> Đăng nhập
+                </button>
+                <div id="loginError" class="login-error" style="display: none;">
+                    <i class="fas fa-exclamation-circle"></i>
+                    <span>Sai tên đăng nhập hoặc mật khẩu</span>
+                </div>
+            </form>
+            <div class="login-footer">
+                <i class="fas fa-shield-alt"></i> Hệ thống bảo mật cao
+            </div>
         </div>
-        
-        <div class="content">
-            <!-- STEP INDICATOR -->
-            <div class="step-indicator">
-                <div class="step-dot active" id="stepDot1"></div>
-                <div class="step-dot" id="stepDot2"></div>
-                <div class="step-dot" id="stepDot3"></div>
-                <div class="step-dot" id="stepDot4"></div>
+    </div>
+
+    <!-- MAIN APP (ẩn khi chưa đăng nhập) -->
+    <div id="mainApp" style="display: none;">
+        <div class="container">
+            <div class="header">
+                <h1><i class="fas fa-industry"></i> MES Production v8.0</h1>
+                <p>Smart Grouping & Gallery Mode | Hover Image Preview | Full Integrated</p>
+                <button class="logout-btn" id="logoutBtn">
+                    <i class="fas fa-sign-out-alt"></i> Đăng xuất
+                </button>
             </div>
             
-            <!-- STEP 1: CONFIG & SELECT PACKAGE (2 COLUMN LAYOUT) -->
-            <div class="step-container active" id="step1">
-                <div class="step-header">
-                    <div class="step-title"><span class="step-number">1</span> Cấu hình & Chọn Package</div>
+            <div class="content">
+                <!-- STEP INDICATOR -->
+                <div class="step-indicator">
+                    <div class="step-dot active" id="stepDot1"></div>
+                    <div class="step-dot" id="stepDot2"></div>
+                    <div class="step-dot" id="stepDot3"></div>
+                    <div class="step-dot" id="stepDot4"></div>
                 </div>
                 
-                <div class="two-column-layout">
-                    <!-- LEFT COLUMN: CONFIGURATIONS -->
-                    <div class="left-column">
-                        <div class="config-section">
-                            <div class="form-group">
-                                <label><i class="fas fa-key"></i> API Key:</label>
-                                <input type="password" id="apiKey" class="form-control" placeholder="Nhập API Key quản trị" onchange="saveConfig()">
+                <!-- STEP 1: CONFIG & SELECT PACKAGE (2 COLUMN LAYOUT) -->
+                <div class="step-container active" id="step1">
+                    <div class="step-header">
+                        <div class="step-title"><span class="step-number">1</span> Cấu hình & Chọn Package</div>
+                    </div>
+                    
+                    <div class="two-column-layout">
+                        <!-- LEFT COLUMN: CONFIGURATIONS -->
+                        <div class="left-column">
+                            <div class="config-section">
+                                <div class="form-group">
+                                    <label><i class="fas fa-key"></i> API Key:</label>
+                                    <input type="password" id="apiKey" class="form-control" placeholder="Nhập API Key quản trị" onchange="saveConfig()">
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label><i class="fas fa-factory"></i> Factory & Date:</label>
+                                    <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                                        <select id="factory" class="form-control" style="flex:1" onchange="loadPackages()">
+                                            <option value="P2C1">P2C1</option>
+                                            <option value="P2A1">P2A1</option>
+                                            <option value="P2B1">P2B1</option>
+                                            <option value="P2D1">P2D1</option>
+                                            <option value="P2E1">P2E1</option>
+                                        </select>
+                                        <input type="date" id="dateSelect" class="form-control" style="flex:1" onchange="loadPackages()">
+                                    </div>
+                                </div>
+                                
+                                <div class="action-buttons" style="margin-bottom: 16px;">
+                                    <button class="btn btn-primary btn-block" onclick="loadPackages()">
+                                        <i class="fas fa-sync"></i> Tải Danh Sách Package
+                                    </button>
+                                </div>
+                                
+                                <!-- WORK HOURS SELECTION -->
+                                <div class="form-group" style="margin-top: 8px;">
+                                    <label><i class="fas fa-clock"></i> Chọn chế độ làm việc:</label>
+                                    <div class="work-mode-container">
+                                        <div class="work-mode-card selected" id="mode-7.5" onclick="selectWorkMode(7.5)">
+                                            <span class="mode-icon" style="color:#FF9800"><i class="fas fa-sun"></i></span>
+                                            <span class="mode-title">7.5 Giờ</span>
+                                            <span class="mode-desc">Giờ Hành Chính</span>
+                                        </div>
+                                        <div class="work-mode-card" id="mode-11" onclick="selectWorkMode(11)">
+                                            <span class="mode-icon" style="color:#9C27B0"><i class="fas fa-moon"></i></span>
+                                            <span class="mode-title">11 Giờ</span>
+                                            <span class="mode-desc">Có Tăng Ca</span>
+                                        </div>
+                                    </div>
+                                    <input type="hidden" id="workHoursInput" value="7.5">
+                                </div>
+                            </div>
+
+                            <!-- SELECTED PACKAGE INFO -->
+                            <div id="packageInfo" class="package-info-card hidden">
+                                <div class="package-info-row">
+                                    <span class="package-info-label">Package ID:</span>
+                                    <span class="package-info-value" id="infoPackageId"></span>
+                                </div>
+                                <div class="package-info-row">
+                                    <span class="package-info-label">Style:</span>
+                                    <span class="package-info-value" id="infoStyle"></span>
+                                </div>
+                                <div class="package-info-row hidden" id="infoColorRow">
+                                    <span class="package-info-label">Color:</span>
+                                    <span class="package-info-value" id="infoColor" style="font-weight:bold;"></span>
+                                </div>
+                                <div class="package-info-row">
+                                    <span class="package-info-label">Line:</span>
+                                    <span class="package-info-value" id="infoLine"></span>
+                                </div>
+                                <div class="package-info-row">
+                                    <span class="package-info-label">Target (Ngày):</span>
+                                    <span class="package-info-value" id="infoDailyTarget" style="font-weight:bold; color:#e65100;">0</span>
+                                </div>
+                                <div class="package-info-row">
+                                    <span class="package-info-label">Target/Giờ (TB):</span>
+                                    <span class="package-info-value" id="infoHourlyTarget" style="font-weight:bold; color:red; font-size: 1.1em;">0</span>
+                                </div>
+                            </div>
+
+                            <!-- ACTION BUTTONS -->
+                            <div class="action-buttons">
+                                <button class="btn btn-info hidden" id="viewDetailsBtn" onclick="viewPackageDetails()">
+                                    <i class="fas fa-eye"></i> Xem & Copy
+                                </button>
+                                <button class="btn btn-success" onclick="goToStep(2)" id="nextToStep2Btn" disabled style="flex:1;">
+                                    Tiếp tục <i class="fas fa-arrow-right"></i>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <!-- RIGHT COLUMN: PACKAGE LIST (GALLERY) -->
+                        <div class="right-column">
+                            <!-- SUMMARY BANNER MỚI - LỚN, NỔI BẬT, Ở GIỮA -->
+                            <div id="summaryBanner" class="summary-banner-new" style="display: none;">
+                                <!-- Sẽ được cập nhật bằng JS -->
                             </div>
                             
-                            <div class="form-group">
-                                <label><i class="fas fa-factory"></i> Factory & Date:</label>
-                                <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-                                    <select id="factory" class="form-control" style="flex:1" onchange="loadPackages()">
-                                        <option value="P2C1">P2C1</option>
-                                        <option value="P2A1">P2A1</option>
-                                        <option value="P2B1">P2B1</option>
-                                        <option value="P2D1">P2D1</option>
+                            <div class="right-column-header">
+                                <div class="right-column-title">
+                                    <i class="fas fa-boxes"></i> Danh sách Package
+                                </div>
+                            </div>
+                            
+                            <div class="filter-row">
+                                <div>
+                                    <label style="font-size:11px; margin-bottom:3px"><i class="fas fa-user"></i> Buyer:</label>
+                                    <select id="buyerFilter" class="form-control filter-select" onchange="filterPackages()">
+                                        <option value="all">Tất cả</option>
                                     </select>
-                                    <input type="date" id="dateSelect" class="form-control" style="flex:1" onchange="loadPackages()">
+                                </div>
+                                <div>
+                                    <label style="font-size:11px; margin-bottom:3px"><i class="fas fa-chart-line"></i> Line:</label>
+                                    <select id="lineFilter" class="form-control filter-select" onchange="filterPackages()">
+                                        <option value="all">Tất cả</option>
+                                    </select>
                                 </div>
                             </div>
+
+                            <!-- BỘ LỌC OT MỚI -->
+                            <div class="filter-row-ot">
+                                <div class="filter-ot-btn all-ot active" data-ot="all" onclick="setOTFilter('all')">
+                                    <i class="fas fa-chart-line"></i> Tất cả
+                                </div>
+                                <div class="filter-ot-btn has-ot" data-ot="has" onclick="setOTFilter('has')">
+                                    <i class="fas fa-bolt"></i> Có OT
+                                </div>
+                                <div class="filter-ot-btn no-ot" data-ot="none" onclick="setOTFilter('none')">
+                                    <i class="fas fa-ban"></i> Không OT
+                                </div>
+                            </div>
+
+                            <div class="search-row">
+                                <div class="search-box-wrapper">
+                                    <i class="fas fa-search"></i>
+                                    <input type="text" id="packageSearch" class="form-control search-input" placeholder="Tìm Package, Style..." oninput="filterPackages()">
+                                </div>
+                                <select id="statusFilter" class="filter-select" onchange="filterPackages()" style="width: 120px;">
+                                    <option value="all">⚡ Status</option>
+                                    <option value="pending">⚪ Pending</option>
+                                    <option value="done">🟢 Done</option>
+                                </select>
+                            </div>
                             
-                            <div class="action-buttons" style="margin-bottom: 16px;">
-                                <button class="btn btn-primary btn-block" onclick="loadPackages()">
-                                    <i class="fas fa-sync"></i> Tải Danh Sách Package
+                            <div id="packageListContainer" class="package-list-container">
+                                <div style="text-align:center; padding:20px; color:#999;">Vui lòng tải danh sách...</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- STEP 2: INPUT DATA -->
+                <div class="step-container" id="step2">
+                    <div class="step-header">
+                        <div class="step-title"><span class="step-number">2</span> Nhập Số Liệu</div>
+                    </div>
+                    
+                    <div class="simple-input-area">
+                        <div class="split-toolbar">
+                            <div class="split-toolbar-header">
+                                <h4><i class="fas fa-magic"></i> Công cụ chia:</h4>
+                            </div>
+                            <div class="split-toolbar-buttons">
+                                <button class="btn btn-sm btn-purple" onclick="autoDistribute(null)">
+                                    <i class="fas fa-bolt"></i> Auto Chia (Chuẩn)
                                 </button>
-                            </div>
-                            
-                            <!-- WORK HOURS SELECTION -->
-                            <div class="form-group" style="margin-top: 8px;">
-                                <label><i class="fas fa-clock"></i> Chọn chế độ làm việc:</label>
-                                <div class="work-mode-container">
-                                    <div class="work-mode-card selected" id="mode-7.5" onclick="selectWorkMode(7.5)">
-                                        <span class="mode-icon" style="color:#FF9800"><i class="fas fa-sun"></i></span>
-                                        <span class="mode-title">7.5 Giờ</span>
-                                        <span class="mode-desc">Giờ Hành Chính</span>
-                                    </div>
-                                    <div class="work-mode-card" id="mode-11" onclick="selectWorkMode(11)">
-                                        <span class="mode-icon" style="color:#9C27B0"><i class="fas fa-moon"></i></span>
-                                        <span class="mode-title">11 Giờ</span>
-                                        <span class="mode-desc">Có Tăng Ca</span>
-                                    </div>
+                                <div class="btn-separator"></div>
+                                <div style="display: flex; align-items: center; gap: 5px;">
+                                    <input type="number" id="customSplitHours" class="custom-hour-input" placeholder="Số giờ" min="0.5" max="13" step="0.5">
+                                    <button class="btn btn-sm btn-info" onclick="autoDistributeCustom()">
+                                        <i class="fas fa-sliders-h"></i> Chia tùy chỉnh
+                                    </button>
                                 </div>
-                                <input type="hidden" id="workHoursInput" value="7.5">
                             </div>
                         </div>
 
-                        <!-- SELECTED PACKAGE INFO -->
-                        <div id="packageInfo" class="package-info-card hidden">
-                            <div class="package-info-row">
-                                <span class="package-info-label">Package ID:</span>
-                                <span class="package-info-value" id="infoPackageId"></span>
+                        <div class="manual-summary">
+                            <div class="manual-summary-header">
+                                <h3 style="margin: 0; font-size: 14px;"><i class="fas fa-chart-pie"></i> Tiến độ:</h3>
+                                <div class="remaining-badge">
+                                    <span>Còn lại:</span>
+                                    <span id="manualRemainingDisplay" style="color: #4CAF50; font-weight: bold;">0</span>
+                                </div>
                             </div>
-                            <div class="package-info-row">
-                                <span class="package-info-label">Style:</span>
-                                <span class="package-info-value" id="infoStyle"></span>
-                            </div>
-                            <div class="package-info-row hidden" id="infoColorRow">
-                                <span class="package-info-label">Color:</span>
-                                <span class="package-info-value" id="infoColor" style="font-weight:bold;"></span>
-                            </div>
-                            <div class="package-info-row">
-                                <span class="package-info-label">Line:</span>
-                                <span class="package-info-value" id="infoLine"></span>
-                            </div>
-                            <div class="package-info-row">
-                                <span class="package-info-label">Target (Ngày):</span>
-                                <span class="package-info-value" id="infoDailyTarget" style="font-weight:bold; color:#e65100;">0</span>
-                            </div>
-                            <div class="package-info-row">
-                                <span class="package-info-label">Target/Giờ (TB):</span>
-                                <span class="package-info-value" id="infoHourlyTarget" style="font-weight:bold; color:red; font-size: 1.1em;">0</span>
+                            <div class="summary-block">
+                                <span id="manualTotalDisplay" class="summary-num">0</span>
+                                <span class="summary-label">/</span>
+                                <span id="manualTargetDisplay" class="summary-num" style="color:#ffb74d;">0</span>
+                                <span class="summary-label">(Target)</span>
                             </div>
                         </div>
-
-                        <!-- ACTION BUTTONS -->
+                        
+                        <div class="manual-grid" id="manualGrid"></div>
+                        
                         <div class="action-buttons">
-                            <button class="btn btn-info hidden" id="viewDetailsBtn" onclick="viewPackageDetails()">
-                                <i class="fas fa-eye"></i> Xem & Copy
+                            <button class="btn btn-warning" onclick="resetManualInputs()">
+                                <i class="fas fa-redo"></i> Reset
                             </button>
-                            <button class="btn btn-success" onclick="goToStep(2)" id="nextToStep2Btn" disabled style="flex:1;">
-                                Tiếp tục <i class="fas fa-arrow-right"></i>
+                            <button class="btn btn-success" onclick="processManualData()">
+                                <i class="fas fa-check"></i> Xác nhận & Tiếp tục
                             </button>
-                        </div>
-                    </div>
-                    
-                    <!-- RIGHT COLUMN: PACKAGE LIST (GALLERY) -->
-                    <div class="right-column">
-                        <!-- SUMMARY BANNER MỚI - LỚN, NỔI BẬT, Ở GIỮA -->
-                        <div id="summaryBanner" class="summary-banner-new" style="display: none;">
-                            <!-- Sẽ được cập nhật bằng JS -->
-                        </div>
-                        
-                        <div class="right-column-header">
-                            <div class="right-column-title">
-                                <i class="fas fa-boxes"></i> Danh sách Package
-                            </div>
-                        </div>
-                        
-                        <div class="filter-row">
-                            <div>
-                                <label style="font-size:11px; margin-bottom:3px"><i class="fas fa-user"></i> Buyer:</label>
-                                <select id="buyerFilter" class="form-control filter-select" onchange="filterPackages()">
-                                    <option value="all">Tất cả</option>
-                                </select>
-                            </div>
-                            <div>
-                                <label style="font-size:11px; margin-bottom:3px"><i class="fas fa-chart-line"></i> Line:</label>
-                                <select id="lineFilter" class="form-control filter-select" onchange="filterPackages()">
-                                    <option value="all">Tất cả</option>
-                                </select>
-                            </div>
-                        </div>
-
-                        <!-- BỘ LỌC OT MỚI -->
-                        <div class="filter-row-ot">
-                            <div class="filter-ot-btn all-ot active" data-ot="all" onclick="setOTFilter('all')">
-                                <i class="fas fa-chart-line"></i> Tất cả
-                            </div>
-                            <div class="filter-ot-btn has-ot" data-ot="has" onclick="setOTFilter('has')">
-                                <i class="fas fa-bolt"></i> Có OT
-                            </div>
-                            <div class="filter-ot-btn no-ot" data-ot="none" onclick="setOTFilter('none')">
-                                <i class="fas fa-ban"></i> Không OT
-                            </div>
-                        </div>
-
-                        <div class="search-row">
-                            <div class="search-box-wrapper">
-                                <i class="fas fa-search"></i>
-                                <input type="text" id="packageSearch" class="form-control search-input" placeholder="Tìm Package, Style..." oninput="filterPackages()">
-                            </div>
-                            <select id="statusFilter" class="filter-select" onchange="filterPackages()" style="width: 120px;">
-                                <option value="all">⚡ Status</option>
-                                <option value="pending">⚪ Pending</option>
-                                <option value="done">🟢 Done</option>
-                            </select>
-                        </div>
-                        
-                        <div id="packageListContainer" class="package-list-container">
-                            <div style="text-align:center; padding:20px; color:#999;">Vui lòng tải danh sách...</div>
                         </div>
                     </div>
                 </div>
-            </div>
-            
-            <!-- STEP 2: INPUT DATA -->
-            <div class="step-container" id="step2">
-                <div class="step-header">
-                    <div class="step-title"><span class="step-number">2</span> Nhập Số Liệu</div>
-                </div>
-                
-                <div class="simple-input-area">
-                    <div class="split-toolbar">
-                        <div class="split-toolbar-header">
-                            <h4><i class="fas fa-magic"></i> Công cụ chia:</h4>
+
+                <!-- STEP 3: SELECT MACHINE -->
+                <div class="step-container" id="step3">
+                    <div class="step-header">
+                        <div class="step-title"><span class="step-number">3</span> Chọn Máy & Gửi</div>
+                    </div>
+                    
+                    <div class="context-header">
+                        <div class="context-title">Đang thao tác trên Package:</div>
+                        <div class="context-value" id="contextPackageInfo">Loading...</div>
+                        <div class="context-line" id="contextLineInfo"></div>
+                    </div>
+
+                    <div id="autoSelectBanner" class="auto-select-banner hidden">
+                        <div class="auto-select-text">
+                            <i class="fas fa-check-circle"></i>
+                            <span>Đã tự động chọn máy số 1</span>
                         </div>
-                        <div class="split-toolbar-buttons">
-                            <button class="btn btn-sm btn-purple" onclick="autoDistribute(null)">
-                                <i class="fas fa-bolt"></i> Auto Chia (Chuẩn)
+                        <div class="auto-select-details">
+                            <span id="autoSelectMachineName">N/A</span> - OPSERIAL: <b id="autoSelectMachineSerial">N/A</b>
+                        </div>
+                    </div>
+
+                    <div class="fa-control-panel" id="faControlPanel" style="display: none;">
+                        <label class="fa-toggle-label">
+                            <input type="checkbox" id="globalFaToggle" checked onchange="toggleGlobalFA()">
+                            <i class="fas fa-robot" style="color:#4CAF50;"></i>
+                            <span>Gửi lệnh FA cùng lúc (Mặc định BẬT)</span>
+                        </label>
+                        <p style="font-size:11px; color:#666; margin-top:4px;">
+                            <i class="fas fa-info-circle"></i> Tắt nếu bạn chỉ muốn gửi sản lượng, không gửi FA
+                        </p>
+                    </div>
+
+                    <div id="faSelectionSection">
+                        <div style="display:flex; gap:10px; margin-bottom:12px">
+                            <button class="btn btn-primary" onclick="scanFAMachines()" id="scanBtn" style="flex:2">
+                                <i class="fas fa-qrcode"></i> Scan Machine FA
                             </button>
-                            <div class="btn-separator"></div>
-                            <div style="display: flex; align-items: center; gap: 5px;">
-                                <input type="number" id="customSplitHours" class="custom-hour-input" placeholder="Số giờ" min="0.5" max="13" step="0.5">
-                                <button class="btn btn-sm btn-info" onclick="autoDistributeCustom()">
-                                    <i class="fas fa-sliders-h"></i> Chia tùy chỉnh
-                                </button>
+                            <button class="btn btn-secondary" onclick="toggleManualInput()" id="manualBtn" style="flex:1">
+                                <i class="fas fa-pen"></i> Nhập Mã Máy
+                            </button>
+                        </div>
+                        
+                        <div id="scanResult" class="hidden"></div>
+                        
+                        <div id="manualSerialInput" class="manual-input-box hidden">
+                            <h4 style="font-size:13px;"><i class="fas fa-keyboard"></i> Nhập OPSERIAL thủ công:</h4>
+                            <div style="display:flex; gap:8px; margin-top:8px;">
+                                <input type="number" id="manualOpserial" class="form-control" placeholder="Ví dụ: 30" style="padding: 8px;">
+                                <button class="btn btn-success btn-sm" onclick="confirmManualSerial()">OK</button>
                             </div>
                         </div>
                     </div>
 
-                    <div class="manual-summary">
-                        <div class="manual-summary-header">
-                            <h3 style="margin: 0; font-size: 14px;"><i class="fas fa-chart-pie"></i> Tiến độ:</h3>
-                            <div class="remaining-badge">
-                                <span>Còn lại:</span>
-                                <span id="manualRemainingDisplay" style="color: #4CAF50; font-weight: bold;">0</span>
-                            </div>
-                        </div>
-                        <div class="summary-block">
-                            <span id="manualTotalDisplay" class="summary-num">0</span>
-                            <span class="summary-label">/</span>
-                            <span id="manualTargetDisplay" class="summary-num" style="color:#ffb74d;">0</span>
-                            <span class="summary-label">(Target)</span>
-                        </div>
+                    <div id="selectionInfo" class="selection-info hidden">
+                        <h4 style="font-size:13px;"><i class="fas fa-check-circle"></i> Đã chọn máy:</h4>
+                        <p style="margin-top:5px; font-size:14px;">
+                            <b id="selectedMachineName">N/A</b>
+                            <br>
+                            <span style="color:#1565c0;">OPSERIAL: <b id="selectedMachineSerial">N/A</b></span>
+                            <br>
+                            <span id="faStatusText" style="color:#4CAF50; font-weight:bold; font-size:12px;">
+                                <i class="fas fa-robot"></i> SẼ GỬI LỆNH FA
+                            </span>
+                        </p>
                     </div>
                     
-                    <div class="manual-grid" id="manualGrid"></div>
-                    
+                    <div class="preview-container">
+                        <div class="preview-header">
+                            <i class="fas fa-eye" style="color:#2196F3;"></i>
+                            <h4 style="font-size:14px;">Xem trước dữ liệu sản lượng:</h4>
+                        </div>
+                        <div style="overflow-x: auto;">
+                            <table class="preview-table">
+                                <thead>
+                                    <tr><th>Slot</th><th>Thời gian</th><th>Sản lượng</th><th>Target</th></tr>
+                                </thead>
+                                <tbody id="previewTableBody"></tbody>
+                            </table>
+                        </div>
+                    </div>
+
                     <div class="action-buttons">
-                        <button class="btn btn-warning" onclick="resetManualInputs()">
-                            <i class="fas fa-redo"></i> Reset
+                        <button class="btn btn-warning" onclick="goToStep(2)">
+                            <i class="fas fa-arrow-left"></i> Quay lại
                         </button>
-                        <button class="btn btn-success" onclick="processManualData()">
-                            <i class="fas fa-check"></i> Xác nhận & Tiếp tục
+                        <button class="btn btn-dark hidden" onclick="clearMachineSelection()" id="unselectBtn">
+                            <i class="fas fa-times"></i> Hủy chọn máy
+                        </button>
+                        <button class="btn btn-success" onclick="showConfirmModal()" id="sendBtn">
+                            🚀 Gửi Hệ thống
                         </button>
                     </div>
                 </div>
-            </div>
 
-            <!-- STEP 3: SELECT MACHINE -->
-            <div class="step-container" id="step3">
-                <div class="step-header">
-                    <div class="step-title"><span class="step-number">3</span> Chọn Máy & Gửi</div>
-                </div>
-                
-                <div class="context-header">
-                    <div class="context-title">Đang thao tác trên Package:</div>
-                    <div class="context-value" id="contextPackageInfo">Loading...</div>
-                    <div class="context-line" id="contextLineInfo"></div>
-                </div>
-
-                <div id="autoSelectBanner" class="auto-select-banner hidden">
-                    <div class="auto-select-text">
-                        <i class="fas fa-check-circle"></i>
-                        <span>Đã tự động chọn máy số 1</span>
-                    </div>
-                    <div class="auto-select-details">
-                        <span id="autoSelectMachineName">N/A</span> - OPSERIAL: <b id="autoSelectMachineSerial">N/A</b>
-                    </div>
-                </div>
-
-                <div class="fa-control-panel" id="faControlPanel" style="display: none;">
-                    <label class="fa-toggle-label">
-                        <input type="checkbox" id="globalFaToggle" checked onchange="toggleGlobalFA()">
-                        <i class="fas fa-robot" style="color:#4CAF50;"></i>
-                        <span>Gửi lệnh FA cùng lúc (Mặc định BẬT)</span>
-                    </label>
-                    <p style="font-size:11px; color:#666; margin-top:4px;">
-                        <i class="fas fa-info-circle"></i> Tắt nếu bạn chỉ muốn gửi sản lượng, không gửi FA
-                    </p>
-                </div>
-
-                <div id="faSelectionSection">
-                    <div style="display:flex; gap:10px; margin-bottom:12px">
-                        <button class="btn btn-primary" onclick="scanFAMachines()" id="scanBtn" style="flex:2">
-                            <i class="fas fa-qrcode"></i> Scan Machine FA
-                        </button>
-                        <button class="btn btn-secondary" onclick="toggleManualInput()" id="manualBtn" style="flex:1">
-                            <i class="fas fa-pen"></i> Nhập Mã Máy
-                        </button>
+                <!-- STEP 4: RESULT -->
+                <div class="step-container" id="step4">
+                    <div class="step-header">
+                        <div class="step-title"><span class="step-number">4</span> Kết quả</div>
                     </div>
                     
-                    <div id="scanResult" class="hidden"></div>
-                    
-                    <div id="manualSerialInput" class="manual-input-box hidden">
-                        <h4 style="font-size:13px;"><i class="fas fa-keyboard"></i> Nhập OPSERIAL thủ công:</h4>
-                        <div style="display:flex; gap:8px; margin-top:8px;">
-                            <input type="number" id="manualOpserial" class="form-control" placeholder="Ví dụ: 30" style="padding: 8px;">
-                            <button class="btn btn-success btn-sm" onclick="confirmManualSerial()">OK</button>
+                    <div class="result-success-animation" id="successAnimation" style="display: none;">
+                        <div class="checkmark-circle">
+                            <i class="fas fa-check checkmark"></i>
                         </div>
                     </div>
-                </div>
-
-                <div id="selectionInfo" class="selection-info hidden">
-                    <h4 style="font-size:13px;"><i class="fas fa-check-circle"></i> Đã chọn máy:</h4>
-                    <p style="margin-top:5px; font-size:14px;">
-                        <b id="selectedMachineName">N/A</b>
-                        <br>
-                        <span style="color:#1565c0;">OPSERIAL: <b id="selectedMachineSerial">N/A</b></span>
-                        <br>
-                        <span id="faStatusText" style="color:#4CAF50; font-weight:bold; font-size:12px;">
-                            <i class="fas fa-robot"></i> SẼ GỬI LỆNH FA
-                        </span>
-                    </p>
-                </div>
-                
-                <div class="preview-container">
-                    <div class="preview-header">
-                        <i class="fas fa-eye" style="color:#2196F3;"></i>
-                        <h4 style="font-size:14px;">Xem trước dữ liệu sản lượng:</h4>
+                    
+                    <div id="resultMessage"></div>
+                    
+                    <div class="action-buttons" style="justify-content: center;">
+                        <button class="btn btn-primary" onclick="location.reload()">
+                            <i class="fas fa-redo"></i> Làm mới toàn bộ
+                        </button>
                     </div>
-                    <div style="overflow-x: auto;">
-                        <table class="preview-table">
-                            <thead>
-                                <tr><th>Slot</th><th>Thời gian</th><th>Sản lượng</th><th>Target</th></tr>
-                            </thead>
-                            <tbody id="previewTableBody"></tbody>
-                        </table>
-                    </div>
-                </div>
-
-                <div class="action-buttons">
-                    <button class="btn btn-warning" onclick="goToStep(2)">
-                        <i class="fas fa-arrow-left"></i> Quay lại
-                    </button>
-                    <button class="btn btn-dark hidden" onclick="clearMachineSelection()" id="unselectBtn">
-                        <i class="fas fa-times"></i> Hủy chọn máy
-                    </button>
-                    <button class="btn btn-success" onclick="showConfirmModal()" id="sendBtn">
-                        🚀 Gửi Hệ thống
-                    </button>
-                </div>
-            </div>
-
-            <!-- STEP 4: RESULT -->
-            <div class="step-container" id="step4">
-                <div class="step-header">
-                    <div class="step-title"><span class="step-number">4</span> Kết quả</div>
-                </div>
-                
-                <div class="result-success-animation" id="successAnimation" style="display: none;">
-                    <div class="checkmark-circle">
-                        <i class="fas fa-check checkmark"></i>
-                    </div>
-                </div>
-                
-                <div id="resultMessage"></div>
-                
-                <div class="action-buttons" style="justify-content: center;">
-                    <button class="btn btn-primary" onclick="location.reload()">
-                        <i class="fas fa-redo"></i> Làm mới toàn bộ
-                    </button>
                 </div>
             </div>
         </div>
@@ -1076,6 +1291,14 @@
     </div>
 
     <script>
+        // ========== AUTH CONFIG ==========
+        const AUTH_API = "https://auth-password-gate.chiscoong-cloudflare-com.workers.dev/verify";
+        const STORAGE_TOKEN_KEY = "mes_token";
+        const STORAGE_USER_KEY = "mes_user";
+        
+        let authToken = null;
+        let currentUser = null;
+        
         // ========== API ENDPOINTS & CONFIG ==========
         const WORKER_URL = "https://mes-proxy.vercel.app/api";
         const PROD_API = "https://hourly-target.chiscoong-cloudflare-com.workers.dev/api/production";
@@ -1114,117 +1337,58 @@
             "15:15 - 16:15", "16:15 - 17:15", "17:15 - 18:15", "18:15 - 19:15", "19:15 - 20:15"
         ];
         const OT_INDEX_START = 9;
-
-        // ========== TURNSTILE LOGIC ==========
-        const widgetEl = document.getElementById('turnstileWidget');
-        const btnMinimize = document.getElementById('btnMinimize');
         
-        function toggleWidgetState(forceMinimize = false) {
-            if (forceMinimize) widgetEl.classList.add('minimized');
-            else widgetEl.classList.toggle('minimized');
+        // ========== AUTH FUNCTIONS ==========
+        async function login(username, password) {
+            try {
+                const response = await fetch(AUTH_API, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, password })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success && data.token) {
+                    authToken = data.token;
+                    currentUser = data.user || username;
+                    localStorage.setItem(STORAGE_TOKEN_KEY, authToken);
+                    localStorage.setItem(STORAGE_USER_KEY, currentUser);
+                    return { success: true };
+                } else {
+                    return { success: false, error: data.message || "Sai tên đăng nhập hoặc mật khẩu" };
+                }
+            } catch (error) {
+                return { success: false, error: "Lỗi kết nối đến server xác thực" };
+            }
         }
         
-        if (btnMinimize) {
-            btnMinimize.addEventListener('click', (e) => { 
-                e.stopPropagation(); 
-                toggleWidgetState(true); 
-            });
+        function logout() {
+            localStorage.removeItem(STORAGE_TOKEN_KEY);
+            localStorage.removeItem(STORAGE_USER_KEY);
+            authToken = null;
+            currentUser = null;
+            document.getElementById('mainApp').style.display = 'none';
+            document.getElementById('loginOverlay').style.display = 'flex';
+            document.getElementById('loginUsername').value = '';
+            document.getElementById('loginPassword').value = '';
+            document.getElementById('loginError').style.display = 'none';
         }
         
-        widgetEl.addEventListener('click', () => { 
-            if (widgetEl.classList.contains('minimized')) toggleWidgetState(false); 
-        });
-        
-        window.onTurnstileSuccess = function(token) {
-            turnstileToken = token; 
-            tokenTimestamp = Date.now();
-            const statusSpan = document.getElementById('turnstileStatus');
-            if(statusSpan) {
-                statusSpan.textContent = "Đã xác thực";
-                statusSpan.className = "turnstile-badge status-success";
+        function checkAuth() {
+            const savedToken = localStorage.getItem(STORAGE_TOKEN_KEY);
+            const savedUser = localStorage.getItem(STORAGE_USER_KEY);
+            
+            if (savedToken && savedUser) {
+                authToken = savedToken;
+                currentUser = savedUser;
+                document.getElementById('loginOverlay').style.display = 'none';
+                document.getElementById('mainApp').style.display = 'block';
+                return true;
             }
-            const iconSpan = document.getElementById('minimizedIconChar');
-            if(iconSpan) iconSpan.textContent = "✅";
-            if (tokenRefreshResolver) { 
-                tokenRefreshResolver(true); 
-                tokenRefreshResolver = null; 
-                setTimeout(() => toggleWidgetState(true), 1000); 
-            } else { 
-                setTimeout(() => toggleWidgetState(true), 1500); 
-            }
-        };
-        
-        window.onTurnstileError = function() { 
-            turnstileToken = null; 
-            const iconSpan = document.getElementById('minimizedIconChar');
-            if(iconSpan) iconSpan.textContent = "⚠️"; 
-        };
-        
-        window.onTurnstileExpired = function() { 
-            turnstileToken = null; 
-            if (!tokenRefreshResolver) { 
-                const iconSpan = document.getElementById('minimizedIconChar');
-                if(iconSpan) iconSpan.textContent = "🔐"; 
-                toggleWidgetState(false); 
-            } 
-        };
-        
-        async function refreshTurnstileToken() { 
-            toggleWidgetState(false); 
-            const statusSpan = document.getElementById('turnstileStatus');
-            if(statusSpan) {
-                statusSpan.textContent = "Cần gia hạn";
-                statusSpan.className = "turnstile-badge status-pending";
-            }
-            if(window.turnstile) window.turnstile.reset('#cf-turnstile-widget'); 
-            await new Promise(resolve => { tokenRefreshResolver = resolve; });
+            return false;
         }
-
-        // ========== SHORTCUT KEY HANDLING ==========
-        document.addEventListener('keydown', function(e) {
-            const isTextInput = e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA';
-            
-            if (document.getElementById('step1').classList.contains('active')) {
-                if (e.key === 'Enter' && !isTextInput) {
-                    e.preventDefault();
-                    const nextBtn = document.getElementById('nextToStep2Btn');
-                    if (!nextBtn.disabled) goToStep(2);
-                    return;
-                }
-            }
-            
-            if (document.getElementById('step2').classList.contains('active')) {
-                if (e.key === 'Enter' && e.ctrlKey) {
-                    e.preventDefault();
-                    processManualData();
-                    return;
-                }
-            }
-            
-            if (document.getElementById('step3').classList.contains('active')) {
-                if (e.key === 'Enter' && e.ctrlKey) {
-                    e.preventDefault();
-                    showConfirmModal();
-                    return;
-                }
-            }
-            
-            if (e.key === 'Enter') {
-                const confirmModal = document.getElementById('confirmModal');
-                if (confirmModal.classList.contains('open')) {
-                    e.preventDefault();
-                    confirmSendToMES();
-                    return;
-                }
-                const step4 = document.getElementById('step4');
-                if (step4.classList.contains('active')) {
-                    e.preventDefault();
-                    location.reload();
-                    return;
-                }
-            }
-        });
-
+        
         // ========== INITIALIZATION ==========
         document.addEventListener('DOMContentLoaded', function() {
             const today = new Date().toISOString().split('T')[0];
@@ -1239,8 +1403,61 @@
                 const turnstileWidget = document.getElementById('turnstileWidget');
                 if(turnstileWidget) turnstileWidget.style.display = 'none';
             }
+            
+            const loginForm = document.getElementById('loginForm');
+            const loginBtn = document.getElementById('loginBtn');
+            
+            loginForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const username = document.getElementById('loginUsername').value.trim();
+                const password = document.getElementById('loginPassword').value;
+                
+                if (!username || !password) {
+                    showLoginError("Vui lòng nhập đầy đủ tên đăng nhập và mật khẩu");
+                    return;
+                }
+                
+                loginBtn.disabled = true;
+                loginBtn.innerHTML = '<div class="loader" style="width:18px;height:18px;"></div> Đang xác thực...';
+                
+                const result = await login(username, password);
+                
+                if (result.success) {
+                    document.getElementById('loginOverlay').style.display = 'none';
+                    document.getElementById('mainApp').style.display = 'block';
+                } else {
+                    showLoginError(result.error);
+                }
+                
+                loginBtn.disabled = false;
+                loginBtn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Đăng nhập';
+            });
+            
+            const logoutBtn = document.getElementById('logoutBtn');
+            if (logoutBtn) {
+                logoutBtn.addEventListener('click', logout);
+            }
+            
+            if (!checkAuth()) {
+                document.getElementById('mainApp').style.display = 'none';
+                document.getElementById('loginOverlay').style.display = 'flex';
+            }
         });
-
+        
+        function showLoginError(message) {
+            const errorDiv = document.getElementById('loginError');
+            const errorSpan = errorDiv.querySelector('span');
+            errorSpan.textContent = message;
+            errorDiv.style.display = 'flex';
+            setTimeout(() => {
+                errorDiv.style.opacity = '0';
+                setTimeout(() => {
+                    errorDiv.style.display = 'none';
+                    errorDiv.style.opacity = '1';
+                }, 300);
+            }, 3000);
+        }
+        
         // ========== CONFIG FUNCTIONS ==========
         function saveConfig() { 
             const apiKey = document.getElementById('apiKey')?.value;
@@ -1256,7 +1473,6 @@
             if(selectedPackageId) recalculateTarget();
         }
 
-        // ========== HELPER: IMAGE URL GENERATOR (ENHANCED) ==========
         function generateThumbnailUrl(pkgId, apiFileName) {
             if (!apiFileName) return 'https://placehold.co/120x100?text=No+Img';
             try {
@@ -1283,7 +1499,6 @@
             } catch(e) { return null; }
         }
         
-        // ========== HOVER IMAGE PREVIEW ==========
         const previewDiv = document.getElementById('imagePreview');
         const previewImg = document.getElementById('previewImage');
         const previewCaption = document.getElementById('previewCaption');
@@ -1301,7 +1516,6 @@
         
         function hideImagePreview() { previewDiv.style.display = 'none'; }
 
-        // ========== PACKAGE MANAGEMENT ==========
         async function loadPackages() {
             const apiKey = document.getElementById('apiKey')?.value;
             const factory = document.getElementById('factory')?.value;
@@ -1344,6 +1558,7 @@
                 syncProductionStatus(allPackages, apiKey);
 
             } catch (e) { 
+                console.error("Load packages error:", e);
                 if(listContainer) listContainer.innerHTML = `<div style="text-align:center; padding:20px; color:red;">Lỗi tải: ${e.message}</div>`;
             } 
         }
@@ -1626,7 +1841,6 @@
             recalculateTarget();
         }
 
-        // ========== INPUT MANAGEMENT ==========
         function recalculateTarget() {
             const hours = parseFloat(document.getElementById('workHoursInput')?.value || 7.5);
             hourlyTarget = dailyTarget > 0 ? Math.ceil(dailyTarget / hours) : 36;
@@ -1899,7 +2113,6 @@
                 </tr>`;
         }
 
-        // ========== MACHINE SELECTION ==========
         async function sendFaCommand(apiKey, packageId, opserial) {
             try {
                 const url = `${SCANNER_API}?apikey=${encodeURIComponent(apiKey)}&mxpackage=${encodeURIComponent(packageId)}&mcid=&opserial=${opserial}&processtype=FA`;
@@ -2210,7 +2423,6 @@
             }
         }
 
-        // ========== DETAIL MODAL ==========
         async function viewPackageDetails() {
             const apiKey = document.getElementById('apiKey')?.value; 
             const modal = document.getElementById('detailModal');
@@ -2316,7 +2528,6 @@
             if(modal) modal.classList.remove('open'); 
         }
 
-        // ========== CONFIRM MODAL ==========
         function showConfirmModal() {
             const currentSerial = String(selectedOpserial || ''); 
             if(!currentSerial) return alert("Vui lòng CHỌN MÁY trước khi gửi!");
@@ -2401,7 +2612,6 @@
             sendToMES(); 
         }
 
-        // ========== SEND DATA ==========
         async function sendToMES() {
             if (!isLocalhost && (!turnstileToken || Date.now() - tokenTimestamp > TOKEN_MAX_AGE)) { 
                 await refreshTurnstileToken(); 
@@ -2429,6 +2639,15 @@
                 const apiKey = document.getElementById('apiKey')?.value; 
                 const currentTime = new Date().toLocaleString('vi-VN');
                 
+                const headers = {
+                    'Content-Type': 'application/json',
+                    'X-API-Key': apiKey
+                };
+                
+                if (authToken) {
+                    headers['Authorization'] = `Bearer ${authToken}`;
+                }
+                
                 const payload = { 
                     mxpackage: selectedPackageId, 
                     opserial: currentSerial, 
@@ -2440,7 +2659,7 @@
                 
                 const prodPromise = fetch(PROD_API, { 
                     method: 'POST', 
-                    headers: { 'Content-Type': 'application/json', 'X-API-Key': apiKey }, 
+                    headers: headers, 
                     body: JSON.stringify(payload) 
                 }).then(res => res.ok ? res.json() : Promise.reject(`Server Error: ${res.status}`));
                 
@@ -2550,7 +2769,6 @@
             }
         }
 
-        // ========== NAVIGATION ==========
         function goToStep(step) {
             document.querySelectorAll('.step-container').forEach(el => el.classList.remove('active')); 
             document.querySelectorAll('.step-dot').forEach(el => el.classList.remove('active')); 
@@ -2574,6 +2792,117 @@
                 if(autoBanner) autoBanner.classList.add('hidden'); 
             }
         }
+        
+        window.onTurnstileSuccess = function(token) {
+            turnstileToken = token; 
+            tokenTimestamp = Date.now();
+            const statusSpan = document.getElementById('turnstileStatus');
+            if(statusSpan) {
+                statusSpan.textContent = "Đã xác thực";
+                statusSpan.className = "turnstile-badge status-success";
+            }
+            const iconSpan = document.getElementById('minimizedIconChar');
+            if(iconSpan) iconSpan.textContent = "✅";
+            if (tokenRefreshResolver) { 
+                tokenRefreshResolver(true); 
+                tokenRefreshResolver = null; 
+                setTimeout(() => toggleWidgetState(true), 1000); 
+            } else { 
+                setTimeout(() => toggleWidgetState(true), 1500); 
+            }
+        };
+        
+        window.onTurnstileError = function() { 
+            turnstileToken = null; 
+            const iconSpan = document.getElementById('minimizedIconChar');
+            if(iconSpan) iconSpan.textContent = "⚠️"; 
+        };
+        
+        window.onTurnstileExpired = function() { 
+            turnstileToken = null; 
+            if (!tokenRefreshResolver) { 
+                const iconSpan = document.getElementById('minimizedIconChar');
+                if(iconSpan) iconSpan.textContent = "🔐"; 
+                toggleWidgetState(false); 
+            } 
+        };
+        
+        async function refreshTurnstileToken() { 
+            toggleWidgetState(false); 
+            const statusSpan = document.getElementById('turnstileStatus');
+            if(statusSpan) {
+                statusSpan.textContent = "Cần gia hạn";
+                statusSpan.className = "turnstile-badge status-pending";
+            }
+            if(window.turnstile) window.turnstile.reset('#cf-turnstile-widget'); 
+            await new Promise(resolve => { tokenRefreshResolver = resolve; });
+        }
+        
+        function toggleWidgetState(forceMinimize = false) {
+            const widgetEl = document.getElementById('turnstileWidget');
+            if (!widgetEl) return;
+            if (forceMinimize) widgetEl.classList.add('minimized');
+            else widgetEl.classList.toggle('minimized');
+        }
+        
+        const btnMinimize = document.getElementById('btnMinimize');
+        if (btnMinimize) {
+            btnMinimize.addEventListener('click', (e) => { 
+                e.stopPropagation(); 
+                toggleWidgetState(true); 
+            });
+        }
+        
+        const turnstileWidget = document.getElementById('turnstileWidget');
+        if (turnstileWidget) {
+            turnstileWidget.addEventListener('click', () => { 
+                if (turnstileWidget.classList.contains('minimized')) toggleWidgetState(false); 
+            });
+        }
+        
+        document.addEventListener('keydown', function(e) {
+            const isTextInput = e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA';
+            
+            if (document.getElementById('step1')?.classList.contains('active')) {
+                if (e.key === 'Enter' && !isTextInput) {
+                    e.preventDefault();
+                    const nextBtn = document.getElementById('nextToStep2Btn');
+                    if (!nextBtn.disabled) goToStep(2);
+                    return;
+                }
+            }
+            
+            if (document.getElementById('step2')?.classList.contains('active')) {
+                if (e.key === 'Enter' && e.ctrlKey) {
+                    e.preventDefault();
+                    processManualData();
+                    return;
+                }
+            }
+            
+            if (document.getElementById('step3')?.classList.contains('active')) {
+                if (e.key === 'Enter' && e.ctrlKey) {
+                    e.preventDefault();
+                    showConfirmModal();
+                    return;
+                }
+            }
+            
+            if (e.key === 'Enter') {
+                const confirmModal = document.getElementById('confirmModal');
+                if (confirmModal?.classList.contains('open')) {
+                    e.preventDefault();
+                    confirmSendToMES();
+                    return;
+                }
+                const step4 = document.getElementById('step4');
+                if (step4?.classList.contains('active')) {
+                    e.preventDefault();
+                    location.reload();
+                    return;
+                }
+            }
+        });
     </script>
 </body>
 </html>
