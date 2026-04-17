@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>MES Production v8.0 (Integrated Full) | Hover Image Preview</title>
+    <title>MES Production v8.1 (Integrated Full) | Hover Image Preview</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
     <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
@@ -489,7 +489,7 @@
         /* PACKAGE CARD - ENHANCED WITH HOVER PREVIEW */
         .package-card { 
             display: grid; 
-            grid-template-columns: 100px 1fr 90px;
+            grid-template-columns: 100px 1fr 150px;
             gap: 0;
             border: 1px solid #e0e0e0; 
             border-radius: 10px; 
@@ -647,7 +647,7 @@
             display: inline-block; 
             background: linear-gradient(135deg, #7b1fa2 0%, #9c27b0 100%); 
             color: white; 
-            font-size: 9px; 
+            font-size: 13px; 
             font-weight: 800; 
             padding: 2px 6px; 
             border-radius: 12px; 
@@ -664,7 +664,7 @@
         }
         
         /* ========== PACKAGE STATUS ========== */
-        .qty-display { font-size: 18px; font-weight: 800; line-height: 1.2; padding: 4px 8px; border-radius: 8px; display: inline-block; }
+        .qty-display { font-size: 22px; font-weight: 800; line-height: 1.2; padding: 4px 8px; border-radius: 8px; display: inline-block; }
         .status-text { font-size: 9px; font-weight: 600; opacity: 0.9; }
         .st-done .qty-display { color: #2e7d32; background: #e8f5e9; } 
         .st-done .status-text { color: #2e7d32; }
@@ -875,7 +875,7 @@
     <div id="mainApp" style="display: none;">
         <div class="container">
             <div class="header">
-                <h1><i class="fas fa-industry"></i> MES Production v8.0</h1>
+                <h1><i class="fas fa-industry"></i> MES Production v8.1</h1>
                 <p>Smart Grouping & Gallery Mode | Hover Image Preview | Full Integrated</p>
                 <button class="logout-btn" id="logoutBtn">
                     <i class="fas fa-sign-out-alt"></i> Đăng xuất
@@ -1549,6 +1549,7 @@
                         actual: null, 
                         loading: true,
                         hasOT: false,
+                        otAchieved: 0,
                         searchString: `${pid} ${p.styleText} ${p.lineName} ${p.color}`.toLowerCase()
                     };
                 });
@@ -1656,6 +1657,7 @@
                         const otJson = await otRes.json();
                         if (otJson.success && otJson.data && otJson.data.slot_analysis) {
                             hasOT = otJson.data.slot_analysis.has_ot || false;
+                            p.otAchieved = otJson.data.slot_analysis.ot_achieved || 0;  // ← THÊM
                         }
                     } catch (otErr) {
                         console.warn(`Không thể kiểm tra OT cho ${p.id}:`, otErr);
@@ -1692,7 +1694,7 @@
             statusDiv.className = 'pkg-status-col';
             statusDiv.classList.remove('st-done', 'st-over', 'st-miss', 'st-pend');
 
-            const otBadge = p.hasOT ? '<span class="ot-badge">OT</span>' : '';
+            const otBadge = p.hasOT ? `<span class="ot-badge">OT: ${p.otAchieved}</span>` : '';
 
             if (p.loading) {
                 statusDiv.innerHTML = `<span class="status-loading"><span class="mini-loader"></span></span>`;
