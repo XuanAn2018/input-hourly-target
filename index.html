@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>MES Production v8.1 (Integrated Full) | Hover Image Preview</title>
+    <title>MES Production v8.2 (Integrated Full) | Hover Image Preview</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
     <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
@@ -78,22 +78,25 @@
             gap: 20px; 
         }
         
-        /* ========== LOGIN OVERLAY ========== */
-        .login-overlay {
+        /* ========== AUTH OVERLAY - Security Gate ========== */
+        .auth-overlay {
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            z-index: 10000;
+            z-index: 99999;
             display: flex;
             justify-content: center;
             align-items: center;
-            backdrop-filter: blur(0px);
-            transition: all 0.3s;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
         }
-        .login-card {
+        .auth-overlay.open {
+            opacity: 1;
+            visibility: visible;
+        }
+        .auth-card {
             background: white;
             border-radius: 32px;
             padding: 40px;
@@ -103,22 +106,15 @@
             animation: fadeInUp 0.5s ease-out;
         }
         @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
         }
-        .login-header {
+        .auth-header {
             text-align: center;
             margin-bottom: 32px;
         }
-        .login-icon {
-            width: 64px;
-            height: 64px;
+        .auth-icon {
+            width: 64px; height: 64px;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             border-radius: 20px;
             display: flex;
@@ -126,34 +122,18 @@
             justify-content: center;
             margin: 0 auto 20px;
         }
-        .login-icon i {
-            font-size: 32px;
-            color: white;
+        .auth-icon i { font-size: 32px; color: white; }
+        .auth-header h2 {
+            font-size: 28px; font-weight: 700; color: #1e293b; margin-bottom: 8px;
         }
-        .login-header h2 {
-            font-size: 28px;
-            font-weight: 700;
-            color: #1e293b;
-            margin-bottom: 8px;
-        }
-        .login-header p {
-            font-size: 14px;
-            color: #64748b;
-        }
-        .login-form .form-group {
-            margin-bottom: 20px;
-        }
-        .login-form label {
+        .auth-header p { font-size: 14px; color: #64748b; }
+        .auth-input-group { margin-bottom: 20px; }
+        .auth-input-group label {
             display: block;
-            font-size: 13px;
-            font-weight: 600;
-            color: #334155;
-            margin-bottom: 8px;
+            font-size: 13px; font-weight: 600; color: #334155; margin-bottom: 8px;
         }
-        .login-form .input-wrapper {
-            position: relative;
-        }
-        .login-form .input-wrapper i {
+        .auth-input-group .input-wrapper { position: relative; }
+        .auth-input-group .input-wrapper > i {
             position: absolute;
             left: 14px;
             top: 50%;
@@ -161,9 +141,21 @@
             color: #94a3b8;
             font-size: 16px;
         }
-        .login-form input {
+        .auth-input-group .input-wrapper .toggle-pw {
+            position: absolute;
+            right: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #94a3b8;
+            cursor: pointer;
+            font-size: 16px;
+            background: none;
+            border: none;
+            padding: 4px;
+        }
+        .auth-input-group input {
             width: 100%;
-            padding: 12px 12px 12px 42px;
+            padding: 12px 44px 12px 42px;
             border: 2px solid #e2e8f0;
             border-radius: 16px;
             font-size: 14px;
@@ -171,13 +163,13 @@
             transition: all 0.2s;
             background: #f8fafc;
         }
-        .login-form input:focus {
+        .auth-input-group input:focus {
             outline: none;
             border-color: #667eea;
             background: white;
             box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
         }
-        .login-btn {
+        .auth-btn {
             width: 100%;
             padding: 14px;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -189,17 +181,21 @@
             cursor: pointer;
             transition: all 0.2s;
             margin-top: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
         }
-        .login-btn:hover {
+        .auth-btn:hover {
             transform: translateY(-2px);
             box-shadow: 0 10px 25px -5px rgba(102, 126, 234, 0.4);
         }
-        .login-btn:disabled {
+        .auth-btn:disabled {
             opacity: 0.7;
             cursor: not-allowed;
             transform: none;
         }
-        .login-error {
+        .auth-error {
             background: #fef2f2;
             border-left: 4px solid #ef4444;
             padding: 12px;
@@ -207,18 +203,40 @@
             margin-top: 16px;
             font-size: 13px;
             color: #dc2626;
-            display: flex;
+            display: none;
             align-items: center;
             gap: 8px;
         }
-        .login-error i {
-            font-size: 16px;
+        .auth-error i { font-size: 16px; }
+        .auth-loading {
+            display: inline-block;
+            width: 18px; height: 18px;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
         }
-        .login-footer {
-            text-align: center;
-            margin-top: 24px;
+        .btn-logout {
+            position: absolute;
+            top: 50%;
+            right: 24px;
+            transform: translateY(-50%);
+            background: rgba(255,255,255,0.2);
+            border: 1px solid rgba(255,255,255,0.3);
+            color: white;
+            padding: 6px 14px;
+            border-radius: 20px;
             font-size: 12px;
-            color: #94a3b8;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: none;
+            align-items: center;
+            gap: 6px;
+        }
+        .btn-logout:hover {
+            background: rgba(255,255,255,0.3);
+            transform: translateY(-50%) scale(1.02);
         }
         
         /* ========== STEP INDICATOR COMPACT ========== */
@@ -363,6 +381,7 @@
         .summary-banner-new .stat-value.packages { color: #0d6efd; }
         .summary-banner-new .stat-value.target { color: #fd7e14; }
         .summary-banner-new .stat-value.actual { color: #198754; }
+        .summary-banner-new .stat-value.ot-count { color: #7b1fa2; }
         
         @media (max-width: 640px) {
             .summary-banner-new {
@@ -807,7 +826,48 @@
         .pill-error { background: #f44336; color: white; }
         .pill-gray { background: #607D8B; color: white; }
         .pill-info { background: #2196F3; color: white; }
+        .pill-ot { background: #7b1fa2; color: white; }
         
+        /* Detail list for step 4 result */
+        .detail-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin: 16px 0;
+        }
+        .detail-item {
+            display: flex;
+            align-items: center;
+            padding: 10px 14px;
+            background: rgba(255,255,255,0.7);
+            border-radius: 10px;
+            border: 1px solid rgba(0,0,0,0.04);
+            gap: 8px;
+        }
+        .detail-label {
+            font-weight: 700;
+            color: #1e3c72;
+            min-width: 120px;
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .detail-value {
+            flex: 1;
+            font-weight: 600;
+            color: #333;
+            font-size: 14px;
+            text-align: right;
+            word-break: break-all;
+        }
+        .status-row {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 16px;
+            justify-content: center;
+        }
         .loader { border: 3px solid #f3f3f3; border-top: 3px solid #2196F3; border-radius: 50%; width: 20px; height: 20px; animation: spin 1s linear infinite; display: inline-block; vertical-align: middle; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         
@@ -832,41 +892,41 @@
     </style>
 </head>
 <body>
-    <!-- LOGIN OVERLAY -->
-    <div id="loginOverlay" class="login-overlay" style="display: flex;">
-        <div class="login-card">
-            <div class="login-header">
-                <div class="login-icon">
+    <!-- AUTH OVERLAY - Security Gate -->
+    <div id="authOverlay" class="auth-overlay open">
+        <div class="auth-card">
+            <div class="auth-header">
+                <div class="auth-icon">
                     <i class="fas fa-lock"></i>
                 </div>
                 <h2>Đăng nhập</h2>
                 <p>Nhập thông tin để truy cập hệ thống</p>
             </div>
-            <form class="login-form" id="loginForm">
-                <div class="form-group">
+            <div class="auth-body">
+                <div class="auth-input-group">
                     <label>Tên đăng nhập</label>
                     <div class="input-wrapper">
                         <i class="fas fa-user"></i>
-                        <input type="text" id="loginUsername" placeholder="Nhập username" autocomplete="username">
+                        <input type="text" id="authUsername" placeholder="Nhập username" autocomplete="username">
                     </div>
                 </div>
-                <div class="form-group">
+                <div class="auth-input-group">
                     <label>Mật khẩu</label>
                     <div class="input-wrapper">
                         <i class="fas fa-key"></i>
-                        <input type="password" id="loginPassword" placeholder="Nhập mật khẩu" autocomplete="current-password">
+                        <input type="password" id="authPassword" placeholder="Nhập mật khẩu" autocomplete="current-password">
+                        <button type="button" class="toggle-pw" id="authPasswordToggle" onclick="togglePasswordVisibility()">
+                            <i class="fas fa-eye"></i>
+                        </button>
                     </div>
                 </div>
-                <button type="submit" class="login-btn" id="loginBtn">
+                <button class="auth-btn" id="authBtn" onclick="handleLogin()">
                     <i class="fas fa-sign-in-alt"></i> Đăng nhập
                 </button>
-                <div id="loginError" class="login-error" style="display: none;">
+                <div id="authError" class="auth-error">
                     <i class="fas fa-exclamation-circle"></i>
-                    <span>Sai tên đăng nhập hoặc mật khẩu</span>
+                    <span></span>
                 </div>
-            </form>
-            <div class="login-footer">
-                <i class="fas fa-shield-alt"></i> Hệ thống bảo mật cao
             </div>
         </div>
     </div>
@@ -875,9 +935,9 @@
     <div id="mainApp" style="display: none;">
         <div class="container">
             <div class="header">
-                <h1><i class="fas fa-industry"></i> MES Production v8.1</h1>
+                <h1><i class="fas fa-industry"></i> MES Production v8.2</h1>
                 <p>Smart Grouping & Gallery Mode | Hover Image Preview | Full Integrated</p>
-                <button class="logout-btn" id="logoutBtn">
+                <button class="btn-logout" id="logoutBtn" onclick="handleLogout()">
                     <i class="fas fa-sign-out-alt"></i> Đăng xuất
                 </button>
             </div>
@@ -1292,12 +1352,10 @@
 
     <script>
         // ========== AUTH CONFIG ==========
-        const AUTH_API = "https://auth-password-gate.chiscoong-cloudflare-com.workers.dev/verify";
-        const STORAGE_TOKEN_KEY = "mes_token";
-        const STORAGE_USER_KEY = "mes_user";
-        
-        let authToken = null;
-        let currentUser = null;
+        const PROJECT_NAME = "input-hourly-target";
+        const WORKER_LOGIN_ENDPOINT = `https://auth-password-gate.chiscoong-cloudflare-com.workers.dev/${PROJECT_NAME}/verify`;
+        const WORKER_VALIDATE_ENDPOINT = `https://auth-password-gate.chiscoong-cloudflare-com.workers.dev/${PROJECT_NAME}/validate-session`;
+        const STORAGE_TOKEN_KEY = "token";
         
         // ========== API ENDPOINTS & CONFIG ==========
         const WORKER_URL = "https://mes-proxy.vercel.app/api";
@@ -1339,58 +1397,120 @@
         const OT_INDEX_START = 9;
         
         // ========== AUTH FUNCTIONS ==========
-        async function login(username, password) {
+        function lockUI() {
+            document.getElementById('authOverlay').classList.add('open');
+            document.getElementById('mainApp').style.display = 'none';
+            const logoutBtn = document.getElementById('logoutBtn');
+            if (logoutBtn) logoutBtn.style.display = 'none';
+        }
+
+        function unlockUI() {
+            document.getElementById('authOverlay').classList.remove('open');
+            document.getElementById('mainApp').style.display = 'block';
+            const logoutBtn = document.getElementById('logoutBtn');
+            if (logoutBtn) logoutBtn.style.display = 'flex';
+        }
+
+        // ========== SESSION VALIDATION ==========
+        async function checkSessionSession() {
+            const token = localStorage.getItem(STORAGE_TOKEN_KEY);
+            if (!token) { lockUI(); return; }
             try {
-                const response = await fetch(AUTH_API, {
+                const response = await fetch(WORKER_VALIDATE_ENDPOINT, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ username, password })
+                    headers: {
+                        'Authorization': 'Bearer ' + token,
+                        'Content-Type': 'application/json'
+                    }
                 });
-                
                 const data = await response.json();
-                
-                if (data.success && data.token) {
-                    authToken = data.token;
-                    currentUser = data.user || username;
-                    localStorage.setItem(STORAGE_TOKEN_KEY, authToken);
-                    localStorage.setItem(STORAGE_USER_KEY, currentUser);
-                    return { success: true };
+                const now = new Date();
+                const ts = now.getFullYear() + '-' +
+                    String(now.getMonth() + 1).padStart(2, '0') + '-' +
+                    String(now.getDate()).padStart(2, '0') + ' ' +
+                    String(now.getHours()).padStart(2, '0') + ':' +
+                    String(now.getMinutes()).padStart(2, '0') + ':' +
+                    String(now.getSeconds()).padStart(2, '0');
+                if (data.success) {
+                    unlockUI();
+                    console.log('[AUTH] [' + ts + '] Authentication session verified. Welcome back!');
                 } else {
-                    return { success: false, error: data.message || "Sai tên đăng nhập hoặc mật khẩu" };
+                    localStorage.removeItem(STORAGE_TOKEN_KEY);
+                    lockUI();
+                    console.warn('[AUTH] [' + ts + '] Session has expired or been revoked from remote server. Relogin required.');
                 }
             } catch (error) {
-                return { success: false, error: "Lỗi kết nối đến server xác thực" };
+                // Network error: do NOT clear token
+                console.warn('[AUTH] Network error during session validation. Keeping current session.');
             }
         }
-        
-        function logout() {
+
+        // ========== LOGIN HANDLER ==========
+        async function handleLogin() {
+            const username = document.getElementById('authUsername').value.trim();
+            const password = document.getElementById('authPassword').value;
+            const authBtn = document.getElementById('authBtn');
+            const authError = document.getElementById('authError');
+            if (!username || !password) {
+                authError.style.display = 'flex';
+                authError.querySelector('span').textContent = 'Vui lòng nhập đầy đủ tên đăng nhập và mật khẩu';
+                return;
+            }
+            authBtn.disabled = true;
+            authBtn.innerHTML = '<span class="auth-loading"></span> Đang xác thực...';
+            authError.style.display = 'none';
+            try {
+                const response = await fetch(WORKER_LOGIN_ENDPOINT, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username: username.toLowerCase(), password })
+                });
+                const data = await response.json();
+                if (data.success && data.token) {
+                    localStorage.setItem(STORAGE_TOKEN_KEY, data.token);
+                    unlockUI();
+                } else {
+                    authError.style.display = 'flex';
+                    authError.querySelector('span').textContent = data.msg || 'Sai tên đăng nhập hoặc mật khẩu';
+                }
+            } catch (error) {
+                authError.style.display = 'flex';
+                authError.querySelector('span').textContent = 'Lỗi kết nối đến server xác thực';
+            } finally {
+                authBtn.disabled = false;
+                authBtn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Đăng nhập';
+            }
+        }
+
+        // ========== LOGOUT HANDLER ==========
+        function handleLogout() {
             localStorage.removeItem(STORAGE_TOKEN_KEY);
-            localStorage.removeItem(STORAGE_USER_KEY);
-            authToken = null;
-            currentUser = null;
-            document.getElementById('mainApp').style.display = 'none';
-            document.getElementById('loginOverlay').style.display = 'flex';
-            document.getElementById('loginUsername').value = '';
-            document.getElementById('loginPassword').value = '';
-            document.getElementById('loginError').style.display = 'none';
+            lockUI();
+            document.getElementById('authUsername').value = '';
+            document.getElementById('authPassword').value = '';
+            document.getElementById('authError').style.display = 'none';
+            const pwInput = document.getElementById('authPassword');
+            pwInput.type = 'password';
+            const toggleIcon = document.querySelector('#authPasswordToggle i');
+            if (toggleIcon) toggleIcon.className = 'fas fa-eye';
         }
-        
-        function checkAuth() {
-            const savedToken = localStorage.getItem(STORAGE_TOKEN_KEY);
-            const savedUser = localStorage.getItem(STORAGE_USER_KEY);
-            
-            if (savedToken && savedUser) {
-                authToken = savedToken;
-                currentUser = savedUser;
-                document.getElementById('loginOverlay').style.display = 'none';
-                document.getElementById('mainApp').style.display = 'block';
-                return true;
+
+        // ========== TOGGLE PASSWORD VISIBILITY ==========
+        function togglePasswordVisibility() {
+            const pwInput = document.getElementById('authPassword');
+            const toggleIcon = document.querySelector('#authPasswordToggle i');
+            if (pwInput.type === 'password') {
+                pwInput.type = 'text';
+                if (toggleIcon) toggleIcon.className = 'fas fa-eye-slash';
+            } else {
+                pwInput.type = 'password';
+                if (toggleIcon) toggleIcon.className = 'fas fa-eye';
             }
-            return false;
         }
-        
+
         // ========== INITIALIZATION ==========
         document.addEventListener('DOMContentLoaded', function() {
+            checkSessionSession();
             const today = new Date().toISOString().split('T')[0];
             const dateInput = document.getElementById('dateSelect');
             if(dateInput) dateInput.value = today;
@@ -1403,60 +1523,7 @@
                 const turnstileWidget = document.getElementById('turnstileWidget');
                 if(turnstileWidget) turnstileWidget.style.display = 'none';
             }
-            
-            const loginForm = document.getElementById('loginForm');
-            const loginBtn = document.getElementById('loginBtn');
-            
-            loginForm.addEventListener('submit', async (e) => {
-                e.preventDefault();
-                const username = document.getElementById('loginUsername').value.trim();
-                const password = document.getElementById('loginPassword').value;
-                
-                if (!username || !password) {
-                    showLoginError("Vui lòng nhập đầy đủ tên đăng nhập và mật khẩu");
-                    return;
-                }
-                
-                loginBtn.disabled = true;
-                loginBtn.innerHTML = '<div class="loader" style="width:18px;height:18px;"></div> Đang xác thực...';
-                
-                const result = await login(username, password);
-                
-                if (result.success) {
-                    document.getElementById('loginOverlay').style.display = 'none';
-                    document.getElementById('mainApp').style.display = 'block';
-                } else {
-                    showLoginError(result.error);
-                }
-                
-                loginBtn.disabled = false;
-                loginBtn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Đăng nhập';
-            });
-            
-            const logoutBtn = document.getElementById('logoutBtn');
-            if (logoutBtn) {
-                logoutBtn.addEventListener('click', logout);
-            }
-            
-            if (!checkAuth()) {
-                document.getElementById('mainApp').style.display = 'none';
-                document.getElementById('loginOverlay').style.display = 'flex';
-            }
         });
-        
-        function showLoginError(message) {
-            const errorDiv = document.getElementById('loginError');
-            const errorSpan = errorDiv.querySelector('span');
-            errorSpan.textContent = message;
-            errorDiv.style.display = 'flex';
-            setTimeout(() => {
-                errorDiv.style.opacity = '0';
-                setTimeout(() => {
-                    errorDiv.style.display = 'none';
-                    errorDiv.style.opacity = '1';
-                }, 300);
-            }, 3000);
-        }
         
         // ========== CONFIG FUNCTIONS ==========
         function saveConfig() { 
@@ -1614,6 +1681,8 @@
                 const summaryBanner = document.getElementById('summaryBanner');
                 if(!summaryBanner) return;
                 const percent = grandTotalTarget > 0 ? Math.floor((grandTotalActual/grandTotalTarget)*100) : 0;
+                const otPackageCount = packages.filter(p => p.hasOT).length;
+                const otPackageNames = packages.filter(p => p.hasOT).map(p => p.id).join(', ');
                 summaryBanner.innerHTML = `
                     <div class="stat-item">
                         <div class="stat-label"><i class="fas fa-cubes"></i> GÓI</div>
@@ -1630,6 +1699,10 @@
                     <div class="stat-item">
                         <div class="stat-label"><i class="fas fa-percent"></i> HOÀN THÀNH</div>
                         <div class="stat-value target" style="color: #2b8c4e;">${percent}%</div>
+                    </div>
+                    <div class="stat-item" title="${otPackageNames ? 'OT: ' + otPackageNames : 'Không có gói OT'}">
+                        <div class="stat-label"><i class="fas fa-bolt"></i> CÓ OT</div>
+                        <div class="stat-value ot-count">${otPackageCount} <span style="font-size:14px;font-weight:400;color:#999;">/ ${packages.length}</span></div>
                     </div>
                 `;
                 summaryBanner.style.display = 'flex';
@@ -2609,9 +2682,30 @@
             if(confirmModal) confirmModal.classList.remove('open'); 
         }
 
-        function confirmSendToMES() { 
-            closeConfirmModal(); 
-            sendToMES(); 
+        function confirmSendToMES() {
+            const confirmContent = document.getElementById('confirmContent');
+            const confirmFooter = document.querySelector('#confirmModal .modal-footer');
+            if (confirmContent) {
+                confirmContent.innerHTML = `
+                    <div style="text-align:center; padding:30px 20px;">
+                        <div class="loader" style="width:48px;height:48px;border-width:4px;margin:0 auto 20px;"></div>
+                        <h3 style="color:#1e3c72; margin-bottom:12px;">Đang gửi dữ liệu...</h3>
+                        <div id="sendProgress" style="font-size:13px; color:#666;">
+                            <div style="margin-bottom:8px;"><span id="sendStepIcon">&#9679;</span> <span id="sendStepText">Khởi tạo kết nối...</span></div>
+                        </div>
+                    </div>`;
+            }
+            if (confirmFooter) {
+                confirmFooter.innerHTML = '';
+            }
+            sendToMES();
+        }
+
+        function updateSendProgress(text) {
+            const stepText = document.getElementById('sendStepText');
+            const stepIcon = document.getElementById('sendStepIcon');
+            if (stepText) stepText.textContent = text;
+            if (stepIcon) stepIcon.innerHTML = '&#9679;';
         }
 
         async function sendToMES() {
@@ -2641,13 +2735,16 @@
                 const apiKey = document.getElementById('apiKey')?.value; 
                 const currentTime = new Date().toLocaleString('vi-VN');
                 
+                updateSendProgress('Đang gửi sản lượng lên hệ thống...');
+                
                 const headers = {
                     'Content-Type': 'application/json',
                     'X-API-Key': apiKey
                 };
                 
-                if (authToken) {
-                    headers['Authorization'] = `Bearer ${authToken}`;
+                const token = localStorage.getItem(STORAGE_TOKEN_KEY);
+                if (token) {
+                    headers['Authorization'] = 'Bearer ' + token;
                 }
                 
                 const payload = { 
@@ -2666,15 +2763,22 @@
                 }).then(res => res.ok ? res.json() : Promise.reject(`Server Error: ${res.status}`));
                 
                 let faPromise = Promise.resolve(null); 
-                if (sendFa && apiKey) faPromise = sendFaCommand(apiKey, selectedPackageId, currentSerial);
+                if (sendFa && apiKey) {
+                    updateSendProgress('Đang gửi lệnh FA tới máy...');
+                    faPromise = sendFaCommand(apiKey, selectedPackageId, currentSerial);
+                }
                 
                 const [prodResult, faResult] = await Promise.allSettled([prodPromise, faPromise]);
                 
-                if (prodResult.status === 'rejected') throw new Error(prodResult.reason?.message || "Lỗi gửi sản lượng");
+                if (prodResult.status === 'rejected') throw new Error(prodResult.reason?.message || "Loi gui san luong");
                 const prodJson = prodResult.value; 
-                if (!prodJson.success) throw new Error(prodJson.message || "Lỗi Server không xác định");
+                if (!prodJson.success) throw new Error(prodJson.message || "Loi Server khong xac dinh");
                 
                 const faSuccess = faResult.status === 'fulfilled' ? faResult.value?.success : false;
+                
+                // Close modal before showing result
+                closeConfirmModal();
+                
                 const successAnimation = document.getElementById('successAnimation');
                 if(successAnimation) successAnimation.style.display = 'flex';
                 
@@ -2682,12 +2786,12 @@
                 if(sendFa) { 
                     faStatusHtml = `
                         <span class="status-pill ${faSuccess ? 'pill-success' : 'pill-error'}">
-                            <i class="fas ${faSuccess ? 'fa-check' : 'fa-times'}"></i> FA: ${faSuccess ? 'ĐÃ GỬI' : 'THẤT BẠI'}
+                            <i class="fas ${faSuccess ? 'fa-check' : 'fa-times'}"></i> FA: ${faSuccess ? 'DA GUI' : 'THAT BAI'}
                         </span>`; 
                 } else { 
                     faStatusHtml = `
                         <span class="status-pill pill-gray">
-                            <i class="fas fa-ban"></i> FA: KHÔNG GỬI
+                            <i class="fas fa-ban"></i> FA: KHONG GUI
                         </span>`; 
                 }
                 
@@ -2736,6 +2840,8 @@
                 }
                 
             } catch(e) {
+                closeConfirmModal();
+                
                 const resultMessage = document.getElementById('resultMessage');
                 if(resultMessage) {
                     resultMessage.innerHTML = `
@@ -2864,6 +2970,16 @@
         
         document.addEventListener('keydown', function(e) {
             const isTextInput = e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA';
+            
+            // Auth overlay Enter key triggers login
+            const authOverlay = document.getElementById('authOverlay');
+            if (authOverlay && authOverlay.classList.contains('open')) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    handleLogin();
+                    return;
+                }
+            }
             
             if (document.getElementById('step1')?.classList.contains('active')) {
                 if (e.key === 'Enter' && !isTextInput) {
