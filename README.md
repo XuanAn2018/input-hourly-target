@@ -1,38 +1,60 @@
-# 🏭 MES Production V8.0 (Integrated Full)
+# Production Management v8.3
 
-![Version](https://img.shields.io/badge/version-8.0-blue.svg)
+![Version](https://img.shields.io/badge/version-8.3-blue.svg)
 ![Status](https://img.shields.io/badge/status-ready--to--deploy-success.svg)
+![Architecture](https://img.shields.io/badge/architecture-proxy--based-green.svg)
 ![Location](https://img.shields.io/badge/location-Vietnam-red.svg)
 
-Hệ thống quản lý sản xuất chuyên dụng cho nhà máy, tối ưu hóa quy trình nhập liệu và theo dõi tiến độ sản xuất theo thời gian thực.
+Hệ thống quản lý sản xuất theo thời gian thực, hỗ trợ nhập liệu sản lượng, theo dõi tiến độ, quản lý OT, và điều khiển máy FA.
 
-## ✨ Có gì mới trong bản v8.0? 🚀
+## Có gì mới trong v8.3?
 
-Phiên bản **v8.0** là một bước nhảy vọt về trải nghiệm người dùng (UX) và giao diện (UI):
+- **Proxy Architecture**: Toàn bộ request đi qua proxy Worker, không còn API Key phía client
+- **apiFetch Wrapper**: Tự động gắn Bearer token, loại bỏ apikey khỏi URL/header
+- **Bảo mật cao hơn**: API Key được inject server-side, client chỉ cần token đăng nhập
+- **Giảm cấu hình**: Không cần nhập API Key, chỉ cần đăng nhập là sử dụng được ngay
 
-* **🖼️ Hover Image Preview**: Xem ảnh sản phẩm gốc siêu nét chỉ bằng cách di chuột qua danh sách gói hàng, không cần click mở lớp mới.
-* **📊 Dynamic Summary Banner**: Hệ thống thống kê thông minh giúp theo dõi nhanh hiệu suất (Target vs Actual) ngay tại màn hình chính.
-* **🔐 Professional Login**: Giao diện bảo mật mới với Cloudflare Turnstile tích hợp, đảm bảo an toàn hệ thống.
-* **📱 Mobile First Design**: Giao diện được tinh chỉnh để hoạt động mượt mà trên cả điện thoại của công nhân và máy tính của quản lý.
-* **🔍 Advanced Filtering**: Bộ lọc OT (Tăng ca) và tìm kiếm gói hàng theo thời gian thực được tối ưu hóa tốc độ.
+## Tính năng chính
 
-## 🛠️ Công nghệ sử dụng
+- Đăng nhập bảo mật với Cloudflare Turnstile + Auth Password Gate
+- Xem danh sách gói hàng theo ngày, nhà máy
+- Lọc theo Buyer, Line, OT
+- Nhập liệu sản lượng theo operation
+- Tự động tính toán Target vs Actual
+- Hỗ trợ OT (tăng ca)
+- Gửi lệnh FA tới máy
+- Preview ảnh sản phẩm khi di chuột
+- Responsive trên cả mobile và desktop
 
-* **Frontend**: HTML5, CSS3 (Modern Flexbox/Grid), JavaScript (ES6+).
-* **UI Components**: Font Awesome 6.4.0, Google Fonts (Inter).
-* **Security**: Cloudflare Turnstile API.
-* **Icons & Emoji**: Hệ thống biểu tượng trực quan, dễ nhận diện.
+## Kiến trúc
 
-## 🚀 Hướng dẫn triển khai nhanh
+```
+Client (index.html)
+  → apiFetch() wrapper (gắn Bearer token, xóa apikey)
+  → MES Proxy Worker (mes-proxy.chiscoong-cloudflare-com.workers.dev)
+    → Xác thực session qua Auth Password Gate
+    → Inject API Key từ biến môi trường
+    → Forward tới backend Worker tương ứng
+```
 
-1.  **Cấu hình**: Mở tệp `index.html`.
-2.  **Hosting**: Bạn có thể sử dụng **Cloudflare Pages** (Khuyên dùng) hoặc GitHub Pages để deploy nhanh chóng.
-3.  **Truy cập**: Sử dụng link được cấp để truy cập hệ thống từ bất kỳ đâu thông qua trình duyệt web.
+## Yêu cầu hệ thống
 
-## 👤 Tác giả
+- Cloudflare Workers cho proxy, backend, và auth
+- Turnstile Site Key và Secret Key
+- Biến môi trường `API_KEY` trên proxy Worker
 
-* **Chí Công** - *Nhân viên văn phòng | Chuyên gia tối ưu hóa hệ thống*
-* Đơn vị: Pungkook Saigon 2 - Factory V-2C.
+## Triển khai
+
+1. Deploy proxy Worker lên Cloudflare Workers
+2. Cập nhật `PROXY_BASE` trong `index.html` nếu cần
+3. Deploy `index.html` lên Cloudflare Pages hoặc static hosting
+4. Cấu hình Turnstile Site Key trong HTML
+
+## Tác giả
+
+- **Chí Công** - Nhân viên văn phòng
+- **AI Support**
 
 ---
-© 2026 MES System | Build with ❤️ for Production Excellence.
+
+© 2026 MES System
