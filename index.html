@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>MES Production v8.2 (Integrated Full) | Hover Image Preview</title>
+    <title>MES Production v8.3 (Integrated Full) | Hover Image Preview</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
     <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
@@ -935,7 +935,7 @@
     <div id="mainApp" style="display: none;">
         <div class="container">
             <div class="header">
-                <h1><i class="fas fa-industry"></i> MES Production v8.2</h1>
+                <h1><i class="fas fa-industry"></i> MES Production v8.3</h1>
                 <p>Smart Grouping & Gallery Mode | Hover Image Preview | Full Integrated</p>
                 <button class="btn-logout" id="logoutBtn" onclick="handleLogout()">
                     <i class="fas fa-sign-out-alt"></i> Đăng xuất
@@ -961,10 +961,6 @@
                         <!-- LEFT COLUMN: CONFIGURATIONS -->
                         <div class="left-column">
                             <div class="config-section">
-                                <div class="form-group">
-                                    <label><i class="fas fa-key"></i> API Key:</label>
-                                    <input type="password" id="apiKey" class="form-control" placeholder="Nhập API Key quản trị" onchange="saveConfig()">
-                                </div>
                                 
                                 <div class="form-group">
                                     <label><i class="fas fa-factory"></i> Factory & Date:</label>
@@ -1351,19 +1347,34 @@
     </div>
 
     <script>
-        // ========== AUTH CONFIG ==========
-        const PROJECT_NAME = "input-hourly-target";
-        const WORKER_LOGIN_ENDPOINT = `https://auth-password-gate.chiscoong-cloudflare-com.workers.dev/${PROJECT_NAME}/verify`;
-        const WORKER_VALIDATE_ENDPOINT = `https://auth-password-gate.chiscoong-cloudflare-com.workers.dev/${PROJECT_NAME}/validate-session`;
+        // ========== PROXY CONFIG ==========
+        const PROXY_BASE = "https://mes-proxy.chiscoong-cloudflare-com.workers.dev";
         const STORAGE_TOKEN_KEY = "token";
-        
-        // ========== API ENDPOINTS & CONFIG ==========
-        const WORKER_URL = "https://mes-proxy.vercel.app/api";
-        const PROD_API = "https://hourly-target.chiscoong-cloudflare-com.workers.dev/api/production";
-        const PACKAGE_API = "https://today-package.chiscoong-cloudflare-com.workers.dev/api/packages";
-        const MODULE_API = "https://module-requests.chiscoong-cloudflare-com.workers.dev/opdetails";
-        const OT_API = "https://ot-requests.chiscoong-cloudflare-com.workers.dev/package/slot-summary";
-        const SCANNER_API = "https://mes-qr-scanner.chiscoong-cloudflare-com.workers.dev/";
+
+        // apiFetch — wraps fetch with Authorization header via proxy, no apikey
+        async function apiFetch(url, options = {}) {
+            const token = localStorage.getItem(STORAGE_TOKEN_KEY) || '';
+            const headers = { ...options.headers };
+            if (token) headers['Authorization'] = 'Bearer ' + token;
+            const u = new URL(url, PROXY_BASE);
+            u.searchParams.delete('apikey');
+            delete headers['X-API-Key'];
+            return fetch(u.toString(), { ...options, headers });
+        }
+
+        // Proxy endpoint URLs
+        const API_URLS = {
+            PACKAGE: PROXY_BASE + "/packages",
+            PROD: PROXY_BASE + "/production",
+            MODULE: PROXY_BASE + "/opdetails",
+            OT: PROXY_BASE + "/ot",
+            IMG: PROXY_BASE + "/img",
+            SCANNER: PROXY_BASE + "/scan",
+        };
+
+        // Auth endpoints through proxy
+        const WORKER_LOGIN_ENDPOINT = PROXY_BASE + "/auth/verify";
+        const WORKER_VALIDATE_ENDPOINT = PROXY_BASE + "/auth/validate";
         
         // ========== TURNSTILE CONFIG ==========
         const TOKEN_MAX_AGE = 270 * 1000;
@@ -1514,11 +1525,6 @@
             const today = new Date().toISOString().split('T')[0];
             const dateInput = document.getElementById('dateSelect');
             if(dateInput) dateInput.value = today;
-            const savedKey = localStorage.getItem('mesApiKey');
-            if(savedKey) {
-                const apiInput = document.getElementById('apiKey');
-                if(apiInput) apiInput.value = savedKey;
-            }
             if (isLocalhost) {
                 const turnstileWidget = document.getElementById('turnstileWidget');
                 if(turnstileWidget) turnstileWidget.style.display = 'none';
@@ -1527,8 +1533,7 @@
         
         // ========== CONFIG FUNCTIONS ==========
         function saveConfig() { 
-            const apiKey = document.getElementById('apiKey')?.value;
-            if(apiKey) localStorage.setItem('mesApiKey', apiKey); 
+            // Config saved server-side via proxy
         }
 
         function selectWorkMode(mode) {
@@ -1548,7 +1553,7 @@
                 const stylePart = parts[3];
                 const styleFolder = stylePart.substring(0, 7).toUpperCase(); 
                 const buyer = stylePart.substring(0, 3).toUpperCase();
-                const fullUrl = `${WORKER_URL}/PKPDM/style/${buyer}/${styleFolder}/Images/${apiFileName}`;
+                const fullUrl = `${API_URLS.IMG}/PKPDM/style/${buyer}/${styleFolder}/Images/${apiFileName}`;
                 return `https://wsrv.nl/?url=${encodeURIComponent(fullUrl)}&w=120&h=100&fit=cover&output=webp&q=80`;
             } catch(e) {
                 return 'https://placehold.co/120x100?text=Error';
@@ -1562,7 +1567,7 @@
                 const stylePart = parts[3];
                 const styleFolder = stylePart.substring(0, 7).toUpperCase();
                 const buyer = stylePart.substring(0, 3).toUpperCase();
-                return `${WORKER_URL}/PKPDM/style/${buyer}/${styleFolder}/Images/${apiFileName}`;
+                return `${API_URLS.IMG}/PKPDM/style/${buyer}/${styleFolder}/Images/${apiFileName}`;
             } catch(e) { return null; }
         }
         
@@ -1584,20 +1589,16 @@
         function hideImagePreview() { previewDiv.style.display = 'none'; }
 
         async function loadPackages() {
-            const apiKey = document.getElementById('apiKey')?.value;
             const factory = document.getElementById('factory')?.value;
             const dateValForPkg = document.getElementById('dateSelect')?.value.replace(/-/g, '');
             const listContainer = document.getElementById('packageListContainer');
             const summaryBanner = document.getElementById('summaryBanner');
             
-            if(!apiKey) return alert("Vui lòng nhập API Key để tiếp tục!");
-            saveConfig();
-            
             if(listContainer) listContainer.innerHTML = '<div style="text-align:center; padding:20px;"><div class="loader"></div> Đang tải danh sách...</div>';
             if(summaryBanner) summaryBanner.style.display = 'none';
 
             try {
-                const pkgRes = await fetch(`${PACKAGE_API}?factory=${factory}&fromDate=${dateValForPkg}&apikey=${apiKey}`);
+                const pkgRes = await apiFetch(`${API_URLS.PACKAGE}?factory=${factory}&fromDate=${dateValForPkg}`);
                 const pkgJson = await pkgRes.json();
                 let rawPackages = pkgJson.data?.packages || pkgJson.data || [];
 
@@ -1623,7 +1624,7 @@
 
                 populateFilters();
                 renderPackageList(allPackages);
-                syncProductionStatus(allPackages, apiKey);
+                syncProductionStatus(allPackages);
 
             } catch (e) { 
                 console.error("Load packages error:", e);
@@ -1670,7 +1671,7 @@
             filterPackages();
         }
 
-        async function syncProductionStatus(packages, apiKey) {
+        async function syncProductionStatus(packages) {
             let grandTotalActual = 0;
             let grandTotalTarget = 0;
             const concurrencyLimit = 5; 
@@ -1714,8 +1715,7 @@
                 activeRequests++;
                 
                 try {
-                    const oldApiUrl = `${MODULE_API}?mxpackage=${p.id}&mode=summary&apikey=${apiKey}`;
-                    const oldRes = await fetch(oldApiUrl);
+                    const oldRes = await apiFetch(`${API_URLS.MODULE}?mxpackage=${p.id}&mode=summary`);
                     const oldJson = await oldRes.json();
                     
                     let totalEntered = 0;
@@ -1725,12 +1725,11 @@
                     
                     let hasOT = false;
                     try {
-                        const otUrl = `${OT_API}?mxpackage=${p.id}&apikey=${apiKey}`;
-                        const otRes = await fetch(otUrl);
+                        const otRes = await apiFetch(`${API_URLS.OT}?mxpackage=${p.id}`);
                         const otJson = await otRes.json();
                         if (otJson.success && otJson.data && otJson.data.slot_analysis) {
                             hasOT = otJson.data.slot_analysis.has_ot || false;
-                            p.otAchieved = otJson.data.slot_analysis.ot_achieved || 0;  // ← THÊM
+                            p.otAchieved = otJson.data.slot_analysis.ot_achieved || 0;
                         }
                     } catch (otErr) {
                         console.warn(`Không thể kiểm tra OT cho ${p.id}:`, otErr);
@@ -1751,7 +1750,7 @@
                     updateCardStatus(p);
                 } finally {
                     activeRequests--;
-                    processNext(); 
+                    processNext();
                 }
             };
             
@@ -2188,10 +2187,10 @@
                 </tr>`;
         }
 
-        async function sendFaCommand(apiKey, packageId, opserial) {
+        async function sendFaCommand(packageId, opserial) {
             try {
-                const url = `${SCANNER_API}?apikey=${encodeURIComponent(apiKey)}&mxpackage=${encodeURIComponent(packageId)}&mcid=&opserial=${opserial}&processtype=FA`;
-                const response = await fetch(url);
+                const url = `${API_URLS.SCANNER}?mxpackage=${encodeURIComponent(packageId)}&mcid=&opserial=${opserial}&processtype=FA`;
+                const response = await apiFetch(url);
                 const isSent = response.ok; 
                 return { 
                     success: isSent, 
@@ -2226,7 +2225,6 @@
         }
 
         async function scanFAMachines() {
-            const apiKey = document.getElementById('apiKey')?.value;
             const btn = document.getElementById('scanBtn');
             const resDiv = document.getElementById('scanResult');
             const manualDiv = document.getElementById('manualSerialInput');
@@ -2248,8 +2246,8 @@
             faStatus = {};
 
             try {
-                const url = `${MODULE_API}?mxpackage=${selectedPackageId}&mode=operations&apikey=${apiKey}`;
-                const res = await fetch(url);
+                const url = `${API_URLS.MODULE}?mxpackage=${selectedPackageId}&mode=operations`;
+                const res = await apiFetch(url);
                 const json = await res.json();
                 
                 if (!json.success || !json.data || !json.data.operations) {
@@ -2499,14 +2497,13 @@
         }
 
         async function viewPackageDetails() {
-            const apiKey = document.getElementById('apiKey')?.value; 
             const modal = document.getElementById('detailModal');
             if(modal) modal.classList.add('open'); 
             const content = document.getElementById('modalContent'); 
             if(content) content.innerHTML = '<div class="loader"></div> Loading...';
             
             try { 
-                const res = await fetch(`${MODULE_API}?mxpackage=${selectedPackageId}&mode=full&apikey=${apiKey}`); 
+                const res = await apiFetch(`${API_URLS.MODULE}?mxpackage=${selectedPackageId}&mode=full`); 
                 const json = await res.json(); 
                 
                 if (!json.success || !json.data.modules.length) {
@@ -2732,20 +2729,9 @@
             }
 
             try {
-                const apiKey = document.getElementById('apiKey')?.value; 
                 const currentTime = new Date().toLocaleString('vi-VN');
                 
                 updateSendProgress('Đang gửi sản lượng lên hệ thống...');
-                
-                const headers = {
-                    'Content-Type': 'application/json',
-                    'X-API-Key': apiKey
-                };
-                
-                const token = localStorage.getItem(STORAGE_TOKEN_KEY);
-                if (token) {
-                    headers['Authorization'] = 'Bearer ' + token;
-                }
                 
                 const payload = { 
                     mxpackage: selectedPackageId, 
@@ -2756,16 +2742,16 @@
                 
                 if(turnstileToken && !isLocalhost) payload.cf_turnstile_response = turnstileToken;
                 
-                const prodPromise = fetch(PROD_API, { 
-                    method: 'POST', 
-                    headers: headers, 
+                const prodPromise = apiFetch(API_URLS.PROD, { 
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(payload) 
                 }).then(res => res.ok ? res.json() : Promise.reject(`Server Error: ${res.status}`));
                 
                 let faPromise = Promise.resolve(null); 
-                if (sendFa && apiKey) {
+                if (sendFa) {
                     updateSendProgress('Đang gửi lệnh FA tới máy...');
-                    faPromise = sendFaCommand(apiKey, selectedPackageId, currentSerial);
+                    faPromise = sendFaCommand(selectedPackageId, currentSerial);
                 }
                 
                 const [prodResult, faResult] = await Promise.allSettled([prodPromise, faPromise]);
