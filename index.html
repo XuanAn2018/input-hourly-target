@@ -1109,13 +1109,13 @@
                             <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap; flex: 1; min-width: 280px;">
                                 <h4 style="margin: 0; color: #e65100; font-size: 14px; white-space: nowrap;"><i class="fas fa-magic"></i> Công cụ chia:</h4>
                                 <button class="btn btn-sm btn-purple" onclick="autoDistribute(null)">
-                                    <i class="fas fa-bolt"></i> Auto Chia (Chuẩn)
+                                    <i class="fas fa-bolt"></i> Auto chia theo Target (Alt+A)
                                 </button>
                                 <div class="btn-separator"></div>
                                 <div style="display: flex; align-items: center; gap: 5px;">
                                     <input type="number" id="customSplitHours" class="custom-hour-input" placeholder="Số giờ" min="0.5" max="13" step="0.5">
                                     <button class="btn btn-sm btn-info" onclick="autoDistributeCustom()">
-                                        <i class="fas fa-sliders-h"></i> Chia tùy chỉnh
+                                        <i class="fas fa-sliders-h"></i> Chia SL theo giờ tùy chỉnh
                                     </button>
                                 </div>
                             </div>
@@ -3052,6 +3052,11 @@
             }
             
             if (document.getElementById('step2')?.classList.contains('active')) {
+                if (e.key === 'a' && e.altKey) {
+                    e.preventDefault();
+                    autoDistribute(null);
+                    return;
+                }
                 if (e.key === 'Enter' && e.ctrlKey) {
                     e.preventDefault();
                     processManualData();
