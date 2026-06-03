@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>MES Production v8.3 (Integrated Full) | Hover Image Preview</title>
+    <title>Nhập sản lượng báo cáo hàng giờ v8.4</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
     <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
@@ -23,28 +23,25 @@
             background: white; 
             border-radius: 12px; 
             box-shadow: 0 10px 30px rgba(0,0,0,0.2); 
-            overflow: hidden; 
         }
         
         /* HEADER COMPACT */
         .header { 
             background: linear-gradient(90deg, #1e3c72 0%, #2a5298 100%); 
             color: white; 
-            padding: 12px 24px;
+            padding: 10px 24px;
             text-align: center; 
-            position: relative;
+            position: sticky;
+            top: 0;
+            z-index: 100;
         }
         .header h1 { 
             font-size: 22px;
-            margin-bottom: 4px; 
+            margin-bottom: 0; 
             display: flex; 
             align-items: center; 
             justify-content: center; 
             gap: 12px; 
-        }
-        .header p { 
-            opacity: 0.9; 
-            font-size: 12px;
         }
         
         /* LOGOUT BUTTON */
@@ -72,10 +69,10 @@
         }
         
         .content { 
-            padding: 20px 24px;
+            padding: 12px 24px;
             display: flex; 
             flex-direction: column; 
-            gap: 20px; 
+            gap: 12px; 
         }
         
         /* ========== AUTH OVERLAY - Security Gate ========== */
@@ -243,7 +240,7 @@
         .step-indicator { 
             display: flex; 
             justify-content: center; 
-            margin: 0 0 20px 0;
+            margin: 0;
             gap: 8px; 
         }
         .step-dot { 
@@ -264,7 +261,7 @@
             background: white; 
             border: 2px solid #e0e0e0; 
             border-radius: 10px; 
-            padding: 20px;
+            padding: 14px 18px;
             animation: fadeIn 0.5s; 
         }
         .step-container.active { 
@@ -345,43 +342,41 @@
         
         /* ========== SUMMARY BANNER MỚI - LỚN, NỔI BẬT, Ở GIỮA ========== */
         .summary-banner-new {
-            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-            border-radius: 20px;
-            padding: 20px 30px;
-            margin-bottom: 20px;
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
-            border: 1px solid #dee2e6;
+            background: rgba(255,255,255,0.1);
+            border-radius: 10px;
+            padding: 8px 16px;
+            margin-top: 10px;
             display: flex;
             justify-content: space-around;
             align-items: center;
             text-align: center;
             flex-wrap: wrap;
-            gap: 25px;
+            gap: 12px;
             width: 100%;
         }
         .summary-banner-new .stat-item {
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 6px;
+            gap: 2px;
         }
         .summary-banner-new .stat-label {
-            font-size: 13px;
-            font-weight: 600;
+            font-size: 11px;
+            font-weight: 700;
             text-transform: uppercase;
             letter-spacing: 1px;
-            color: #6c757d;
+            color: #fff;
         }
         .summary-banner-new .stat-value {
-            font-size: 36px;
+            font-size: 24px;
             font-weight: 800;
             line-height: 1.2;
-            color: #1e3c72;
+            color: #fff;
         }
-        .summary-banner-new .stat-value.packages { color: #0d6efd; }
-        .summary-banner-new .stat-value.target { color: #fd7e14; }
-        .summary-banner-new .stat-value.actual { color: #198754; }
-        .summary-banner-new .stat-value.ot-count { color: #7b1fa2; }
+        .summary-banner-new .stat-value.packages { color: #64b5f6; }
+        .summary-banner-new .stat-value.target { color: #ffb74d; }
+        .summary-banner-new .stat-value.actual { color: #81c784; }
+        .summary-banner-new .stat-value.ot-count { color: #ba68c8; }
         
         @media (max-width: 640px) {
             .summary-banner-new {
@@ -499,6 +494,7 @@
             max-height: calc(100vh - 320px);
             min-height: 450px;
             overflow-y: auto; 
+            overscroll-behavior: contain;
             border: 1px solid #ddd; 
             border-radius: 8px; 
             background: white; 
@@ -710,6 +706,10 @@
         .split-toolbar-buttons { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
         .custom-hour-input { width: 70px; padding: 6px; border: 1px solid #ccc; border-radius: 5px; text-align: center; font-weight: bold; }
         .btn-separator { width: 2px; height: 25px; background: #ddd; margin: 0 5px; }
+        .actual-toolbar { background: #e3f2fd; border: 1px solid #bbdefb; border-left: 4px solid #2196F3; border-radius: 8px; padding: 12px; margin-bottom: 20px; }
+        .actual-toolbar-header { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+        .actual-toolbar-header h4 { margin: 0; color: #1565c0; font-size: 14px; }
+        .actual-toolbar-body { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
         
         /* ========== MANUAL INPUT SECTION ========== */
         .manual-summary { margin-top: 20px; padding: 15px; background: #263238; color: white; border-radius: 8px; display: flex; flex-direction: column; align-items: flex-start; gap: 5px; transition: background 0.3s; }
@@ -873,18 +873,8 @@
         
         .hidden { display: none !important; }
         
-        /* Turnstile Widget */
-        .turnstile-floating { position: fixed; bottom: 20px; right: 20px; z-index: 9999; background: rgba(255, 255, 255, 0.98); backdrop-filter: blur(12px); border-radius: 16px; box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4); border: 1px solid rgba(59, 130, 246, 0.4); width: 300px; overflow: hidden; transition: all 0.4s; }
-        .turnstile-header { display: flex; align-items: center; justify-content: space-between; padding: 8px 12px; background: linear-gradient(to right, #eff6ff, #fff); border-bottom: 1px solid rgba(59, 130, 246, 0.1); }
-        .turnstile-title { font-size: 0.8rem; font-weight: 700; color: #2563eb; }
-        .turnstile-badge { font-size: 0.65rem; padding: 2px 6px; border-radius: 6px; font-weight: 600; }
-        .status-pending { background: #fff7ed; color: #c2410c; border: 1px solid #ffedd5; }
-        .status-success { background: #f0fdf4; color: #15803d; border: 1px solid #dcfce7; }
-        .turnstile-body { padding: 12px; display: flex; flex-direction: column; align-items: center; }
-        .turnstile-floating.minimized { width: 48px; height: 48px; border-radius: 50%; bottom: 20px; right: 20px; cursor: pointer; }
-        .turnstile-floating.minimized .turnstile-content { display: none; }
-        .turnstile-minimized-icon { display: none; font-size: 1.3rem; justify-content: center; align-items: center; height: 100%; color: white; background: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%); border-radius: 50%; }
-        .turnstile-floating.minimized .turnstile-minimized-icon { display: flex; }
+        /* Turnstile in Auth Card */
+        .auth-turnstile-wrap { display: flex; justify-content: center; margin-bottom: 16px; min-height: 65px; }
         
         ::-webkit-scrollbar { width: 5px; height: 5px; }
         ::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 10px; }
@@ -920,6 +910,15 @@
                         </button>
                     </div>
                 </div>
+                <div class="auth-turnstile-wrap">
+                    <div id="cf-turnstile-login" class="cf-turnstile" 
+                         data-sitekey="0x4AAAAAACKJOBIKvTV3je0V"
+                         data-callback="onTurnstileSuccess"
+                         data-error-callback="onTurnstileError"
+                         data-expired-callback="onTurnstileExpired"
+                         data-theme="light">
+                    </div>
+                </div>
                 <button class="auth-btn" id="authBtn" onclick="handleLogin()">
                     <i class="fas fa-sign-in-alt"></i> Đăng nhập
                 </button>
@@ -935,11 +934,11 @@
     <div id="mainApp" style="display: none;">
         <div class="container">
             <div class="header">
-                <h1><i class="fas fa-industry"></i> MES Production v8.3</h1>
-                <p>Smart Grouping & Gallery Mode | Hover Image Preview | Full Integrated</p>
+                <h1><i class="fas fa-chart-bar"></i> Nhập sản lượng báo cáo hàng giờ v8.4</h1>
                 <button class="btn-logout" id="logoutBtn" onclick="handleLogout()">
                     <i class="fas fa-sign-out-alt"></i> Đăng xuất
                 </button>
+                <div id="summaryBanner" class="summary-banner-new" style="display: none;"></div>
             </div>
             
             <div class="content">
@@ -972,13 +971,13 @@
                                             <option value="P2D1">P2D1</option>
                                             <option value="P2E1">P2E1</option>
                                         </select>
-                                        <input type="date" id="dateSelect" class="form-control" style="flex:1" onchange="loadPackages()">
+                                        <input type="date" id="dateSelect" class="form-control" style="flex:1">
                                     </div>
                                 </div>
                                 
                                 <div class="action-buttons" style="margin-bottom: 16px;">
                                     <button class="btn btn-primary btn-block" onclick="loadPackages()">
-                                        <i class="fas fa-sync"></i> Tải Danh Sách Package
+                                        <i class="fas fa-sync"></i> Tải Danh Sách Package (Alt+L)
                                     </button>
                                 </div>
                                 
@@ -1042,10 +1041,6 @@
                         
                         <!-- RIGHT COLUMN: PACKAGE LIST (GALLERY) -->
                         <div class="right-column">
-                            <!-- SUMMARY BANNER MỚI - LỚN, NỔI BẬT, Ở GIỮA -->
-                            <div id="summaryBanner" class="summary-banner-new" style="display: none;">
-                                <!-- Sẽ được cập nhật bằng JS -->
-                            </div>
                             
                             <div class="right-column-header">
                                 <div class="right-column-title">
@@ -1086,9 +1081,12 @@
                                     <i class="fas fa-search"></i>
                                     <input type="text" id="packageSearch" class="form-control search-input" placeholder="Tìm Package, Style..." oninput="filterPackages()">
                                 </div>
-                                <select id="statusFilter" class="filter-select" onchange="filterPackages()" style="width: 120px;">
+                                <select id="statusFilter" class="filter-select" onchange="filterPackages()" style="width: 145px;">
                                     <option value="all">⚡ Status</option>
                                     <option value="pending">⚪ Pending</option>
+                                    <option value="du">✅ Đủ</option>
+                                    <option value="vuot">🔶 Vượt</option>
+                                    <option value="thieu">⛔ Thiếu</option>
                                     <option value="done">🟢 Done</option>
                                 </select>
                             </div>
@@ -1107,11 +1105,9 @@
                     </div>
                     
                     <div class="simple-input-area">
-                        <div class="split-toolbar">
-                            <div class="split-toolbar-header">
-                                <h4><i class="fas fa-magic"></i> Công cụ chia:</h4>
-                            </div>
-                            <div class="split-toolbar-buttons">
+                        <div class="split-toolbar" style="display: flex; align-items: center; gap: 16px; flex-wrap: wrap;">
+                            <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap; flex: 1; min-width: 280px;">
+                                <h4 style="margin: 0; color: #e65100; font-size: 14px; white-space: nowrap;"><i class="fas fa-magic"></i> Công cụ chia:</h4>
                                 <button class="btn btn-sm btn-purple" onclick="autoDistribute(null)">
                                     <i class="fas fa-bolt"></i> Auto Chia (Chuẩn)
                                 </button>
@@ -1123,11 +1119,18 @@
                                     </button>
                                 </div>
                             </div>
+                            <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                                <h4 style="margin: 0; color: #1565c0; font-size: 14px; white-space: nowrap;"><i class="fas fa-tachometer-alt"></i> Nhập SL Thực Tế:</h4>
+                                <input type="number" id="actualTotalInput" style="width: 140px; padding: 6px; border: 1px solid #ccc; border-radius: 5px; text-align: center; font-weight: bold;" placeholder="VD: 160" min="0" step="1">
+                                <button class="btn btn-sm btn-primary" onclick="autoDistributeActual()">
+                                    <i class="fas fa-divide"></i> Chia theo SL thực tế
+                                </button>
+                            </div>
                         </div>
-
-                        <div class="manual-summary">
-                            <div class="manual-summary-header">
-                                <h3 style="margin: 0; font-size: 14px;"><i class="fas fa-chart-pie"></i> Tiến độ:</h3>
+                    
+                    <div class="manual-summary">
+                        <div class="manual-summary-header">
+                            <h3 style="margin: 0; font-size: 14px;"><i class="fas fa-chart-pie"></i> Tiến độ:</h3>
                                 <div class="remaining-badge">
                                     <span>Còn lại:</span>
                                     <span id="manualRemainingDisplay" style="color: #4CAF50; font-weight: bold;">0</span>
@@ -1144,6 +1147,9 @@
                         <div class="manual-grid" id="manualGrid"></div>
                         
                         <div class="action-buttons">
+                            <button class="btn btn-secondary" onclick="goToStep(1)">
+                                <i class="fas fa-arrow-left"></i> Quay lại chọn gói
+                            </button>
                             <button class="btn btn-warning" onclick="resetManualInputs()">
                                 <i class="fas fa-redo"></i> Reset
                             </button>
@@ -1153,7 +1159,7 @@
                         </div>
                     </div>
                 </div>
-
+                
                 <!-- STEP 3: SELECT MACHINE -->
                 <div class="step-container" id="step3">
                     <div class="step-header">
@@ -1177,20 +1183,16 @@
                     </div>
 
                     <div class="fa-control-panel" id="faControlPanel" style="display: none;">
-                        <label class="fa-toggle-label">
-                            <input type="checkbox" id="globalFaToggle" checked onchange="toggleGlobalFA()">
-                            <i class="fas fa-robot" style="color:#4CAF50;"></i>
-                            <span>Gửi lệnh FA cùng lúc (Mặc định BẬT)</span>
-                        </label>
-                        <p style="font-size:11px; color:#666; margin-top:4px;">
-                            <i class="fas fa-info-circle"></i> Tắt nếu bạn chỉ muốn gửi sản lượng, không gửi FA
-                        </p>
+                        <div style="display:flex; align-items:center; gap:8px;">
+                            <i class="fas fa-robot" style="color:#4CAF50; font-size:16px;"></i>
+                            <span style="font-weight:600; color:#4CAF50; font-size:13px;">SẼ GỬI LỆNH FA</span>
+                        </div>
                     </div>
 
                     <div id="faSelectionSection">
                         <div style="display:flex; gap:10px; margin-bottom:12px">
                             <button class="btn btn-primary" onclick="scanFAMachines()" id="scanBtn" style="flex:2">
-                                <i class="fas fa-qrcode"></i> Scan Machine FA
+                                <i class="fas fa-sync"></i> Đổi máy
                             </button>
                             <button class="btn btn-secondary" onclick="toggleManualInput()" id="manualBtn" style="flex:1">
                                 <i class="fas fa-pen"></i> Nhập Mã Máy
@@ -1237,8 +1239,11 @@
                     </div>
 
                     <div class="action-buttons">
+                        <button class="btn btn-secondary" onclick="goToStep(1)">
+                            <i class="fas fa-home"></i> Trang chính
+                        </button>
                         <button class="btn btn-warning" onclick="goToStep(2)">
-                            <i class="fas fa-arrow-left"></i> Quay lại
+                            <i class="fas fa-arrow-left"></i> Quay lại nhập liệu
                         </button>
                         <button class="btn btn-dark hidden" onclick="clearMachineSelection()" id="unselectBtn">
                             <i class="fas fa-times"></i> Hủy chọn máy
@@ -1264,6 +1269,9 @@
                     <div id="resultMessage"></div>
                     
                     <div class="action-buttons" style="justify-content: center;">
+                        <button class="btn btn-secondary" onclick="goToStep(1)">
+                            <i class="fas fa-home"></i> Về trang chính
+                        </button>
                         <button class="btn btn-primary" onclick="location.reload()">
                             <i class="fas fa-redo"></i> Làm mới toàn bộ
                         </button>
@@ -1279,31 +1287,7 @@
         <div id="previewCaption" class="preview-caption"></div>
     </div>
 
-    <!-- TURNSTILE WIDGET -->
-    <div id="turnstileWidget" class="turnstile-floating">
-        <div class="turnstile-content">
-            <div class="turnstile-header">
-                <div class="turnstile-title"><i class="fas fa-shield-alt"></i> Bảo Mật Hệ Thống</div>
-                <div style="display:flex; align-items:center; gap:6px;">
-                   <span id="turnstileStatus" class="turnstile-badge status-pending">Đang chờ</span>
-                   <button id="btnMinimize" style="background:none;border:none;cursor:pointer;">─</button>
-                </div>
-            </div>
-            <div class="turnstile-body">
-                <div id="cf-turnstile-widget" class="cf-turnstile" 
-                     data-sitekey="0x4AAAAAACKJOBIKvTV3je0V" 
-                     data-callback="onTurnstileSuccess"
-                     data-error-callback="onTurnstileError"
-                     data-expired-callback="onTurnstileExpired"
-                     data-theme="light">
-                </div>
-                <div style="font-size:0.65rem;color:#666;margin-top:4px;">Tự động ẩn sau khi xác thực.</div>
-            </div>
-        </div>
-        <div class="turnstile-minimized-icon" title="Mở xác thực">
-            <span id="minimizedIconChar">🔐</span>
-        </div>
-    </div>
+
 
     <!-- DETAIL MODAL -->
     <div class="modal-overlay" id="detailModal">
@@ -1346,6 +1330,23 @@
         </div>
     </div>
 
+    <!-- WARNING MODAL -->
+    <div class="modal-overlay" id="warningModal">
+        <div class="modal-box confirm-modal">
+            <div class="modal-header">
+                <h3><i class="fas fa-exclamation-triangle"></i> <span id="warningTitle">CẢNH BÁO</span></h3>
+                <button class="btn btn-sm btn-danger" onclick="closeWarningModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body" id="warningContent"></div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary btn-sm" onclick="closeWarningModal()">Hủy bỏ</button>
+                <button class="btn btn-warning btn-sm" id="warningConfirmBtn">Xác nhận</button>
+            </div>
+        </div>
+    </div>
+
     <script>
         // ========== PROXY CONFIG ==========
         const PROXY_BASE = "https://mes-proxy.chiscoong-cloudflare-com.workers.dev";
@@ -1376,11 +1377,8 @@
         const WORKER_LOGIN_ENDPOINT = PROXY_BASE + "/auth/verify";
         const WORKER_VALIDATE_ENDPOINT = PROXY_BASE + "/auth/validate";
         
-        // ========== TURNSTILE CONFIG ==========
-        const TOKEN_MAX_AGE = 270 * 1000;
+        // ========== TURNSTILE (Login only) ==========
         let turnstileToken = null;
-        let tokenTimestamp = 0;
-        let tokenRefreshResolver = null;
         let isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
 
         // ========== GLOBAL VARIABLES ==========
@@ -1467,24 +1465,33 @@
                 authError.querySelector('span').textContent = 'Vui lòng nhập đầy đủ tên đăng nhập và mật khẩu';
                 return;
             }
+            if (!isLocalhost && !turnstileToken) {
+                authError.style.display = 'flex';
+                authError.querySelector('span').textContent = 'Vui lòng hoàn thành xác thực bảo mật';
+                return;
+            }
             authBtn.disabled = true;
             authBtn.innerHTML = '<span class="auth-loading"></span> Đang xác thực...';
             authError.style.display = 'none';
             try {
+                const body = { username: username.toLowerCase(), password };
+                if (turnstileToken && !isLocalhost) body.cf_turnstile_response = turnstileToken;
                 const response = await fetch(WORKER_LOGIN_ENDPOINT, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ username: username.toLowerCase(), password })
+                    body: JSON.stringify(body)
                 });
                 const data = await response.json();
                 if (data.success && data.token) {
                     localStorage.setItem(STORAGE_TOKEN_KEY, data.token);
                     unlockUI();
                 } else {
+                    resetTurnstile();
                     authError.style.display = 'flex';
                     authError.querySelector('span').textContent = data.msg || 'Sai tên đăng nhập hoặc mật khẩu';
                 }
             } catch (error) {
+                resetTurnstile();
                 authError.style.display = 'flex';
                 authError.querySelector('span').textContent = 'Lỗi kết nối đến server xác thực';
             } finally {
@@ -1504,6 +1511,7 @@
             pwInput.type = 'password';
             const toggleIcon = document.querySelector('#authPasswordToggle i');
             if (toggleIcon) toggleIcon.className = 'fas fa-eye';
+            resetTurnstile();
         }
 
         // ========== TOGGLE PASSWORD VISIBILITY ==========
@@ -1525,10 +1533,6 @@
             const today = new Date().toISOString().split('T')[0];
             const dateInput = document.getElementById('dateSelect');
             if(dateInput) dateInput.value = today;
-            if (isLocalhost) {
-                const turnstileWidget = document.getElementById('turnstileWidget');
-                if(turnstileWidget) turnstileWidget.style.display = 'none';
-            }
         });
         
         // ========== CONFIG FUNCTIONS ==========
@@ -1802,6 +1806,9 @@
             let filteredList = [...list];
             const statusFilter = document.getElementById('statusFilter')?.value || 'all';
             if(statusFilter === 'pending') filteredList = filteredList.filter(p => !p.actual);
+            else if(statusFilter === 'du') filteredList = filteredList.filter(p => p.actual !== null && p.actual > 0 && p.actual === p.target);
+            else if(statusFilter === 'vuot') filteredList = filteredList.filter(p => p.actual !== null && p.actual > p.target);
+            else if(statusFilter === 'thieu') filteredList = filteredList.filter(p => p.actual !== null && p.actual > 0 && p.actual < p.target);
             else if(statusFilter === 'done') filteredList = filteredList.filter(p => p.actual > 0);
             
             if(currentOTFilter === 'has') filteredList = filteredList.filter(p => p.hasOT === true);
@@ -2084,7 +2091,49 @@
                 }
             });
         }
-
+        
+        function autoDistributeActual() {
+            const actualTotal = parseInt(document.getElementById('actualTotalInput')?.value);
+            if (!actualTotal || actualTotal <= 0) return alert("Vui lòng nhập sản lượng thực tế hợp lệ!");
+            resetManualInputs();
+            const mode = parseFloat(document.getElementById('workHoursInput')?.value || 7.5);
+            const inputs = document.querySelectorAll('.slot-input');
+            let weights = [];
+            let totalWeight = 0;
+            if (mode === 7.5) {
+                for (let i = 0; i < 9; i++) {
+                    if (i === 4) { weights.push(0); continue; }
+                    if (i === 8) { weights.push(0.5); totalWeight += 0.5; }
+                    else { weights.push(1); totalWeight += 1; }
+                }
+            } else {
+                for (let i = 0; i < 13; i++) {
+                    if (i === 4 || i === 12) { weights.push(0); continue; }
+                    weights.push(1); totalWeight += 1;
+                }
+            }
+            let distributedValues = weights.map(w => {
+                if (w === 0) return 0;
+                return Math.floor(actualTotal * w / totalWeight);
+            });
+            let currentTotal = distributedValues.reduce((a, b) => a + b, 0);
+            let remainder = actualTotal - currentTotal;
+            for (let i = distributedValues.length - 1; i >= 0; i--) {
+                if (weights[i] > 0) {
+                    distributedValues[i] += remainder;
+                    break;
+                }
+            }
+            inputs.forEach((inp, idx) => {
+                if (distributedValues[idx] !== undefined && !inp.disabled) {
+                    if (distributedValues[idx] > 0) {
+                        inp.value = distributedValues[idx];
+                        checkPerf(inp, idx);
+                    }
+                }
+            });
+        }
+        
         function autoDistribute(customHours) {
             resetManualInputs();
             const mode = parseFloat(document.getElementById('workHoursInput')?.value || 7.5);
@@ -2151,10 +2200,17 @@
                 }
             }
             
-            if (total > dailyTarget) { 
-                if (!confirm(`CẢNH BÁO SẢN LƯỢNG!\n\nTổng nhập: ${total}\nTarget ngày: ${dailyTarget}\n\nBạn đang nhập VƯỢT quá Target quy định.\nXác nhận đây là số liệu đúng (vượt sản lượng)?`)) {
-                    return;
-                }
+            if (total > dailyTarget) {
+                showWarningModal('CẢNH BÁO SẢN LƯỢNG!',
+                    `<div style="text-align:center;padding:10px;">
+                        <i class="fas fa-exclamation-triangle" style="font-size:48px;color:#ff9800;margin-bottom:15px;"></i>
+                        <p style="font-size:15px;margin:8px 0;">Tổng nhập: <b style="color:#e65100">${total}</b> | Target: <b>${dailyTarget}</b></p>
+                        <p style="font-size:14px;color:#333;">Bạn đang nhập <b style="color:#e65100">VƯỢT</b> quá Target quy định.</p>
+                        <p style="font-size:13px;color:#888;margin-top:12px;border-top:1px solid #eee;padding-top:12px;">Xác nhận đây là số liệu đúng (vượt sản lượng)?</p>
+                    </div>`,
+                    () => { updatePreviewTable(); goToStep(3); }
+                );
+                return;
             }
             
             updatePreviewTable();
@@ -2206,11 +2262,6 @@
             }
         }
 
-        function toggleGlobalFA() { 
-            globalFaEnabled = document.getElementById('globalFaToggle')?.checked || false; 
-            updateFAStatusText(); 
-        }
-
         function updateFAStatusText() { 
             const faStatusText = document.getElementById('faStatusText'); 
             if (faStatusText) { 
@@ -2223,7 +2274,41 @@
                 } 
             } 
         }
-
+        
+        async function autoSelectDefaultMachine() {
+            try {
+                const url = `${API_URLS.MODULE}?mxpackage=${selectedPackageId}&mode=operations`;
+                const res = await apiFetch(url);
+                const json = await res.json();
+                if (!json.success || !json.data || !json.data.operations) return;
+                const allOps = json.data.operations
+                    .filter(op => op.opserial != null)
+                    .map(op => ({ ...op, opserial: op.opserial, opnum: op.opnum || "N/A" }));
+                for (let op of allOps) {
+                    if (op.opserial != null && parseInt(String(op.opserial)) === 1) {
+                        selectedOpserial = String(op.opserial);
+                        selectedMachineName = op.remarks || op.opname;
+                        const selectedName = document.getElementById('selectedMachineName');
+                        const selectedSerial = document.getElementById('selectedMachineSerial');
+                        const selectionInfo = document.getElementById('selectionInfo');
+                        const unselectBtn = document.getElementById('unselectBtn');
+                        if(selectedName) selectedName.innerText = selectedMachineName;
+                        if(selectedSerial) selectedSerial.innerText = selectedOpserial;
+                        if(selectionInfo) selectionInfo.classList.remove('hidden');
+                        if(unselectBtn) unselectBtn.classList.remove('hidden');
+                        hasFaOption = true;
+                        faStatus = {};
+                        faStatus[selectedOpserial] = { displayName: selectedMachineName, isFA: op.iottype === 'FA', opnum: op.opnum, iottype: op.iottype };
+                        const faPanel = document.getElementById('faControlPanel');
+                        if(faPanel) faPanel.style.display = 'block';
+                        break;
+                    }
+                }
+            } catch(e) {
+                console.warn('Auto-select machine failed:', e);
+            }
+        }
+        
         async function scanFAMachines() {
             const btn = document.getElementById('scanBtn');
             const resDiv = document.getElementById('scanResult');
@@ -2276,9 +2361,6 @@
                 }
                 
                 if(faPanel) faPanel.style.display = 'block'; 
-                const globalToggle = document.getElementById('globalFaToggle');
-                if(globalToggle) globalToggle.checked = true; 
-                globalFaEnabled = true;
                 
                 let html = '';
                 const renderItem = (op, isFaGroup) => {
@@ -2340,7 +2422,7 @@
             } finally { 
                 if(resDiv) resDiv.classList.remove('hidden'); 
                 if(btn) {
-                    btn.innerHTML = '<i class="fas fa-qrcode"></i> Scan Machine FA'; 
+                    btn.innerHTML = '<i class="fas fa-sync"></i> Đổi máy'; 
                     btn.disabled = false;
                 }
             }
@@ -2606,9 +2688,20 @@
             
             const hasData = Object.keys(productionData).length > 0; 
             if(!hasData) { 
-                if(!confirm("CẢNH BÁO: Không có dữ liệu sản lượng!\nBạn có chắc chắn muốn gửi để XÓA dữ liệu cũ không?")) 
-                    return; 
+                showWarningModal('CẢNH BÁO',
+                    `<div style="text-align:center;padding:10px;">
+                        <i class="fas fa-exclamation-triangle" style="font-size:48px;color:#ff9800;margin-bottom:15px;"></i>
+                        <p style="font-size:15px;margin:8px 0;">Không có dữ liệu sản lượng!</p>
+                        <p style="font-size:13px;color:#888;margin-top:12px;border-top:1px solid #eee;padding-top:12px;">Bạn có chắc chắn muốn gửi để <b>XÓA</b> dữ liệu cũ không?</p>
+                    </div>`,
+                    () => showConfirmModalContinued(currentSerial)
+                );
+                return; 
             }
+            showConfirmModalContinued(currentSerial);
+        }
+        
+        function showConfirmModalContinued(currentSerial) {
             
             let sendFa = false; 
             if (hasFaOption) { 
@@ -2678,17 +2771,49 @@
             const confirmModal = document.getElementById('confirmModal');
             if(confirmModal) confirmModal.classList.remove('open'); 
         }
-
+        
+        function showWarningModal(title, message, onConfirm) {
+            document.getElementById('warningTitle').textContent = title;
+            document.getElementById('warningContent').innerHTML = message;
+            const confirmBtn = document.getElementById('warningConfirmBtn');
+            confirmBtn.onclick = function() {
+                closeWarningModal();
+                if (onConfirm) onConfirm();
+            };
+            document.getElementById('warningModal').classList.add('open');
+        }
+        
+        function closeWarningModal() {
+            document.getElementById('warningModal').classList.remove('open');
+        }
+        
         function confirmSendToMES() {
             const confirmContent = document.getElementById('confirmContent');
             const confirmFooter = document.querySelector('#confirmModal .modal-footer');
+            const pkg = allPackages.find(p => p.id === selectedPackageId);
+            const thumbUrl = pkg ? generateThumbnailUrl(pkg.id, pkg.fileName) : 'https://placehold.co/120x100?text=No+Img';
+            const totalQty = Object.values(productionData).reduce((a,b) => a+b, 0);
             if (confirmContent) {
                 confirmContent.innerHTML = `
-                    <div style="text-align:center; padding:30px 20px;">
-                        <div class="loader" style="width:48px;height:48px;border-width:4px;margin:0 auto 20px;"></div>
-                        <h3 style="color:#1e3c72; margin-bottom:12px;">Đang gửi dữ liệu...</h3>
-                        <div id="sendProgress" style="font-size:13px; color:#666;">
-                            <div style="margin-bottom:8px;"><span id="sendStepIcon">&#9679;</span> <span id="sendStepText">Khởi tạo kết nối...</span></div>
+                    <div style="padding:20px;">
+                        <div style="display:flex; gap:15px; margin-bottom:20px; background:#f5f7fa; border-radius:12px; padding:15px; align-items:center;">
+                            <img src="${thumbUrl}" style="width:80px;height:70px;border-radius:8px;object-fit:cover;border:1px solid #e0e0e0;" onerror="this.src='https://placehold.co/120x100?text=No+Img'">
+                            <div style="flex:1; min-width:0;">
+                                <div style="font-size:14px;font-weight:700;color:#1e3c72;">${selectedPackageId}</div>
+                                <div style="font-size:12px;color:#666;margin-top:4px;">${selectedStyle} | Line ${selectedLine}</div>
+                                <div style="display:flex;gap:15px;margin-top:8px;font-size:12px;color:#333;">
+                                    <span><b>Máy:</b> ${selectedMachineName}</span>
+                                    <span><b>SL:</b> ${totalQty}/${dailyTarget}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div style="margin-bottom:12px;">
+                            <div style="background:#e0e0e0;border-radius:8px;height:8px;overflow:hidden;">
+                                <div id="sendProgressBar" style="width:0%;height:100%;background:linear-gradient(90deg,#2196F3,#21CBF3);border-radius:8px;transition:width 0.4s;"></div>
+                            </div>
+                        </div>
+                        <div id="sendProgress" style="font-size:13px; color:#666; text-align:center;">
+                            <span id="sendStepText">Khởi tạo kết nối...</span>
                         </div>
                     </div>`;
             }
@@ -2697,19 +2822,17 @@
             }
             sendToMES();
         }
-
-        function updateSendProgress(text) {
+        
+        function updateSendProgress(text, percent) {
             const stepText = document.getElementById('sendStepText');
-            const stepIcon = document.getElementById('sendStepIcon');
             if (stepText) stepText.textContent = text;
-            if (stepIcon) stepIcon.innerHTML = '&#9679;';
+            const progressBar = document.getElementById('sendProgressBar');
+            if (progressBar && percent !== undefined) {
+                progressBar.style.width = percent + '%';
+            }
         }
 
         async function sendToMES() {
-            if (!isLocalhost && (!turnstileToken || Date.now() - tokenTimestamp > TOKEN_MAX_AGE)) { 
-                await refreshTurnstileToken(); 
-            }
-            
             const currentSerial = String(selectedOpserial || ''); 
             const hasData = Object.keys(productionData).length > 0;
             let sendFa = false; 
@@ -2731,7 +2854,7 @@
             try {
                 const currentTime = new Date().toLocaleString('vi-VN');
                 
-                updateSendProgress('Đang gửi sản lượng lên hệ thống...');
+                updateSendProgress('Đang gửi sản lượng lên hệ thống...', 30);
                 
                 const payload = { 
                     mxpackage: selectedPackageId, 
@@ -2739,8 +2862,6 @@
                     production_data: productionData, 
                     action: 'update' 
                 };
-                
-                if(turnstileToken && !isLocalhost) payload.cf_turnstile_response = turnstileToken;
                 
                 const prodPromise = apiFetch(API_URLS.PROD, { 
                     method: 'POST',
@@ -2750,7 +2871,7 @@
                 
                 let faPromise = Promise.resolve(null); 
                 if (sendFa) {
-                    updateSendProgress('Đang gửi lệnh FA tới máy...');
+                    updateSendProgress('Đang gửi lệnh FA tới máy...', 60);
                     faPromise = sendFaCommand(selectedPackageId, currentSerial);
                 }
                 
@@ -2762,7 +2883,8 @@
                 
                 const faSuccess = faResult.status === 'fulfilled' ? faResult.value?.success : false;
                 
-                // Close modal before showing result
+                updateSendProgress('Hoàn tất!', 100);
+                await new Promise(r => setTimeout(r, 300));
                 closeConfirmModal();
                 
                 const successAnimation = document.getElementById('successAnimation');
@@ -2878,80 +3000,28 @@
                     ${selectedPackageId}<br>
                     <small>${selectedStyle} | Target: ${dailyTarget}</small>`; 
                 if(contextLine) contextLine.innerHTML = `LINE: ${selectedLine}`; 
-                globalFaEnabled = true; 
-                const globalToggle = document.getElementById('globalFaToggle');
-                if(globalToggle) globalToggle.checked = true; 
                 updateFAStatusText(); 
-                const autoBanner = document.getElementById('autoSelectBanner');
-                if(autoBanner) autoBanner.classList.add('hidden'); 
+                autoSelectDefaultMachine();
             }
         }
         
         window.onTurnstileSuccess = function(token) {
-            turnstileToken = token; 
-            tokenTimestamp = Date.now();
-            const statusSpan = document.getElementById('turnstileStatus');
-            if(statusSpan) {
-                statusSpan.textContent = "Đã xác thực";
-                statusSpan.className = "turnstile-badge status-success";
-            }
-            const iconSpan = document.getElementById('minimizedIconChar');
-            if(iconSpan) iconSpan.textContent = "✅";
-            if (tokenRefreshResolver) { 
-                tokenRefreshResolver(true); 
-                tokenRefreshResolver = null; 
-                setTimeout(() => toggleWidgetState(true), 1000); 
-            } else { 
-                setTimeout(() => toggleWidgetState(true), 1500); 
-            }
+            turnstileToken = token;
         };
         
-        window.onTurnstileError = function() { 
-            turnstileToken = null; 
-            const iconSpan = document.getElementById('minimizedIconChar');
-            if(iconSpan) iconSpan.textContent = "⚠️"; 
+        window.onTurnstileError = function() {
+            turnstileToken = null;
         };
         
-        window.onTurnstileExpired = function() { 
-            turnstileToken = null; 
-            if (!tokenRefreshResolver) { 
-                const iconSpan = document.getElementById('minimizedIconChar');
-                if(iconSpan) iconSpan.textContent = "🔐"; 
-                toggleWidgetState(false); 
-            } 
+        window.onTurnstileExpired = function() {
+            turnstileToken = null;
         };
         
-        async function refreshTurnstileToken() { 
-            toggleWidgetState(false); 
-            const statusSpan = document.getElementById('turnstileStatus');
-            if(statusSpan) {
-                statusSpan.textContent = "Cần gia hạn";
-                statusSpan.className = "turnstile-badge status-pending";
+        function resetTurnstile() {
+            turnstileToken = null;
+            if (window.turnstile) {
+                try { window.turnstile.reset('#cf-turnstile-login'); } catch(e) {}
             }
-            if(window.turnstile) window.turnstile.reset('#cf-turnstile-widget'); 
-            await new Promise(resolve => { tokenRefreshResolver = resolve; });
-        }
-        
-        function toggleWidgetState(forceMinimize = false) {
-            const widgetEl = document.getElementById('turnstileWidget');
-            if (!widgetEl) return;
-            if (forceMinimize) widgetEl.classList.add('minimized');
-            else widgetEl.classList.toggle('minimized');
-        }
-        
-        const btnMinimize = document.getElementById('btnMinimize');
-        if (btnMinimize) {
-            btnMinimize.addEventListener('click', (e) => { 
-                e.stopPropagation(); 
-                toggleWidgetState(true); 
-            });
-        }
-        
-        const turnstileWidget = document.getElementById('turnstileWidget');
-        if (turnstileWidget) {
-            turnstileWidget.addEventListener('click', () => { 
-                if (turnstileWidget.classList.contains('minimized')) toggleWidgetState(false); 
-            });
         }
         
         document.addEventListener('keydown', function(e) {
@@ -2968,6 +3038,11 @@
             }
             
             if (document.getElementById('step1')?.classList.contains('active')) {
+                if (e.key === 'l' && e.altKey) {
+                    e.preventDefault();
+                    loadPackages();
+                    return;
+                }
                 if (e.key === 'Enter' && !isTextInput) {
                     e.preventDefault();
                     const nextBtn = document.getElementById('nextToStep2Btn');
@@ -2997,6 +3072,13 @@
                 if (confirmModal?.classList.contains('open')) {
                     e.preventDefault();
                     confirmSendToMES();
+                    return;
+                }
+                const warningModal = document.getElementById('warningModal');
+                if (warningModal?.classList.contains('open')) {
+                    e.preventDefault();
+                    const confirmBtn = document.getElementById('warningConfirmBtn');
+                    if (confirmBtn) confirmBtn.click();
                     return;
                 }
                 const step4 = document.getElementById('step4');
