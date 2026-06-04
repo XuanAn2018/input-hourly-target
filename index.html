@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>Nhập sản lượng báo cáo hàng giờ v8.4</title>
+    <title>Nhập sản lượng báo cáo hàng giờ v8.5</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
     <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
@@ -425,69 +425,26 @@
         /* ========== SEARCH & FILTER ========== */
         .filter-row { display: flex; gap: 10px; margin-bottom: 10px; flex-wrap: wrap; }
         .filter-row > div { flex: 1; min-width: 100px; }
-        .filter-row-ot {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 10px;
-        }
-        .filter-ot-btn {
-            flex: 1;
-            padding: 8px 12px;
-            border: 2px solid #ddd;
-            border-radius: 8px;
-            background: white;
-            cursor: pointer;
-            font-size: 12px;
-            font-weight: 600;
-            transition: all 0.2s;
-            text-align: center;
-        }
-        .filter-ot-btn.active {
-            background: linear-gradient(135deg, #9c27b0 0%, #e040fb 100%);
-            border-color: #9c27b0;
-            color: white;
-        }
-        .filter-ot-btn.all-ot {
-            background: #f3e5f5;
-            border-color: #ce93d8;
-            color: #7b1fa2;
-        }
-        .filter-ot-btn.all-ot.active {
-            background: linear-gradient(135deg, #7b1fa2 0%, #9c27b0 100%);
-            border-color: #7b1fa2;
-            color: white;
-        }
-        .filter-ot-btn.has-ot {
-            background: #e8f5e9;
-            border-color: #a5d6a7;
-            color: #2e7d32;
-        }
-        .filter-ot-btn.has-ot.active {
-            background: linear-gradient(135deg, #2e7d32 0%, #4caf50 100%);
-            border-color: #2e7d32;
-            color: white;
-        }
-        .filter-ot-btn.no-ot {
-            background: #ffebee;
-            border-color: #ffcdd2;
-            color: #c62828;
-        }
-        .filter-ot-btn.no-ot.active {
-            background: linear-gradient(135deg, #c62828 0%, #ef5350 100%);
-            border-color: #c62828;
-            color: white;
-        }
-        
-        .search-row { display: flex; gap: 10px; align-items: center; margin-bottom: 12px; flex-wrap: wrap; }
-        .search-box-wrapper { position: relative; flex: 2; min-width: 180px; }
-        .search-box-wrapper i { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #999; }
-        .search-input { padding-left: 36px; }
+
+        .search-row { display: flex; gap: 6px; align-items: center; margin-bottom: 12px; flex-wrap: wrap; }
+        .search-box-wrapper { position: relative; flex: 1; min-width: 120px; }
+        .search-box-wrapper i { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: #999; }
+        .search-input { padding-left: 30px; }
+        .filter-select-sm { padding: 8px 8px; border: 2px solid #ddd; border-radius: 8px; font-size: 12px; font-weight: 600; color: #555; cursor: pointer; background: white; }
+        .filter-select-ot { width: 100px; }
+        .filter-select-status { width: 110px; }
+        .btn-clear-filter { padding: 6px 10px; font-size: 12px; border-radius: 6px; cursor: pointer; background: #ffebee; border: 1px solid #ffcdd2; color: #c62828; font-weight: 600; display: inline-flex; align-items: center; gap: 4px; white-space: nowrap; }
+        .btn-clear-filter:hover { background: #ffcdd2; }
         .filter-select { padding: 10px 12px; border: 2px solid #ddd; border-radius: 8px; font-size: 13px; font-weight: bold; color: #555; cursor: pointer; background: white; }
         
         /* ========== LINE GROUP HEADER ========== */
         .line-header { background: #fff3e0; color: #e65100; padding: 6px 10px; font-weight: 800; border-left: 4px solid #ff9800; margin-top: 8px; margin-bottom: 4px; border-radius: 4px; display: flex; align-items: center; gap: 8px; font-size: 12px; }
         .line-header::before { content: ""; flex: 1; height: 1px; background: #ffe0b2; margin-right: 8px; }
         .line-header::after { content: ""; flex: 1; height: 1px; background: #ffe0b2; margin-left: 8px; }
+        .filter-summary { display: flex; gap: 20px; justify-content: center; padding: 8px 12px; margin-top: 8px; background: #f0f7ff; border: 1px solid #bbdefb; border-radius: 8px; font-size: 13px; font-weight: 600; }
+        .filter-summary span { display: inline-flex; align-items: center; gap: 4px; }
+        .filter-summary .num { color: #1565c0; font-weight: 800; }
+        .filter-summary .num-target { color: #e65100; font-weight: 800; }
         
         /* ========== PACKAGE LIST (GALLERY MODE ENHANCED) ========== */
         .package-list-container { 
@@ -504,7 +461,7 @@
         /* PACKAGE CARD - ENHANCED WITH HOVER PREVIEW */
         .package-card { 
             display: grid; 
-            grid-template-columns: 100px 1fr 150px;
+            grid-template-columns: 130px 1fr 150px;
             gap: 0;
             border: 1px solid #e0e0e0; 
             border-radius: 10px; 
@@ -540,11 +497,12 @@
         .pkg-img {
             width: 100%;
             height: 100%;
-            min-height: 100px;
+            min-height: 120px;
             object-fit: contain;
             background: #f5f5f5;
             display: block;
             transition: transform 0.2s ease;
+            padding: 4px;
         }
         .package-card:hover .pkg-img {
             transform: scale(1.02);
@@ -582,33 +540,33 @@
 
         /* CỘT 2: THÔNG TIN - MỞ RỘNG HIỂN THỊ ĐẦY ĐỦ */
         .pkg-info-col {
-            padding: 8px 12px;
+            padding: 10px 14px;
             display: flex;
             flex-direction: column;
             justify-content: center;
-            gap: 5px;
+            gap: 6px;
         }
         .pkg-id { 
             font-weight: 700; 
             color: #1565c0; 
-            font-size: 11px; 
+            font-size: 13px; 
             word-break: break-all; 
             margin-bottom: 2px;
             background: #e3f2fd;
             display: inline-block;
-            padding: 2px 6px;
+            padding: 3px 8px;
             border-radius: 4px;
             align-self: flex-start;
         }
         .pkg-style { 
-            font-weight: bold; 
-            font-size: 14px; 
+            font-weight: bold;
+            font-size: 16px; 
             color: #333; 
             line-height: 1.4;
             word-break: break-word;
         }
         .pkg-sub { 
-            font-size: 11px; 
+            font-size: 13px; 
             color: #666; 
             display: flex; 
             flex-wrap: wrap; 
@@ -617,17 +575,17 @@
         }
         .pkg-tag { 
             background: #f5f5f5; 
-            padding: 3px 8px;
-            border-radius: 12px; 
+            padding: 4px 10px;
+            border-radius: 14px; 
             border: 1px solid #eee; 
-            font-size: 10px;
+            font-size: 12px;
             font-weight: 500;
             display: inline-flex;
             align-items: center;
             gap: 4px;
         }
         .pkg-tag i {
-            font-size: 10px;
+            font-size: 11px;
         }
         .pkg-detail-expand {
             margin-top: 4px;
@@ -934,7 +892,7 @@
     <div id="mainApp" style="display: none;">
         <div class="container">
             <div class="header">
-                <h1><i class="fas fa-chart-bar"></i> Nhập sản lượng báo cáo hàng giờ v8.4</h1>
+                <h1><i class="fas fa-chart-bar"></i> Nhập sản lượng báo cáo hàng giờ v8.5</h1>
                 <button class="btn-logout" id="logoutBtn" onclick="handleLogout()">
                     <i class="fas fa-sign-out-alt"></i> Đăng xuất
                 </button>
@@ -1048,40 +1006,23 @@
                                 </div>
                             </div>
                             
-                            <div class="filter-row">
-                                <div>
-                                    <label style="font-size:11px; margin-bottom:3px"><i class="fas fa-user"></i> Buyer:</label>
-                                    <select id="buyerFilter" class="form-control filter-select" onchange="filterPackages()">
-                                        <option value="all">Tất cả</option>
-                                    </select>
-                                </div>
-                                <div>
-                                    <label style="font-size:11px; margin-bottom:3px"><i class="fas fa-chart-line"></i> Line:</label>
-                                    <select id="lineFilter" class="form-control filter-select" onchange="filterPackages()">
-                                        <option value="all">Tất cả</option>
-                                    </select>
-                                </div>
-                            </div>
-
-                            <!-- BỘ LỌC OT MỚI -->
-                            <div class="filter-row-ot">
-                                <div class="filter-ot-btn all-ot active" data-ot="all" onclick="setOTFilter('all')">
-                                    <i class="fas fa-chart-line"></i> Tất cả
-                                </div>
-                                <div class="filter-ot-btn has-ot" data-ot="has" onclick="setOTFilter('has')">
-                                    <i class="fas fa-bolt"></i> Có OT
-                                </div>
-                                <div class="filter-ot-btn no-ot" data-ot="none" onclick="setOTFilter('none')">
-                                    <i class="fas fa-ban"></i> Không OT
-                                </div>
-                            </div>
-
                             <div class="search-row">
+                                <select id="buyerFilter" class="filter-select-sm" onchange="filterPackages()" title="Buyer">
+                                    <option value="all">👤 Buyer</option>
+                                </select>
+                                <select id="lineFilter" class="filter-select-sm" onchange="filterPackages()" title="Line">
+                                    <option value="all">📈 Line</option>
+                                </select>
                                 <div class="search-box-wrapper">
                                     <i class="fas fa-search"></i>
-                                    <input type="text" id="packageSearch" class="form-control search-input" placeholder="Tìm Package, Style..." oninput="filterPackages()">
+                                    <input type="text" id="packageSearch" class="form-control search-input" placeholder="Tìm..." oninput="filterPackages()">
                                 </div>
-                                <select id="statusFilter" class="filter-select" onchange="filterPackages()" style="width: 145px;">
+                                <select id="otFilter" class="filter-select-sm filter-select-ot" onchange="setOTFilter(this.value)">
+                                    <option value="all">📊 OT</option>
+                                    <option value="has">⚡ Có OT</option>
+                                    <option value="none">🚫 Không OT</option>
+                                </select>
+                                <select id="statusFilter" class="filter-select-sm filter-select-status" onchange="filterPackages()">
                                     <option value="all">⚡ Status</option>
                                     <option value="pending">⚪ Pending</option>
                                     <option value="du">✅ Đủ</option>
@@ -1089,6 +1030,7 @@
                                     <option value="thieu">⛔ Thiếu</option>
                                     <option value="done">🟢 Done</option>
                                 </select>
+                                <button class="btn-clear-filter" onclick="clearAllFilters()"><i class="fas fa-times"></i> Xóa lọc</button>
                             </div>
                             
                             <div id="packageListContainer" class="package-list-container">
@@ -1379,7 +1321,15 @@
         
         // ========== TURNSTILE (Login only) ==========
         let turnstileToken = null;
-        let isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+        let isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || window.location.hostname === '';
+
+        // Ẩn Captcha trên localhost
+        if (isLocalhost) {
+            const wrap = document.querySelector('.auth-turnstile-wrap');
+            if (wrap) {
+                wrap.innerHTML = '<div style="padding:8px;text-align:center;font-size:12px;color:#888;"><i class="fas fa-shield-alt"></i> Bỏ qua Captcha (localhost)</div>';
+            }
+        }
 
         // ========== GLOBAL VARIABLES ==========
         let allPackages = []; 
@@ -1670,8 +1620,16 @@
         
         function setOTFilter(type) {
             currentOTFilter = type;
-            document.querySelectorAll('.filter-ot-btn').forEach(btn => btn.classList.remove('active'));
-            document.querySelector(`.filter-ot-btn[data-ot="${type}"]`).classList.add('active');
+            filterPackages();
+        }
+
+        function clearAllFilters() {
+            document.getElementById('packageSearch').value = '';
+            document.getElementById('buyerFilter').value = 'all';
+            document.getElementById('lineFilter').value = 'all';
+            document.getElementById('statusFilter').value = 'all';
+            document.getElementById('otFilter').value = 'all';
+            currentOTFilter = 'all';
             filterPackages();
         }
 
@@ -1849,15 +1807,11 @@
                         <div class="pkg-style">${p.style}</div>
                         <div class="pkg-sub">
                             <span class="pkg-tag"><i class="fas fa-industry"></i> Line ${p.line}</span>
-                            <span class="pkg-tag" style="color:#e65100; font-weight:bold"><i class="fas fa-bullseye"></i> ${p.target}</span>
+                            <span class="pkg-tag" style="color:#e65100; font-weight:800; font-size:15px"><i class="fas fa-bullseye"></i> ${p.target}</span>
                             ${p.color ? `<span class="pkg-tag"><i class="fas fa-palette"></i> ${p.color}</span>` : ''}
                             ${otIndicator}
                         </div>
-                        <div class="pkg-detail-expand">
-                            <span><i class="fas fa-tag"></i> Buyer: ${p.buyer}</span>
-                            <span><i class="fas fa-chart-line"></i> Thực tế: ${p.actual || 0}</span>
-                            <span><i class="fas fa-percent"></i> ${p.target ? Math.floor((p.actual||0)/p.target*100) : 0}%</span>
-                        </div>
+
                     </div>
 
                     <div class="pkg-status-col" id="status-${p.id}">
@@ -1868,6 +1822,19 @@
             });
             
             filteredList.forEach(p => updateCardStatus(p));
+
+            // Tổng kết sau lọc
+            const totalPackages = filteredList.length;
+            const totalTarget = filteredList.reduce((s, p) => s + (parseInt(p.target) || 0), 0);
+            const totalActual = filteredList.reduce((s, p) => s + (parseInt(p.actual) || 0), 0);
+            const summary = document.createElement('div');
+            summary.className = 'filter-summary';
+            summary.innerHTML = `
+                <span><i class="fas fa-box"></i> Gói: <span class="num">${totalPackages}</span></span>
+                <span><i class="fas fa-bullseye"></i> Target: <span class="num-target">${totalTarget.toLocaleString()}</span></span>
+                <span><i class="fas fa-chart-line"></i> Thực tế: <span class="num">${totalActual.toLocaleString()}</span></span>
+            `;
+            container.appendChild(summary);
         }
 
         function filterPackages() {
